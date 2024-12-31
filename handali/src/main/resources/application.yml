@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/handali_db?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: Hyeon01!m
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+     ddl-auto: create-drop
+  server:
+    servlet:
+      session:
+        timeout: 1h
+
+
