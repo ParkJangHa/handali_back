@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>새 글 작성</title>
+    <script>
+        function submitForm(event) {
+            event.preventDefault(); // 폼 기본 동작 중단
+
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("content").value;
+            const writer = document.getElementById("writer").value;
+
+            // JSON 데이터 생성
+            const data = JSON.stringify({
+                title: title,
+                content: content,
+                writer: writer
+            });
+
+            // Fetch API로 JSON 데이터 전송
+            fetch("/boards", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: data
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // 성공 시 목록 페이지로 이동
+                        window.location.href = "/boards";
+                    } else {
+                        return response.text().then(text => { throw new Error(text); });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error submitting form:", error);
+                    alert("Error submitting form: " + error.message);
+                });
+        }
+    </script>
+</head>
+<body>
+<h1>새 글 작성</h1>
+<form onsubmit="submitForm(event)">
+    <label for="title">제목:</label>
+    <input type="text" id="title" name="title" required><br><br>
+
+    <label for="content">내용:</label><br>
+    <textarea id="content" name="content" rows="10" cols="30" required></textarea><br><br>
+
+    <label for="writer">작성자:</label>
+    <input type="text" id="writer" name="writer" required><br><br>
+
+    <button type="submit">작성</button>
+</form>
+<a href="/boards">목록으로</a>
+</body>
+</html>
