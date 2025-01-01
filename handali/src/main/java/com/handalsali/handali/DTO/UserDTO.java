@@ -29,7 +29,6 @@ public class UserDTO {
     @Data
     @AllArgsConstructor
     public static class SignUpResponse{
-        private long userId;
         private String name;
     }
 }

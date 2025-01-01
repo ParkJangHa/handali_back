@@ -1,6 +1,7 @@
 package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.ErrorResponse;
+import com.handalsali.handali.exception.BadCredentialsException;
 import com.handalsali.handali.exception.EmailAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +31,11 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage());
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    //이메일/비밀번호 틀림
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> badCredentialsException(Exception e){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이메일 또는 비밀번호가 틀렸습니다.");
     }
 }

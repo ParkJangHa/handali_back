@@ -23,4 +23,10 @@ public class UserService {
 
         return  user;
     }
+
+    //로그인
+    public void logIn(String email,String password){
+        if(!userRepositoryInterface.findByEmail(email))
+            return 
+    }
 }
