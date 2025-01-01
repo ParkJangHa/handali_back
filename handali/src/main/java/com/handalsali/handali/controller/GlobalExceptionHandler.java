@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
 
     //jwt 토큰 유효성 검사
     @ExceptionHandler(TokenValidationException.class)
-    public ResponseEntity<String> tokenValidationException(Exception e){
-        return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("유효하지 않은 토큰입니다.");
+    public ResponseEntity<String> tokenValidationException(TokenValidationException e){
+        return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
     }
 }

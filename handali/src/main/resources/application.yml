@@ -10,10 +10,14 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
-     ddl-auto: update
+      ddl-auto: update
+
   server:
     servlet:
       session:
         timeout: 1h
 
-
+  data:
+    redis:
+      host: localhost
+      port: 6379

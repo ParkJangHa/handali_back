@@ -4,20 +4,20 @@ import com.handalsali.handali.DTO.UserDTO;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.repository.UserRepositoryInterface;
 import com.handalsali.handali.service.UserService;
+import io.jsonwebtoken.Claims;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     //회원가입
     @PostMapping("/signup")
@@ -30,8 +30,16 @@ public class UserController {
     //로그인
     @PostMapping("/login")
     public ResponseEntity<String> logIn(@RequestBody UserDTO.LogInRequest request){
-        String token=userService.logIn(request.getEmail(), request.getPassword());
-        return ResponseEntity.status(HttpStatus.OK).body(token);
+        String accessToken=userService.logIn(request.getEmail(), request.getPassword());
+        return ResponseEntity.status(HttpStatus.OK).body(accessToken);
+    }
+
+    //로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<String> logOut(@RequestHeader("Authorization") String accessToken) {
+        String token = accessToken.replace("Bearer ", "").trim();
+        userService.logOut(token);
+        return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 
 }
