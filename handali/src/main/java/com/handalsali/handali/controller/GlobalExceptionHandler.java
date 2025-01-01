@@ -1,13 +1,13 @@
 package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.ErrorResponse;
-import com.handalsali.handali.exception.BadCredentialsException;
+import com.handalsali.handali.exception.EmailOrPwNotCorrectException;
 import com.handalsali.handali.exception.EmailAlreadyExistsException;
+import com.handalsali.handali.exception.TokenValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
@@ -34,8 +34,14 @@ public class GlobalExceptionHandler {
     }
 
     //이메일/비밀번호 틀림
-    @ExceptionHandler(BadCredentialsException.class)
+    @ExceptionHandler(EmailOrPwNotCorrectException.class)
     public ResponseEntity<String> badCredentialsException(Exception e){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이메일 또는 비밀번호가 틀렸습니다.");
+    }
+
+    //jwt 토큰 유효성 검사
+    @ExceptionHandler(TokenValidationException.class)
+    public ResponseEntity<String> tokenValidationException(Exception e){
+        return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("유효하지 않은 토큰입니다.");
     }
 }

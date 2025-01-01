@@ -19,12 +19,19 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
+    //회원가입
     @PostMapping("/signup")
     public ResponseEntity<UserDTO.SignUpResponse> signUp(@Validated @RequestBody UserDTO.SignUpRequest request){
         User user = userService.signUp(request.getName(), request.getEmail(), request.getPassword(), request.getPhone(), request.getBirthday());
         UserDTO.SignUpResponse response = new UserDTO.SignUpResponse(user.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    //로그인
+    @PostMapping("/login")
+    public ResponseEntity<String> logIn(@RequestBody UserDTO.LogInRequest request){
+        String token=userService.logIn(request.getEmail(), request.getPassword());
+        return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
 }
