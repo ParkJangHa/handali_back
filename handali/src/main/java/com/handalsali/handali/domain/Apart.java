@@ -1,6 +1,6 @@
 package com.handalsali.handali.domain;
 
-import com.handalsali.handali.Enums_MultyKey.ApartId;
+import com.handalsali.handali.enums_multyKey.ApartId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Apart {
     //복합키
     @EmbeddedId
-    ApartId apart_id;
+    ApartId apartId;
 
     @ManyToOne
     @JoinColumn(name="user_id",

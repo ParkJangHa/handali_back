@@ -15,16 +15,23 @@ import java.sql.Date;
 public class Record {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long record_id;
+    @Column(name="record_id")
+    private long recordId;
 
+//    @ManyToOne
+//    @JoinColumn(name="user_id",
+//            foreignKey = @ForeignKey (
+//            name="fk_record_user"))
     @ManyToOne
     @JoinColumn(name="user_id",
-            foreignKey = @ForeignKey (foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE"))
+            foreignKey = @ForeignKey (foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE",
+                    name="fk_record_user"))
     private User user;
 
     @ManyToOne
     @JoinColumn(name="habit_id",
-            foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (habit_id) REFERENCES habit(habit_id) ON DELETE CASCADE ON UPDATE CASCADE"))
+            foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (habit_id) REFERENCES habit(habit_id) ON DELETE CASCADE ON UPDATE CASCADE",
+            name="fk_record_habit"))
     private Habit habit;
 
     @Column(nullable = false)

@@ -1,7 +1,7 @@
 package com.handalsali.handali.domain;
 
-import com.handalsali.handali.Enums_MultyKey.Categoryname;
-import com.handalsali.handali.Enums_MultyKey.CreatedType;
+import com.handalsali.handali.enums_multyKey.Categoryname;
+import com.handalsali.handali.enums_multyKey.CreatedType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,18 +15,19 @@ import java.time.LocalDate;
 public class Habit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long habit_id;
+    @Column(name="habit_id")
+    private long habitId;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name="category_name")
     @Enumerated(EnumType.STRING)
-    private Categoryname category_name;
+    private Categoryname categoryName;
 
-    @Column(nullable = false)
-    private String detailed_habit_name;
+    @Column(nullable = false,name="detailed_habit_name")
+    private String detailedHabitName;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name="created_type")
     @Enumerated(EnumType.STRING)
-    private CreatedType created_type;
+    private CreatedType createdType;
 
     @Column(nullable = false)
     private LocalDate month;
@@ -37,10 +38,10 @@ public class Habit {
         this.month=LocalDate.now();
     }
 
-    public Habit(Categoryname category_name,String detailed_habit_name,CreatedType created_type){
-        this.category_name=category_name;
-        this.detailed_habit_name=detailed_habit_name;
-        this.created_type=created_type;
+    public Habit(Categoryname categoryName,String detailedHabit_name,CreatedType createdType){
+        this.categoryName=categoryName;
+        this.detailedHabitName=detailedHabitName;
+        this.createdType=createdType;
 
 //        //add
 //        this.month=LocalDate.now();

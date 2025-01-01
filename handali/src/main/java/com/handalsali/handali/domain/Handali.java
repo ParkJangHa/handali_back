@@ -14,12 +14,13 @@ public class Handali {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long handali_id;
+    @Column(name="handali_id")
+    private long handaliId;
 
     @Column(nullable = false)
     private String nickname;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name="start_date")
     private Date startDate;
 
     @ManyToOne

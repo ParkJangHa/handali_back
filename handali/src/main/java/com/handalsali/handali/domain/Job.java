@@ -12,19 +12,20 @@ import java.util.List;
 public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long job_id;
+    @Column(name="job_id")
+    private long jobId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private int week_salary;
+    @Column(nullable = false,name="week_salary")
+    private int weekSalary;
 
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
     private List<JobStat> jobStats;
 
-    public Job(String name, int week_salary){
+    public Job(String name, int weekSalary){
         this.name=name;
-        this.week_salary=week_salary;
+        this.weekSalary=weekSalary;
     }
 }

@@ -1,6 +1,6 @@
 package com.handalsali.handali.domain;
 
-import com.handalsali.handali.Enums_MultyKey.TypeName;
+import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,11 +14,12 @@ import java.util.List;
 public class Stat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long stat_id;
+    @Column(name="stat_id")
+    private long statId;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name="type_name")
     @Enumerated(EnumType.STRING)
-    private TypeName type_name;
+    private TypeName typeName;
 
     @Column(nullable = false)
     @ColumnDefault("0")
@@ -27,8 +28,8 @@ public class Stat {
     @OneToMany(mappedBy = "stat", cascade = CascadeType.ALL)
     private List<JobStat> jobStats; // Job-Stat 관계
 
-    public Stat(TypeName type_name, float value){
-        this.type_name=type_name;
+    public Stat(TypeName typeName, float value){
+        this.typeName=typeName;
         this.value=value;
     }
 }

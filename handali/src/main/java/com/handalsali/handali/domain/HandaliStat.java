@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
+@Table(name="handali_stat")
 public class HandaliStat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long handali_stat_id;
+    @Column(name="handali_stat_id")
+    private Long HandaliStatId;
 
     @ManyToOne
     @JoinColumn(name = "handali_id", nullable = false)
