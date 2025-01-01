@@ -8,6 +8,7 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,7 +21,7 @@ public class UserController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<UserDTO.SignUpResponse> signUp(@RequestBody UserDTO.SignUpRequest request){
+    public ResponseEntity<UserDTO.SignUpResponse> signUp(@Validated @RequestBody UserDTO.SignUpRequest request){
         User user = userService.signUp(request.getName(), request.getEmail(), request.getPassword(), request.getPhone(), request.getBirthday());
         UserDTO.SignUpResponse response = new UserDTO.SignUpResponse(user.getUserId(),user.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
