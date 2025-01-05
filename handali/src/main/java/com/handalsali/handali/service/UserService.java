@@ -52,7 +52,7 @@ public class UserService {
     public void logOut(String accessToken) {
         String email = tokenToEmail(accessToken);
         refreshTokenService.deleteRefreshToken(email);
-
+        
     }
 
     //토큰으로 이메일 찾기

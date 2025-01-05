@@ -32,18 +32,11 @@ public class Habit {
     @Column(nullable = false)
     private LocalDate month;
 
-    //이전에 저장하다. 데이터베이스에 저장하기 전에 현재 시간을 계산하는 로직을 추가
-    @PrePersist
-    protected void onCreate(){
-        this.month=LocalDate.now();
-    }
 
-    public Habit(Categoryname categoryName,String detailedHabit_name,CreatedType createdType){
+    public Habit(Categoryname categoryName,String detailedHabit_name,CreatedType createdType, LocalDate month){
         this.categoryName=categoryName;
         this.detailedHabitName=detailedHabitName;
         this.createdType=createdType;
-
-//        //add
-//        this.month=LocalDate.now();
+        this.month=month;
     }
 }
