@@ -40,7 +40,7 @@ public class UserService {
             throw new EmailOrPwNotCorrectException();
 
         // Access Token 및 Refresh Token 생성
-        String accessToken = jwtUtil.generateToken(email);
+        String accessToken = jwtUtil.generateToken(email,user.getUserId());
         String refreshToken = jwtUtil.generateRefreshToken(email);
 
         // Refresh Token 저장
@@ -59,5 +59,10 @@ public class UserService {
     public String tokenToEmail(String accessToken){
         // 토큰에서 이메일 추출
         return jwtUtil.validateToken(accessToken).getSubject();
+    }
+
+    //토큰으로 사용자 아이디 찾기
+    public long tokenToUserId(String accessToken){
+        return jwtUtil.extractUserId(accessToken);
     }
 }
