@@ -3,39 +3,38 @@ package com.handalsali.handali.service;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.exception.EmailOrPwNotCorrectException;
 import com.handalsali.handali.exception.EmailAlreadyExistsException;
-import com.handalsali.handali.exception.TokenValidationException;
-import com.handalsali.handali.repository.UserRepositoryInterface;
-import io.jsonwebtoken.Claims;
+import com.handalsali.handali.exception.UserNotFoundException;
+import com.handalsali.handali.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 
 @Service
 public class UserService {
-    private final UserRepositoryInterface userRepositoryInterface;
+    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
 
-    public UserService(UserRepositoryInterface userRepositoryInterface, JwtUtil jwtUtil, RefreshTokenService refreshTokenService) {
-        this.userRepositoryInterface = userRepositoryInterface;
+    public UserService(UserRepository userRepository, JwtUtil jwtUtil, RefreshTokenService refreshTokenService) {
+        this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.refreshTokenService = refreshTokenService;
     }
 
     //feat: 회원가입
     public User signUp(String name, String email, String password, String phone, Date birthday){
-        if(userRepositoryInterface.existsByEmail(email)){
+        if(userRepository.existsByEmail(email)){
             throw new EmailAlreadyExistsException();
         }
         User user = new User(email,name,password,phone,birthday);
-        userRepositoryInterface.save(user);
+        userRepository.save(user);
 
         return  user;
     }
 
     //feat: 로그인
     public String logIn(String email,String password){
-        User user=userRepositoryInterface.findByEmail(email);
+        User user= userRepository.findByEmail(email);
         if(user==null || !user.checkPassword(password))
             throw new EmailOrPwNotCorrectException();
 
@@ -61,8 +60,16 @@ public class UserService {
         return jwtUtil.validateToken(accessToken).getSubject();
     }
 
-    //토큰으로 사용자 아이디 찾기
-    public long tokenToUserId(String accessToken){
-        return jwtUtil.extractUserId(accessToken);
+    //아이디로 사용자 찾기
+    public User userIdToUser(long userId){
+        User user= userRepository.findByUserId(userId).orElseThrow(()-> new UserNotFoundException());
+        return user;
     }
+
+    //토큰으로 사용자 찾기
+    public User tokenToUser(String accessToken) {
+        long userId=jwtUtil.extractUserId(accessToken);
+        return userIdToUser(userId);
+    }
+
 }

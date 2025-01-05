@@ -5,12 +5,14 @@ import com.handalsali.handali.enums_multyKey.CreatedType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @NoArgsConstructor
 @Entity
 @Getter
+@Setter
 @Table(name="habit")
 public class Habit {
     @Id
@@ -29,14 +31,11 @@ public class Habit {
     @Enumerated(EnumType.STRING)
     private CreatedType createdType;
 
-    @Column(nullable = false)
-    private LocalDate month;
 
 
-    public Habit(Categoryname categoryName,String detailedHabit_name,CreatedType createdType, LocalDate month){
+    public Habit(Categoryname categoryName,String detailedHabitName,CreatedType createdType){
         this.categoryName=categoryName;
         this.detailedHabitName=detailedHabitName;
         this.createdType=createdType;
-        this.month=month;
     }
 }
