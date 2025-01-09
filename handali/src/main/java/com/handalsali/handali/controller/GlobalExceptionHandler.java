@@ -1,9 +1,7 @@
 package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.ErrorResponse;
-import com.handalsali.handali.exception.EmailOrPwNotCorrectException;
-import com.handalsali.handali.exception.EmailAlreadyExistsException;
-import com.handalsali.handali.exception.TokenValidationException;
+import com.handalsali.handali.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -43,5 +41,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TokenValidationException.class)
     public ResponseEntity<String> tokenValidationException(TokenValidationException e){
         return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
+    }
+
+    //사용자 유무 확인
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> userNotFoundException(Exception e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당하는 사용자가 없습니다.");
+    }
+
+    //빈칸 불가
+    @ExceptionHandler(NoBlankException.class)
+    public ResponseEntity<String> noBlankException(NoBlankException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }

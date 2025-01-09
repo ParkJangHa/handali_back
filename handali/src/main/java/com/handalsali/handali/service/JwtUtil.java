@@ -21,10 +21,11 @@ public class JwtUtil {
     private String secretKey;
 
     // Access Token 생성
-    public String generateToken(String email) {
+    public String generateToken(String email, long userId) {
         long expirationTime = 1000 * 60 * 15; // 15분
         return Jwts.builder()
-                .setSubject(email) // 사용자 정보
+                .setSubject(email)
+                .claim("userId", userId)
                 .setIssuedAt(new java.util.Date()) // 발행 시간
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime)) // 만료 시간
                 .signWith(SignatureAlgorithm.HS256, secretKey) // 서명 알고리즘과 키
@@ -61,5 +62,11 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) {
             throw new TokenValidationException("Token claims string is empty", e);
         }
+    }
+
+    //토큰으로 userId 찾기
+    public long extractUserId(String token) {
+        Claims claims = validateToken(token);
+        return claims.get("userId", Long.class);
     }
 }
