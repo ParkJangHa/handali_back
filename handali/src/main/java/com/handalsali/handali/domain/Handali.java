@@ -39,4 +39,10 @@ public class Handali {
             @JoinColumn(name = "floor", referencedColumnName = "floor")
     })
     private Apart apart;
+
+    public Handali(String nickname,Date startDate,User user){
+        this.nickname=nickname;
+        this.startDate=startDate;
+        this.user=user;
+    }
 }
