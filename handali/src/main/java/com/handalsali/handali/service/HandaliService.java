@@ -22,8 +22,8 @@ public class HandaliService {
     //한달이 생성
     public Handali handaliCreate(String token,String nickname){
         User user=userService.tokenToUser(token);
-        return new Handali(nickname, LocalDate.now(),user);
+        Handali handali=new Handali(nickname, LocalDate.now(),user);
+        handaliRepository.save(handali);
+        return handali;
     }
-
-
 }
