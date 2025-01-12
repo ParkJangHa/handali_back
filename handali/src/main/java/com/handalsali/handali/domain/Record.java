@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,10 +19,6 @@ public class Record {
     @Column(name="record_id")
     private long recordId;
 
-//    @ManyToOne
-//    @JoinColumn(name="user_id",
-//            foreignKey = @ForeignKey (
-//            name="fk_record_user"))
     @ManyToOne
     @JoinColumn(name="user_id",
             foreignKey = @ForeignKey (foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE",
@@ -41,5 +38,13 @@ public class Record {
     private int satisfaction;
 
     @Column(nullable = false)
-    private Date date;
+    private LocalDate date;
+
+    public Record(User user, Habit habit, float time, int satisfaction, LocalDate date){
+        this.user=user;
+        this.habit=habit;
+        this.time=time;
+        this.satisfaction=satisfaction;
+        this.date=date;
+    }
 }
