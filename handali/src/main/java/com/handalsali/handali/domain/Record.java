@@ -12,7 +12,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Entity
 @Getter
-@Table(name="record")
+@Table(name="record",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"habit_id", "date"})})
 public class Record {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
