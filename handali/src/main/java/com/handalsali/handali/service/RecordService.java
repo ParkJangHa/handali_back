@@ -4,6 +4,7 @@ import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.domain.Record;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.enums_multyKey.Categoryname;
+import com.handalsali.handali.exception.HabitNotExistsException;
 import com.handalsali.handali.exception.TodayHabitAlreadyRecordException;
 import com.handalsali.handali.repository.RecordRepository;
 import org.springframework.stereotype.Service;
@@ -30,8 +31,9 @@ public class RecordService {
         //1. 사용자 확인
         User user=userService.tokenToUser(token);
         //2. 습관 아이디 확인
-        Habit habit=habitService.findByCategoryAndDetailedHabitName(categoryName,detailedHabitName).
-                orElseThrow(() -> new IllegalArgumentException("습관이 존재하지 않습니다."));
+        Habit habit;
+        habit = habitService.findByCategoryAndDetailedHabitName(categoryName,detailedHabitName).
+                orElseThrow(HabitNotExistsException::new);
         //3. 습관 아이디&날짜 -> 하나의 습관은 하루에 한번만 기록 가능
         if (recordRepository.existsByHabitAndDate(habit, date)) {
             throw new TodayHabitAlreadyRecordException(
