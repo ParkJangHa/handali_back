@@ -54,4 +54,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> noBlankException(NoBlankException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    //한달에 한달이 한마리 초과 불가
+    @ExceptionHandler(HanCreationLimitException.class)
+    public ResponseEntity<String> hanCreationLimitException(Exception e){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("한달에 한 마리만 생성 가능합니다.");
+    }
 }
