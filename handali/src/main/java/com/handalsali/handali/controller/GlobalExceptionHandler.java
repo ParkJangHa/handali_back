@@ -60,4 +60,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> todayHabitAlreadyRecordException(TodayHabitAlreadyRecordException e){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
+
+    //카테고리와 세부습관에 해당하는 습관이 없을 때
+    @ExceptionHandler(HabitNotExistsException.class)
+    public ResponseEntity<String> habitNotExistsException(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 카테고리의 세부습관이 없습니다.");
+    }
 }
