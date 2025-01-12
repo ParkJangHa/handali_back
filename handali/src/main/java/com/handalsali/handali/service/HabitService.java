@@ -1,5 +1,6 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.DTO.HabitDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.domain.UserHabit;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional
@@ -49,4 +51,34 @@ public class HabitService {
 
         return habit;
     }
+
+
+    // [개발자와 사용자가 설정한 습관 조회]
+    public List<Habit> getHabitsByToken(String token, String category_type, String category) {
+        // Token을 이용해 사용자 정보 조회
+        User user = userService.tokenToUser(token);
+
+        // String 타입의 category_type과 category를 각각 Enum으로 변환
+        CreatedType createdTypeEnum = CreatedType.valueOf(category_type);
+        Categoryname categoryNameEnum = Categoryname.valueOf(category);
+
+        // 해당 사용자의 습관 조회
+        return habitRepository.findByUserIdAndCategoryTypeAndCategory(user.getUserId(), createdTypeEnum, categoryNameEnum);
+    }
+
+    // [카테고리별 습관 조회]
+    public List<HabitDTO.HabitByCategoryResponse> getHabitsByUserCategoryAndMonthByToken(String token, CreatedType createdType, Categoryname category, int month) {
+        // Token을 이용해 사용자 정보 조회
+        User user = userService.tokenToUser(token);
+
+        // 해당 사용자의 카테고리별 습관 조회
+        return habitRepository.findByUserCategoryAndMonth(user.getUserId(), createdType, category, month)
+                .stream()
+                .map(habit -> new HabitDTO.HabitByCategoryResponse(
+                        habit.getHabitId(),
+                        habit.getDetailedHabitName()
+                ))
+                .toList();
+    }
+
 }
