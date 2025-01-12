@@ -9,7 +9,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@NoArgsConstructor
 @Entity
 @Getter
 @Setter
@@ -19,6 +18,7 @@ public class Habit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="habit_id")
     private long habitId;
+
 
     @Column(nullable = false,name="category_name")
     @Enumerated(EnumType.STRING)
@@ -31,11 +31,17 @@ public class Habit {
     @Enumerated(EnumType.STRING)
     private CreatedType createdType;
 
+    @Column(nullable = false)
+    private int month; // 기본값 설정
 
+    public Habit() {
+        this.month = LocalDate.now().getMonthValue(); // 기본값을 현재 월로 설정
+    }
 
     public Habit(Categoryname categoryName,String detailedHabitName,CreatedType createdType){
         this.categoryName=categoryName;
         this.detailedHabitName=detailedHabitName;
         this.createdType=createdType;
+        this.month = LocalDate.now().getMonthValue(); // 현재 월을 기본값으로 설정
     }
 }
