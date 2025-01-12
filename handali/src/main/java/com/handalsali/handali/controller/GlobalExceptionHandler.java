@@ -14,7 +14,7 @@ import java.util.Map;
 //애플리케이션 전반에서 발생하는 예외를 하나의 클래스에서 처리할 수 있도록
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    //이메일 중복 처리
+    //이메일 중복 불가
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> EmailAlreadyExistsException(Exception e){
         ErrorResponse errorResponse=new ErrorResponse("중복된 이메일 입니다.",HttpStatus.CONFLICT.value());
@@ -49,9 +49,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당하는 사용자가 없습니다.");
     }
 
-    //빈칸 불가
+    //입력 데이터 받을 때, 빈칸 불가
     @ExceptionHandler(NoBlankException.class)
     public ResponseEntity<String> noBlankException(NoBlankException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    //하루에 같은 습관은 하나만 기록 가능
+    @ExceptionHandler(TodayHabitAlreadyRecordException.class)
+    public ResponseEntity<String> todayHabitAlreadyRecordException(TodayHabitAlreadyRecordException e){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 }
