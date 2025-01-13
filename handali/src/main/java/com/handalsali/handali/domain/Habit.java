@@ -31,7 +31,7 @@ public class Habit {
     @Enumerated(EnumType.STRING)
     private CreatedType createdType;
 
-
+    private Long userId;
 
     public Habit(Categoryname categoryName,String detailedHabitName,CreatedType createdType){
         this.categoryName=categoryName;
