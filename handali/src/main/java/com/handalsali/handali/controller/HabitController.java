@@ -3,14 +3,12 @@ package com.handalsali.handali.controller;
 import com.handalsali.handali.DTO.HabitDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.CreatedType;
 import com.handalsali.handali.exception.NoBlankException;
 import com.handalsali.handali.service.HabitService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -48,34 +46,42 @@ public class HabitController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    //[습관 조회]
-    @GetMapping("/habits")
-    public HabitDTO.getHabitsApiResponse getHabits(
+    //[카테고리, 사용자에 따른 습관 조회]
+    @GetMapping("/category-user")
+    public ResponseEntity<HabitDTO.getHabitsApiResponse> getHabitsByUser(
             @RequestHeader("Authorization") String accessToken,
-            @RequestParam String created_type,
             @RequestParam String category) {
 
         String token = baseController.extraToken(accessToken);
 
-        return habitService.getUserHabits(token,created_type,category);
+        HabitDTO.getHabitsApiResponse response=habitService.getHabitsByUser(token,category);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    //카테고리별 습관 추가
-    @GetMapping("/{user_id}/{created_type}/{category}/{month}")
-    public ResponseEntity<?> getHabitsByUserCategoryAndMonth(
-            @PathVariable Long user_id,
-            @PathVariable CreatedType created_type,
-            @PathVariable Categoryname category,
-            @PathVariable int month) {
+    //[카테고리, 개발자에 따른 습관 조회]
+    @GetMapping("/category-dev")
+    public ResponseEntity<HabitDTO.getHabitsApiResponse> getHabitsByDev(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestParam String category){
 
-        // 서비스 호출
-        List<Map<String, Object>> habits = habitService.getHabitsByUserCategoryAndMonth(user_id, created_type, category, month);
+        String token = baseController.extraToken(accessToken);
 
-        // 응답 데이터 구성
-        return ResponseEntity.ok(Map.of(
-                "user_id", user_id,
-                "category", category.name(),
-                "habits", habits
-        ));
+        HabitDTO.getHabitsApiResponse response=habitService.getHabitsByDev(token,category);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
+    //[카테고리,달에 따른 습관 조회]
+    @GetMapping("/category-month")
+    public ResponseEntity<Map<String, Object>> getHabitsByUserAndCategoryAndMonth(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestParam Categoryname category,
+            @RequestParam int month) {
+
+        String token = baseController.extraToken(accessToken);
+
+        Map<String, Object> habits = habitService.getHabitsByUserAndCategoryAndMonth(token,category,month);
+
+        return ResponseEntity.status(HttpStatus.OK).body(habits);
     }
 }

@@ -12,7 +12,6 @@ import com.handalsali.handali.repository.UserHabitRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -57,43 +56,71 @@ public class HabitService {
         return habit;
     }
 
-    //[개발자, 사용자 별 습관 조회]
-    public HabitDTO.getHabitsApiResponse getUserHabits(String token, String created_type, String category) {
+    //[사용자, 카테고리별 습관 조회]
+    public HabitDTO.getHabitsApiResponse getHabitsByUser(String token,String category) {
         User user = userService.tokenToUser(token);
-        // String 타입의 category_type과 category를 각각 Enum으로 변환
+
         try{
-            CreatedType createdTypeEnum = CreatedType.valueOf(created_type);
             Categoryname categoryNameEnum = Categoryname.valueOf(category);
 
-            List<Habit> habits = habitRepository.findByUserAndCreatedTypeAndCategory(user,createdTypeEnum,categoryNameEnum);
-            // 변환 로직: List<Habit> -> getHabitsApiResponse
-            HabitDTO.getHabitsApiResponse response = new HabitDTO.getHabitsApiResponse();
-            response.setCategory(category);
+            List<Habit> habits = habitRepository.findByUserAndCreatedTypeAndCategory(user,CreatedType.USER,categoryNameEnum);
+            return mapToHabitsApiResponse(category, habits);
 
-            List<HabitDTO.getHabitResponse> habitResponses = habits.stream()
-                    .map(habit -> {
-                        HabitDTO.getHabitResponse habitResponse = new HabitDTO.getHabitResponse();
-                        habitResponse.setDetail(habit.getDetailedHabitName());
-                        return habitResponse;
-                    })
-                    .toList();
-
-            response.setHabits(habitResponses);
-            return response;
         } catch (IllegalArgumentException e){
             throw new CreatedTypeOrCategoryNameWrongException();
         }
     }
 
+    //[개발자, 카테고리별 습관 조회]
+    public HabitDTO.getHabitsApiResponse getHabitsByDev(String token,String category){
+        User user=userService.tokenToUser(token);
 
-    //카테고리별 습관 추가
-    public List<Map<String, Object>> getHabitsByUserCategoryAndMonth(Long user_id, CreatedType createdType, Categoryname category, int month) {
-        return habitRepository.findByUserCategoryAndMonth(user_id, createdType, category, month)
-                .stream()
+        try {
+            Categoryname categoryNameEnum = Categoryname.valueOf(category);
+
+            List<Habit> habits = habitRepository.findByCreatedTypeAndCategoryName(CreatedType.DEVELOPER, categoryNameEnum);
+            return mapToHabitsApiResponse(category, habits);
+
+        } catch (IllegalArgumentException e) {
+            throw new CreatedTypeOrCategoryNameWrongException();
+        }
+    }
+
+    //습관 조회 응답 형식
+    private HabitDTO.getHabitsApiResponse mapToHabitsApiResponse(String category, List<Habit> habits) {
+        HabitDTO.getHabitsApiResponse response = new HabitDTO.getHabitsApiResponse();
+        response.setCategory(category);
+
+        List<HabitDTO.getHabitResponse> habitResponses = habits.stream()
+                .map(habit -> {
+                    HabitDTO.getHabitResponse habitResponse = new HabitDTO.getHabitResponse();
+                    habitResponse.setDetail(habit.getDetailedHabitName());
+                    return habitResponse;
+                })
+                .toList();
+
+        response.setHabits(habitResponses);
+        return response;
+    }
+
+
+
+    //[달, 카테고리별 습관 조회]
+    public Map<String,Object> getHabitsByUserAndCategoryAndMonth(String token, Categoryname category, int month) {
+        User user = userService.tokenToUser(token);
+
+        List<Habit> habits=habitRepository.findByUserAndCategoryAndMonth(user,category,month);
+
+        List<Map<String, Object>> habitsResponse = habits.stream()
                 .map(habit -> Map.of(
                         "habit_id", (Object) habit.getHabitId(),
-                        "detailed_habit_name", (Object) habit.getDetailedHabitName()
+                        "detail", habit.getDetailedHabitName()
                 ))
                 .toList();
+
+        return Map.of(
+                "category",category.name(),
+                "habits",habitsResponse
+        );
     }
 }
