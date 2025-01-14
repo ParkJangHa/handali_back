@@ -64,15 +64,15 @@ public class GlobalExceptionHandler {
 
     //카테고리와 세부습관에 해당하는 습관이 없을 때
     @ExceptionHandler(HabitNotExistsException.class)
-    public ResponseEntity<String> habitNotExistsException(){
+    public ResponseEntity<String> habitNotExistsException() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 카테고리의 세부습관이 없습니다.");
 
-
+    }
     //한달에 한달이 한마리 초과 불가
     @ExceptionHandler(HanCreationLimitException.class)
     public ResponseEntity<String> hanCreationLimitException(Exception e){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("한달에 한 마리만 생성 가능합니다.");
-
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("한달에 한 마리만 생성 가능합니다.");
+        }
     //카테고리명, 생성자명이 enum에 정의해둔 값과 다를 때
     @ExceptionHandler(CreatedTypeOrCategoryNameWrongException.class)
     public ResponseEntity<String> createdTypeOrCategoryNameWrongException(Exception e){
