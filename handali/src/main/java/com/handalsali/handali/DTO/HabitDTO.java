@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.util.List;
 
+
 public class HabitDTO {
     @Data
     @AllArgsConstructor
@@ -64,5 +65,15 @@ public class HabitDTO {
             private Long id;
             private String detail;
         }
+    }
+
+    @Data
+    public static class getHabitsApiResponse{
+        private String category;
+        private List<getHabitResponse> habits;
+    }
+    @Data
+    public static class getHabitResponse{
+        private String detail;
     }
 }
