@@ -48,20 +48,16 @@ public class HabitController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    //습관 조회 추가
-    @GetMapping("/{user_id}/{category_type}/{category}")
-    public ResponseEntity<?> getHabits(
-            @PathVariable Long user_id,
-            @PathVariable CreatedType category_type,
-            @PathVariable Categoryname category) {
-        // Service에서 user_id, category_type, category를 전달하여 조회
-        List<Habit> habits = habitService.getUserHabits(user_id, category_type.name(), category.name());
-        // 응답 형식 구성
-        return ResponseEntity.ok(Map.of(
-                "user_id", user_id,
-                "category", category.name(),
-                "habits", habits
-        ));
+    //[습관 조회]
+    @GetMapping("/habits")
+    public HabitDTO.getHabitsApiResponse getHabits(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestParam String created_type,
+            @RequestParam String category) {
+
+        String token = baseController.extraToken(accessToken);
+
+        return habitService.getUserHabits(token,created_type,category);
     }
 
     //카테고리별 습관 추가

@@ -1,10 +1,12 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.DTO.HabitDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.domain.UserHabit;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.enums_multyKey.CreatedType;
+import com.handalsali.handali.exception.CreatedTypeOrCategoryNameWrongException;
 import com.handalsali.handali.repository.HabitRepository;
 import com.handalsali.handali.repository.UserHabitRepository;
 import org.springframework.stereotype.Service;
@@ -55,18 +57,33 @@ public class HabitService {
         return habit;
     }
 
-    //습관 조회 추가
-    public List<Habit> getUserHabits(Long user_id, String category_type, String category) {
+    //[개발자, 사용자 별 습관 조회]
+    public HabitDTO.getHabitsApiResponse getUserHabits(String token, String created_type, String category) {
+        User user = userService.tokenToUser(token);
         // String 타입의 category_type과 category를 각각 Enum으로 변환
-        CreatedType createdTypeEnum = CreatedType.valueOf(category_type);
-        Categoryname categoryNameEnum = Categoryname.valueOf(category);
+        try{
+            CreatedType createdTypeEnum = CreatedType.valueOf(created_type);
+            Categoryname categoryNameEnum = Categoryname.valueOf(category);
 
-        List<Habit> habits = habitRepository.findByUserIdAndCategoryTypeAndCategory(user_id, createdTypeEnum, categoryNameEnum);
-        System.out.println("Fetched Habits: " + habits);
-        return habits;
+            List<Habit> habits = habitRepository.findByUserAndCreatedTypeAndCategory(user,createdTypeEnum,categoryNameEnum);
+            // 변환 로직: List<Habit> -> getHabitsApiResponse
+            HabitDTO.getHabitsApiResponse response = new HabitDTO.getHabitsApiResponse();
+            response.setCategory(category);
+
+            List<HabitDTO.getHabitResponse> habitResponses = habits.stream()
+                    .map(habit -> {
+                        HabitDTO.getHabitResponse habitResponse = new HabitDTO.getHabitResponse();
+                        habitResponse.setDetail(habit.getDetailedHabitName());
+                        return habitResponse;
+                    })
+                    .toList();
+
+            response.setHabits(habitResponses);
+            return response;
+        } catch (IllegalArgumentException e){
+            throw new CreatedTypeOrCategoryNameWrongException();
+        }
     }
-    //String은 자유로운 값 입력 가능, Enum은 정해진 값만 허용
-    //따라서 코드 안정성, 가독성, 유지보수성 향상
 
 
     //카테고리별 습관 추가

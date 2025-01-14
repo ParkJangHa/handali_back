@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 
 public class HabitDTO {
     @Data
@@ -32,5 +34,15 @@ public class HabitDTO {
         @NotBlank(message = "생성자를 입력해주세요.")
         private CreatedType created_type;
 
+    }
+
+    @Data
+    public static class getHabitsApiResponse{
+        private String category;
+        private List<getHabitResponse> habits;
+    }
+    @Data
+    public static class getHabitResponse{
+        private String detail;
     }
 }
