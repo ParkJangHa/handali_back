@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class Handali {
     private String nickname;
 
     @Column(nullable = false,name="start_date")
-    private Date startDate;
+    private LocalDate startDate;
 
     @ManyToOne
     @JoinColumn(name="user_id",
@@ -39,4 +40,10 @@ public class Handali {
             @JoinColumn(name = "floor", referencedColumnName = "floor")
     })
     private Apart apart;
+
+    public Handali(String nickname,LocalDate startDate,User user){
+        this.nickname=nickname;
+        this.startDate=startDate;
+        this.user=user;
+    }
 }

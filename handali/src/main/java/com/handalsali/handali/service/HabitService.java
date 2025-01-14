@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+
 @Service
 @Transactional
 public class HabitService {
@@ -55,6 +56,7 @@ public class HabitService {
 
         return habit;
     }
+
 
     //[사용자, 카테고리별 습관 조회]
     public HabitDTO.getHabitsApiResponse getHabitsByUser(String token,String category) {
@@ -123,4 +125,5 @@ public class HabitService {
                 "habits",habitsResponse
         );
     }
+
 }

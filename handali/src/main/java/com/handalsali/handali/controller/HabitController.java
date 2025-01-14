@@ -3,13 +3,17 @@ package com.handalsali.handali.controller;
 import com.handalsali.handali.DTO.HabitDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.enums_multyKey.Categoryname;
+import com.handalsali.handali.enums_multyKey.CreatedType;
 import com.handalsali.handali.exception.NoBlankException;
 import com.handalsali.handali.service.HabitService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/habits")
@@ -46,6 +50,7 @@ public class HabitController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+
     //[카테고리, 사용자에 따른 습관 조회]
     @GetMapping("/category-user")
     public ResponseEntity<HabitDTO.getHabitsApiResponse> getHabitsByUser(
@@ -75,13 +80,13 @@ public class HabitController {
     @GetMapping("/category-month")
     public ResponseEntity<Map<String, Object>> getHabitsByUserAndCategoryAndMonth(
             @RequestHeader("Authorization") String accessToken,
+
             @RequestParam Categoryname category,
             @RequestParam int month) {
 
         String token = baseController.extraToken(accessToken);
 
         Map<String, Object> habits = habitService.getHabitsByUserAndCategoryAndMonth(token,category,month);
-
         return ResponseEntity.status(HttpStatus.OK).body(habits);
     }
 }
