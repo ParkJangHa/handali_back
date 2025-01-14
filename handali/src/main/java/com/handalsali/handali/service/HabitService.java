@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.List;
 import java.util.Map;
+
 
 
 @Service
@@ -30,8 +32,9 @@ public class HabitService {
         this.userHabitRepository = userHabitRepository;
     }
 
-    //이번달 초기 습관 추가 및 설정
-    public Habit addHabitsForCurrentMonth(String token, Categoryname categoryName, String details, CreatedType createdType) {
+
+    //[습관 추가] 이번달 초기 습관 추가 및 설정
+    public Habit addHabitsForCurrentMonth(String token, Categoryname categoryName, String details, CreatedType createdType){
         //1. 사용자 확인
         User user = userService.tokenToUser(token);
 
@@ -57,6 +60,10 @@ public class HabitService {
         return habit;
     }
 
+    //카테고리, 세부습관으로 습관 찾기
+    public Optional<Habit> findByCategoryAndDetailedHabitName(Categoryname categoryname, String detailedHabitName){
+        return habitRepository.findByCategoryNameAndDetailedHabitName(categoryname,detailedHabitName);
+    }
 
     //[사용자, 카테고리별 습관 조회]
     public HabitDTO.getHabitsApiResponse getHabitsByUser(String token,String category) {
@@ -125,5 +132,4 @@ public class HabitService {
                 "habits",habitsResponse
         );
     }
-
 }
