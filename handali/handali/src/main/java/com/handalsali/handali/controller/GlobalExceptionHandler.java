@@ -54,10 +54,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> noBlankException(NoBlankException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
-
-    //카테고리명, 생성자명이 enum에 정의해둔 값과 다를 때
-    @ExceptionHandler(CreatedTypeOrCategoryNameWrongException.class)
-    public ResponseEntity<String> createdTypeOrCategoryNameWrongException(Exception e){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("카테고리명/생성자명이 옳지 않습니다.");
-    }
 }
