@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Table(name="habit")
-@NoArgsConstructor
 public class Habit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,17 +31,17 @@ public class Habit {
     @Enumerated(EnumType.STRING)
     private CreatedType createdType;
 
-//    @Column(nullable = false)
-//    private int month; // 기본값 설정
-//
-//    public Habit() {
-//        this.month = LocalDate.now().getMonthValue(); // 기본값을 현재 월로 설정
-//    }
+    @Column(nullable = false)
+    private int month; // 기본값 설정
+
+    public Habit() {
+        this.month = LocalDate.now().getMonthValue(); // 기본값을 현재 월로 설정
+    }
 
     public Habit(Categoryname categoryName,String detailedHabitName,CreatedType createdType){
         this.categoryName=categoryName;
         this.detailedHabitName=detailedHabitName;
         this.createdType=createdType;
-//        this.month = LocalDate.now().getMonthValue(); // 현재 월을 기본값으로 설정
+        this.month = LocalDate.now().getMonthValue(); // 현재 월을 기본값으로 설정
     }
 }
