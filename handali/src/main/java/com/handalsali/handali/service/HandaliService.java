@@ -40,4 +40,9 @@ public class HandaliService {
 
         return handali;
     }
+
+    //유저의 이번달 한달이 조회
+    public Handali findHandaliByCurrentDateAndUser(User user){
+        return handaliRepository.findHandaliByCurrentDateAndUser(user);
+    }
 }
