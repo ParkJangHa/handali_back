@@ -28,7 +28,7 @@ public class RecordService {
         this.handaliService = handaliService;
     }
 
-    //[습관 기록]
+    //[습관 기록] 및 스탯 업데이트
     public Record recordTodayHabit(String token, Categoryname categoryName, String detailedHabitName,
                                    float time, int satisfaction, LocalDate date){
         //1. 사용자 확인
@@ -38,13 +38,13 @@ public class RecordService {
         habit = habitService.findByCategoryAndDetailedHabitName(categoryName,detailedHabitName).
                 orElseThrow(HabitNotExistsException::new);
         //3. 습관 아이디&날짜 -> 하나의 습관은 하루에 한번만 기록 가능
-        if (recordRepository.existsByHabitAndDate(habit, date)) {
+        if (recordRepository.existsByHabitAndDateAndUser(habit, date,user)) {
             throw new TodayHabitAlreadyRecordException(
                     String.format("습관 '%s'은(는) %s에 이미 기록되었습니다.", detailedHabitName, date));
         }
         //4. 습관을 저장
         Record record=new Record(user,habit,time,satisfaction,date);
-        recordRepository.save(record);
+        recordRepository.save(record); //트랜잭션 때문에 스탯 업데이트가 실패하면 기록도 저장안되지만, 기록아이디는 ai라서 증가 되어 있음
 
         //5. 스탯 업데이트
         handaliService.statUpdate(user,categoryName,time,satisfaction);
