@@ -22,5 +22,10 @@ public class HandaliStat {
     @ManyToOne
     @JoinColumn(name = "stat_id", nullable = false)
     private Stat stat;
+
+    public HandaliStat(Handali handali, Stat stat){
+        this.handali=handali;
+        this.stat=stat;
+    }
 }
 
