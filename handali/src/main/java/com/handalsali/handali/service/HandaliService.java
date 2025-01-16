@@ -3,8 +3,11 @@ package com.handalsali.handali.service;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.domain.User;
+import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
+import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,5 +47,15 @@ public class HandaliService {
     //유저의 이번달 한달이 조회
     public Handali findHandaliByCurrentDateAndUser(User user){
         return handaliRepository.findHandaliByCurrentDateAndUser(user);
+    }
+
+    //한달이 찾고, [스탯 업데이트]
+    public void statUpdate(User user, Categoryname categoryname, float time, int satisfaction) {
+        // 1. 한달이 찾기
+        Handali handali = findHandaliByCurrentDateAndUser(user);
+        if (handali == null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
+
+        // 2. StatService로 한달이 객체 전달
+        statService.statUpdate(handali, categoryname, time, satisfaction);
     }
 }

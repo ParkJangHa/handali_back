@@ -19,10 +19,13 @@ public class RecordService {
     private final UserService userService;
     private final HabitService habitService;
     private final RecordRepository recordRepository;
-    public RecordService(UserService userService, HabitService habitService, RecordRepository recordRepository){
+    private final HandaliService handaliService;
+
+    public RecordService(UserService userService, HabitService habitService, RecordRepository recordRepository, HandaliService handaliService){
         this.userService=userService;
         this.habitService=habitService;
         this.recordRepository=recordRepository;
+        this.handaliService = handaliService;
     }
 
     //[습관 기록]
@@ -42,6 +45,9 @@ public class RecordService {
         //4. 습관을 저장
         Record record=new Record(user,habit,time,satisfaction,date);
         recordRepository.save(record);
+
+        //5. 스탯 업데이트
+        handaliService.statUpdate(user,categoryName,time,satisfaction);
 
         return record;
     }

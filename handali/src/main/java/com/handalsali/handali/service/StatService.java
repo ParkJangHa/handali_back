@@ -11,6 +11,7 @@ import com.handalsali.handali.exception.HandaliStatNotFoundException;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.StatRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -20,11 +21,10 @@ import java.time.LocalDate;
 public class StatService {
     private final StatRepository statRepository;
     private final HandaliStatRepository handaliStatRepository;
-    private final HandaliService handaliService;
-    public StatService(StatRepository statRepository, HandaliStatRepository handaliStatRepository, HandaliService handaliService) {
+
+    public StatService(StatRepository statRepository, HandaliStatRepository handaliStatRepository) {
         this.statRepository = statRepository;
         this.handaliStatRepository = handaliStatRepository;
-        this.handaliService = handaliService;
     }
 
     //한달이 생성후, 스탯 초기화
@@ -51,10 +51,9 @@ public class StatService {
     }
 
     //[스탯 업데이트]
-    public void statUpdate(User user, Categoryname categoryname, float time, int satisfaction){
-        //1. 한달이 찾기
-        Handali handali=handaliService.findHandaliByCurrentDateAndUser(user);
-        if(handali==null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
+    public void statUpdate(Handali handali, Categoryname categoryname, float time, int satisfaction){
+//        //1. 한달이 찾기
+//        if(handali==null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
 
         //2. 한달이의 어떤 스탯을 올려야 하는지 찾기
         TypeName currentStatType = switch (categoryname) {
