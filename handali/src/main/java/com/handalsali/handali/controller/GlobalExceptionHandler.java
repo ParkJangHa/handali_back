@@ -77,7 +77,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CreatedTypeOrCategoryNameWrongException.class)
     public ResponseEntity<String> createdTypeOrCategoryNameWrongException(Exception e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("카테고리명/생성자명이 옳지 않습니다.");
+    }
 
+    //이번달의 한달이를 찾을 수 없음
+    @ExceptionHandler(HandaliNotFoundException.class)
+    public ResponseEntity<String> handaliNotFoundException(HandaliNotFoundException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
 
+    //한달이의 스탯을 찾을 수 없음
+    @ExceptionHandler(HandaliStatNotFoundException.class)
+    public ResponseEntity<String> handaliStatNotFoundException(HandaliStatNotFoundException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 }

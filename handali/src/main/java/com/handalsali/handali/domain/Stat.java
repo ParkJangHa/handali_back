@@ -4,6 +4,7 @@ import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class Stat {
 
     @Column(nullable = false)
     @ColumnDefault("0")
+    @Setter
     private float value;
 
     @OneToMany(mappedBy = "stat", cascade = CascadeType.ALL)
