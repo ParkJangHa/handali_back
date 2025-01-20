@@ -26,4 +26,33 @@ public class HandaliController {
         HandaliDTO.CreateHandaliResponse createHandaliResponse=new HandaliDTO.CreateHandaliResponse(handali.getHandaliId(),handali.getNickname(),handali.getStartDate(),"한달이가 생성되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(createHandaliResponse);
     }
+
+    // [한달이 상태 조회]
+    @GetMapping("/handalis/{handali_id}")
+    public ResponseEntity<HandaliDTO.HandaliStatusResponse> getHandaliStatus(
+            @PathVariable("handali_id") Long handaliId,
+            @RequestHeader("Authorization") String accessToken) {
+
+        String token = baseController.extraToken(accessToken);
+        HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByIdAndMonth(handaliId, token);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // [스탯 조회]
+    @GetMapping("/handalis/{handali_id}/stats")
+    public ResponseEntity<HandaliDTO.StatResponse> getHandaliStats(
+            @PathVariable("handali_id") Long handaliId,
+            @RequestHeader("Authorization") String accessToken) {
+
+        String token = baseController.extraToken(accessToken);
+
+        // Service 호출
+        HandaliDTO.StatResponse response = handaliService.getStats(handaliId, token);
+
+        // 응답 반환
+        return ResponseEntity.ok(response);
+    }
+
+
 }

@@ -21,15 +21,14 @@ public class Stat {
     @Enumerated(EnumType.STRING)
     private TypeName typeName;
 
-    @Column(nullable = false)
+    @Column(name = "value", nullable = false)
     @ColumnDefault("0")
-    private float value;
+    private double value;
 
     @OneToMany(mappedBy = "stat", cascade = CascadeType.ALL)
     private List<JobStat> jobStats; // Job-Stat 관계
 
-    public Stat(TypeName typeName, float value){
-        this.typeName=typeName;
-        this.value=value;
-    }
+    @ManyToOne
+    @JoinColumn(name = "handali_id", foreignKey = @ForeignKey(name = "fk_stat_handali"))
+    private Handali handali;
 }

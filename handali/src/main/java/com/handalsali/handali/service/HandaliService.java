@@ -1,20 +1,26 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.DTO.HandaliDTO;
+import com.handalsali.handali.DTO.StatDetail;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.repository.HandaliRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
 
 @Service
 @Transactional
 public class HandaliService {
-    private UserService userService;
-    private HandaliRepository handaliRepository;
+    private final UserService userService;
+    private final HandaliRepository handaliRepository;
 
+    @Autowired
     public HandaliService(UserService userService, HandaliRepository handaliRepository) {
         this.userService = userService;
         this.handaliRepository = handaliRepository;
@@ -32,5 +38,38 @@ public class HandaliService {
         Handali handali=new Handali(nickname, LocalDate.now(),user);
         handaliRepository.save(handali);
         return handali;
+    }
+
+    // 한달이 상태 조회
+    public HandaliDTO.HandaliStatusResponse getHandaliStatusByIdAndMonth(Long handaliId, String token) {
+        userService.tokenToUser(token);
+
+        Handali handali = handaliRepository.findById(handaliId)
+                .orElseThrow(() -> new RuntimeException("Handali not found"));
+
+        // 예: 생성일로부터 경과 일수를 계산하는 로직
+        int days_Since_Created = Period.between(handali.getStartDate(), LocalDate.now()).getDays()+1;
+
+        String message = "아직 30일이 되지 않았습니다.";
+        if (days_Since_Created == 30) {
+            message = "생성된지 30일이 되었습니다.";
+        }
+
+        return new HandaliDTO.HandaliStatusResponse(
+                handali.getHandaliId(),
+                handali.getNickname(),
+                days_Since_Created,
+                message
+        );
+
+    }
+
+
+    // 스탯 조회
+    public HandaliDTO.StatResponse getStats(Long handaliId, String token) {
+        userService.tokenToUser(token);
+
+        List<StatDetail> stats = handaliRepository.findStatsByHandaliId(handaliId);
+        return new HandaliDTO.StatResponse(stats);
     }
 }
