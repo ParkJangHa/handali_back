@@ -27,9 +27,6 @@ public class Stat {
     @Setter
     private float value;
 
-    @OneToMany(mappedBy = "stat", cascade = CascadeType.ALL)
-    private List<JobStat> jobStats; // Job-Stat 관계
-
     public Stat(TypeName typeName,float value) {
         this.typeName=typeName;
         this.value=value;
