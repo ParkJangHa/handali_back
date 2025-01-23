@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @NoArgsConstructor
 @Getter
@@ -24,7 +25,7 @@ public class HandaliStat {
     @JoinColumn(name = "stat_id", nullable = false)
     private Stat stat;
 
-    public HandaliStat(Handali handali, Stat stat){
+    public HandaliStat(Handali handali, Stat stat) {
         this.handali=handali;
         this.stat=stat;
     }
