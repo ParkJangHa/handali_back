@@ -44,7 +44,7 @@ public class HandaliService {
         return handali;
     }
 
-    //유저의 이번달 한달이 조회
+    //유저의 이번달 한달이 조회 - 다음 달로 넘어가는 순간 호출되면 한달이를 찾을 수 없는 예외 발생
     public Handali findHandaliByCurrentDateAndUser(User user){
         return handaliRepository.findHandaliByCurrentDateAndUser(user);
     }
@@ -57,5 +57,10 @@ public class HandaliService {
 
         // 2. StatService로 한달이 객체 전달
         statService.statUpdate(handali, categoryname, time, satisfaction);
+    }
+
+    //한달이 저장
+    public void save(Handali handali){
+        handaliRepository.save(handali);
     }
 }

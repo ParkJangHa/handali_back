@@ -18,7 +18,7 @@ public interface HandaliStatRepository extends JpaRepository<HandaliStat, Long> 
             " where hs.handali=:handali and s.typeName=:typeName")
     Optional<HandaliStat> findByHandaliAndType(@Param("handali") Handali handali, @Param("typeName") TypeName typeName);
 
-    //해당 한달이의 스탯중 가장 높은 스탯 찾기
+    //해당 한달이의 스탯중 가장 높은 스탯 찾기, 가장 높은 값이 중복일 경우 먼저 매핑된 스탯 반환
     @Query("""
         SELECT hs FROM HandaliStat hs
         WHERE hs.handali.handaliId = :handaliId
@@ -28,5 +28,5 @@ public interface HandaliStatRepository extends JpaRepository<HandaliStat, Long> 
               WHERE hsInner.handali.handaliId = :handaliId
           )
     """)
-    HandaliStat findMaxStatByHandaliId(@Param("handaliId") Long handaliId);
+    List<HandaliStat> findMaxStatByHandaliId(@Param("handaliId") Long handaliId);
 }
