@@ -1,5 +1,6 @@
 package com.handalsali.handali.domain;
 
+import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,9 +18,13 @@ public class JobStat {
     @Column(nullable = false,name="required_stat")
     private float requiredStat;
 
-    @ManyToOne
-    @JoinColumn(name="stat_id",nullable = false)
-    private Stat stat;
+    @Column(nullable = false,name="type_name")
+    @Enumerated(EnumType.STRING)
+    private TypeName typeName;
+
+//    @ManyToOne
+//    @JoinColumn(name="stat_id",nullable = false)
+//    private Stat stat;
 
     @ManyToOne
     @JoinColumn(name="job_id",nullable = false)

@@ -3,6 +3,7 @@ package com.handalsali.handali.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -29,6 +30,7 @@ public class Handali {
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private User user;
 
+    @Setter
     @ManyToOne
     @JoinColumn(name="job_id",
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (job_id) REFERENCES job(job_id) ON DELETE CASCADE ON UPDATE CASCADE"))
