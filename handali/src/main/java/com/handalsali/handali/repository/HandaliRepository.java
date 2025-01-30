@@ -20,9 +20,10 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     @Query("SELECT h FROM Handali h WHERE h.user.userId = :userId AND MONTH(h.startDate) = :month")
     Optional<Handali> findByIdAndMonth(@Param("userId") Long userId, @Param("month") int month);
 
+
+    //handali_id에 대한 스탯 정보 조회 / 01.30
     @Query("SELECT new com.handalsali.handali.DTO.StatDetail(s.typeName, s.value) " +
             "FROM Stat s WHERE s.handali.handaliId = :handaliId")
     List<StatDetail> findStatsByHandaliId(@Param("handaliId") Long handaliId);
-
 }
 

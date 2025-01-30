@@ -6,6 +6,7 @@ import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.repository.HandaliRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,11 +66,15 @@ public class HandaliService {
     }
 
 
-    // 스탯 조회
-    public HandaliDTO.StatResponse getStats(Long handaliId, String token) {
-        userService.tokenToUser(token);
+    // [스탯 조회]
+    public HandaliDTO.StatResponse getStatsByHandaliId(Long handaliId, String token) {
+        // Handali 엔티티 존재 여부 확인 (예외 처리 포함)
+        Handali handali = handaliRepository.findById(handaliId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 handali_id에 대한 데이터가 없습니다."));
 
+        // 스탯 조회
         List<StatDetail> stats = handaliRepository.findStatsByHandaliId(handaliId);
+
         return new HandaliDTO.StatResponse(stats);
     }
 }

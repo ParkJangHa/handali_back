@@ -1,11 +1,14 @@
 package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.HandaliDTO;
+import com.handalsali.handali.DTO.StatDetail;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.service.HandaliService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class HandaliController {
@@ -41,18 +44,18 @@ public class HandaliController {
 
     // [스탯 조회]
     @GetMapping("/handalis/{handali_id}/stats")
-    public ResponseEntity<HandaliDTO.StatResponse> getHandaliStats(
+    public ResponseEntity<HandaliDTO.StatResponse> getStatsByHandaliId(
             @PathVariable("handali_id") Long handaliId,
             @RequestHeader("Authorization") String accessToken) {
 
+        // 토큰 처리
         String token = baseController.extraToken(accessToken);
+        // 서비스 계층에서 스탯 데이터 가져오기
+        HandaliDTO.StatResponse response = handaliService.getStatsByHandaliId(handaliId, token);
 
-        // Service 호출
-        HandaliDTO.StatResponse response = handaliService.getStats(handaliId, token);
-
-        // 응답 반환
         return ResponseEntity.ok(response);
     }
+
 
 
 }

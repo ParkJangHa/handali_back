@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class StatDetail {
-    private TypeName type_Name; // 스탯 이름
+    private TypeName typeName; // 스탯 이름
     private double value;      // 스탯 값
 }
