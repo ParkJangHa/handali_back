@@ -18,7 +18,7 @@ public class RecordController {
         this.baseController = baseController;
     }
 
-    //[습관 추가]
+    //[습관 기록 및 스탯 업데이트]
     @PostMapping("/habits/record")
     public ResponseEntity<RecordDTO.recordTodayHabitResponse> recordTodayHabit(@RequestHeader("Authorization") String accessToken,
                                                                                @RequestBody RecordDTO.recordTodayHabitRequest request){
