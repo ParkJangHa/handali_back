@@ -3,8 +3,11 @@ package com.handalsali.handali.service;
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.StatDetail;
 import com.handalsali.handali.domain.Handali;
+import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.domain.User;
+import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
+import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,7 @@ public class HandaliService {
     public HandaliService(UserService userService, HandaliRepository handaliRepository) {
         this.userService = userService;
         this.handaliRepository = handaliRepository;
+        this.statService = statService;
     }
 
     //[한달이 생성]
@@ -38,6 +42,10 @@ public class HandaliService {
         //3. 한달이 생성
         Handali handali=new Handali(nickname, LocalDate.now(),user);
         handaliRepository.save(handali);
+
+        //4. 한달이의 스탯 초기화
+        statService.statInit(handali);
+
         return handali;
     }
 
