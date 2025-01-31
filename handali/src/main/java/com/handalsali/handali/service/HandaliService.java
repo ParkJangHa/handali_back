@@ -1,9 +1,13 @@
 package com.handalsali.handali.service;
 
 import com.handalsali.handali.domain.Handali;
+import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.domain.User;
+import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
+import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +18,12 @@ import java.time.LocalDate;
 public class HandaliService {
     private UserService userService;
     private HandaliRepository handaliRepository;
+    private StatService statService;
 
-    public HandaliService(UserService userService, HandaliRepository handaliRepository) {
+    public HandaliService(UserService userService, HandaliRepository handaliRepository, StatService statService) {
         this.userService = userService;
         this.handaliRepository = handaliRepository;
+        this.statService = statService;
     }
 
     //[한달이 생성]
@@ -31,6 +37,30 @@ public class HandaliService {
         //3. 한달이 생성
         Handali handali=new Handali(nickname, LocalDate.now(),user);
         handaliRepository.save(handali);
+
+        //4. 한달이의 스탯 초기화
+        statService.statInit(handali);
+
         return handali;
+    }
+
+    //유저의 이번달 한달이 조회 - 다음 달로 넘어가는 순간 호출되면 한달이를 찾을 수 없는 예외 발생
+    public Handali findHandaliByCurrentDateAndUser(User user){
+        return handaliRepository.findHandaliByCurrentDateAndUser(user);
+    }
+
+    //한달이 찾고, [스탯 업데이트]
+    public void statUpdate(User user, Categoryname categoryname, float time, int satisfaction) {
+        // 1. 한달이 찾기
+        Handali handali = findHandaliByCurrentDateAndUser(user);
+        if (handali == null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
+
+        // 2. StatService로 한달이 객체 전달
+        statService.statUpdate(handali, categoryname, time, satisfaction);
+    }
+
+    //한달이 저장
+    public void save(Handali handali){
+        handaliRepository.save(handali);
     }
 }

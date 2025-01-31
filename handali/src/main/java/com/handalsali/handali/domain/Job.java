@@ -21,9 +21,6 @@ public class Job {
     @Column(nullable = false,name="week_salary")
     private int weekSalary;
 
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
-    private List<JobStat> jobStats;
-
     public Job(String name, int weekSalary){
         this.name=name;
         this.weekSalary=weekSalary;
