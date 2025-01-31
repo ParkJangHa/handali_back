@@ -20,7 +20,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            cd /home/ubuntu/handali_back
+            cd /home/ubuntu/handali_back/handali
             git pull origin main
             chmod +x gradlew
             ./gradlew build -x test
