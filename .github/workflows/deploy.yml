@@ -3,7 +3,7 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - develop  # develop 브랜치에 Push될 때 실행
+      - main  # develop 브랜치에 Push될 때 실행
 
 jobs:
   deploy:
