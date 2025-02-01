@@ -63,4 +63,11 @@ public class HandaliService {
     public void save(Handali handali){
         handaliRepository.save(handali);
     }
+
+    // 한달이 생성 후 자동 아파트 배정 - 02.01
+    public void assignApartment(Handali handali, int floor, int apartId) {
+        ApartId apartmentKey = new ApartId(apartId, floor);
+        Apartment apartment = new Apartment(apartmentKey, handali.getUser());
+        apartmentRepository.save(apartment);
+    }
 }
