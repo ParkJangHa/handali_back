@@ -30,7 +30,7 @@ jobs:
 
             # 3. 권한 설정하기
             chmod +x gradlew 
-            chmod +x build/libs/*.jar
+            # chmod +x build/libs/*.jar
      
             echo "==== Stopping existing Java processes ===="
             pkill -f 'java -jar' || true
