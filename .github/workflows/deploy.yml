@@ -23,7 +23,20 @@ jobs:
             cd /home/ubuntu/handali_back/handali
             git pull origin main
             chmod +x gradlew
-            ./gradlew build -x test
+      
+            echo "==== Stopping existing Java processes ===="
             pkill -f 'java -jar' || true
+            pkill -f 'gradle' || true
+      
+            echo "==== Setting Gradle memory limit ===="
+            echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+            echo "org.gradle.jvmargs=-Xmx512m -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
+      
+            echo "==== Building Project ===="
+            ./gradlew build -x test --no-daemon --info
+      
+            echo "==== Restarting application ===="
             nohup java -jar build/libs/*.jar > app.log 2>&1 &
+      
+            echo "==== Deployment Finished! ===="
 
