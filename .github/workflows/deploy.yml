@@ -20,17 +20,17 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-        
+            
             # 1. main 브랜치 코드 가져오기 
             cd /home/ubuntu/handali_back 
             git pull origin main
-          
-
+            
+            
             # 2. 코드 빌드하기
             cd handali 
             ./gradlew clean build
-          
-
+            
+            
             # 3. 권한 설정하기
             chmod +x gradlew 
 
@@ -42,11 +42,11 @@ jobs:
               sleep 2
               rm -f app.pid
             fi
-          
-
+            
+            
             #4. 빌드된 파일 백그라운드 실행하기
             echo "==== Running application in background ===="
             setsid java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
             echo $! > app.pid
-      
+            
             echo "==== Deployment Finished! ===="
