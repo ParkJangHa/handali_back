@@ -1,6 +1,8 @@
 package com.handalsali.handali.DTO;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -20,10 +22,11 @@ public class HandaliDTO {
         private String nickname;
     }
 
-    @Data
+    @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class ApartmentResponse {
-        private Long apartId;
+        private int apart_id;
         private int floor;
     }
 }

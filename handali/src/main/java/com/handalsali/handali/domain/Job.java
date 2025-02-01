@@ -15,15 +15,14 @@ public class Job {
     @Column(name="job_id")
     private long jobId;
 
-    //명확한게 좋을거 같아서 jobName으로 수정함 - 02.01
     @Column(nullable = false)
-    private String jobName;
+    private String name;
 
     @Column(nullable = false,name="week_salary")
     private int weekSalary;
 
-    public Job(String jobName, int weekSalary){
-        this.jobName=jobName;
+    public Job(String name, int weekSalary){
+        this.name=name;
         this.weekSalary=weekSalary;
     }
 }

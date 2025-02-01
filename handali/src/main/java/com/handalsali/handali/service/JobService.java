@@ -62,7 +62,7 @@ public class JobService {
 
         return new JobStatDTO.JobResponse(
                 job.getWeekSalary(),
-                job.getJobName(),
+                job.getName(),
                 jobStatDTO
         );
     }

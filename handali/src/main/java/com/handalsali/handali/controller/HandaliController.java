@@ -28,8 +28,8 @@ public class HandaliController {
     }
 
     @PostMapping("/{handali_id}/apartments-enter")
-    public ResponseEntity<String> enterApartment(@PathVariable Long handaliId) {
-        handaliService.enterApartment(handaliId);
-        return ResponseEntity.ok("한달이가 아파트에 성공적으로 입주했습니다!");
+    public ResponseEntity<HandaliDTO.ApartmentResponse> enterApartment(@PathVariable("handali_id") Long handaliId) {
+        HandaliDTO.ApartmentResponse response = handaliService.enterApartment(handaliId);
+        return ResponseEntity.ok(response);
     }
 }
