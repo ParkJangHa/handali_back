@@ -19,6 +19,7 @@ jobs:
           host: ${{ secrets.AWS_HOST }}
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
+          command_timeout: 20m
           script: |
             cd /home/ubuntu/handali_back/handali
             git pull origin main
@@ -32,6 +33,7 @@ jobs:
             sudo rm -f /swapfile
             fi
             
+            echo "Creating new Swap..."
             sudo fallocate -l 1G /swapfile
             sudo chmod 600 /swapfile
             sudo mkswap /swapfile
@@ -41,8 +43,7 @@ jobs:
             echo "==== Stopping existing Java processes ===="
             pkill -f 'java -jar' || true
             
-            echo "==== Running application in background ===="
-            nohup java -jar build/libs/*.jar > app.log 2>&1 & disown
+            echo "==== Running application in background using setsid ===="
+            setsid java -jar build/libs/*.jar > app.log 2>&1 &
       
             echo "==== Deployment Finished! ===="
-
