@@ -20,25 +20,33 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
+        
             # 1. main 브랜치 코드 가져오기 
             cd /home/ubuntu/handali_back 
             git pull origin main
+          
 
             # 2. 코드 빌드하기
             cd handali 
             ./gradlew clean build
+          
 
             # 3. 권한 설정하기
             chmod +x gradlew 
-            # chmod +x build/libs/*.jar
-     
-            #echo "==== Stopping existing Java processes ===="
-            #pkill -f 'handali-0.0.1-SNAPSHOT.jar' || true
-            #sleep 2
+
+            # 4. 기존 애플리케이션 프로세스 종료 (PID 파일을 이용)
+            if [ -f app.pid ]; then
+              old_pid=$(cat app.pid)
+              echo "Stopping existing process with PID $old_pid"
+              kill -9 $old_pid || true
+              sleep 2
+              rm -f app.pid
+            fi
+          
 
             #4. 빌드된 파일 백그라운드 실행하기
             echo "==== Running application in background ===="
             setsid java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-
+            echo $! > app.pid
       
             echo "==== Deployment Finished! ===="
