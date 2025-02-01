@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Repository
 public interface HandaliRepository extends JpaRepository<Handali,Long> {
@@ -17,4 +18,8 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     @Query("select h from Handali h where function('DATE_FORMAT',h.startDate,'%Y-%m')=function('DATE_FORMAT',CURRENT_DATE,'%Y-%m')" +
             "and h.user=:user")
     Handali findHandaliByCurrentDateAndUser(@Param("user") User user);
+
+    // 02.01
+    Optional<Handali> findByHandaliId(Long handaliId);
 }
+
