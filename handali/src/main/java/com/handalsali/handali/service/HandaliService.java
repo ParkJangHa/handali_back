@@ -1,13 +1,15 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.domain.Apartment;
 import com.handalsali.handali.domain.Handali;
-import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.domain.User;
+import com.handalsali.handali.enums_multyKey.ApartId;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
+import com.handalsali.handali.repository.ApartmentRepository;
 import com.handalsali.handali.repository.HandaliRepository;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +20,14 @@ import java.time.LocalDate;
 public class HandaliService {
     private UserService userService;
     private HandaliRepository handaliRepository;
+    private final ApartmentRepository apartmentRepository;
     private StatService statService;
 
-    public HandaliService(UserService userService, HandaliRepository handaliRepository, StatService statService) {
+    public HandaliService(UserService userService, HandaliRepository handaliRepository, StatService statService, ApartmentRepository apartmentRepository) {
         this.userService = userService;
         this.handaliRepository = handaliRepository;
         this.statService = statService;
+        this.apartmentRepository = apartmentRepository;
     }
 
     //[한달이 생성]
@@ -64,10 +68,51 @@ public class HandaliService {
         handaliRepository.save(handali);
     }
 
-    // 한달이 생성 후 자동 아파트 배정 - 02.01
-    public void assignApartment(Handali handali, int floor, int apartId) {
-        ApartId apartmentKey = new ApartId(apartId, floor);
-        Apartment apartment = new Apartment(apartmentKey, handali.getUser());
-        apartmentRepository.save(apartment);
+
+    // 한달이 ID로 입주 -02.01
+    public void enterApartment(Long handaliId) {
+        Handali handali = handaliRepository.findById(handaliId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 한달이를 찾을 수 없습니다. ID: " + handaliId));
+
+        enterApartment(handali);
+    }
+
+    // 30일이 지난 한달이 아파트 입주
+    public void enterApartment(Handali handali) {
+        // 1. 한달이가 30일을 채웠는지 확인
+        if (!isEligibleForApartment(handali)) {
+            throw new IllegalStateException("한달이가 30일을 채우지 않아 아파트에 입주할 수 없습니다.");
+        }
+
+        // 2. 현재 가장 마지막에 생성된 아파트를 찾기
+        Apartment lastApartment = apartmentRepository.findTopByOrderByApartId_ApartIdDesc();
+        int nextFloor = 1;
+        int nextApartmentId = 1;
+
+        if (lastApartment != null) {
+            int currentOccupants = apartmentRepository.countByApartId_ApartId(lastApartment.getApartId().getApartId());
+            if (currentOccupants < 12) {
+                nextApartmentId = lastApartment.getApartId().getApartId();
+                nextFloor = currentOccupants + 1;
+            } else {
+                nextApartmentId = lastApartment.getApartId().getApartId() + 1;
+                nextFloor = 1;
+            }
+        }
+
+        // 3. 새로운 아파트 객체 생성 및 저장
+        ApartId apartmentKey = new ApartId(nextApartmentId, nextFloor);
+        Apartment newApartment = new Apartment(apartmentKey, handali.getUser());
+        apartmentRepository.save(newApartment);
+
+        // 4. 한달이에게 아파트 배정
+        handali.setApartment(newApartment);
+        handaliRepository.save(handali);
+    }
+
+    //한달이가 30일을 채웠는지 확인하는 메서드
+    private boolean isEligibleForApartment(Handali handali) {
+        LocalDate today = LocalDate.now();
+        return handali.getStartDate().plusDays(30).isBefore(today) || handali.getStartDate().plusDays(30).isEqual(today);
     }
 }

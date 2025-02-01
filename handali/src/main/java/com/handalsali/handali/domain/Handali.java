@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -37,6 +35,7 @@ public class Handali {
     private Job job;
 
     //02.01
+    @Setter
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "apart_id", referencedColumnName = "apart_id"),
@@ -49,5 +48,9 @@ public class Handali {
         this.nickname = nickname;
         this.startDate = startDate;
         this.user = user;
+    }
+
+    public void assignApartment(Apartment apartment) {
+        this.apartment = apartment;
     }
 }

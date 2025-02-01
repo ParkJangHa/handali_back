@@ -19,4 +19,11 @@ public class HandaliDTO {
     public static class CreateHandaliRequest{
         private String nickname;
     }
+
+    @Data
+    @AllArgsConstructor
+    public static class ApartmentResponse {
+        private Long apartId;
+        private int floor;
+    }
 }

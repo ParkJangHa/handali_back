@@ -26,4 +26,10 @@ public class HandaliController {
         HandaliDTO.CreateHandaliResponse createHandaliResponse=new HandaliDTO.CreateHandaliResponse(handali.getHandaliId(),handali.getNickname(),handali.getStartDate(),"한달이가 생성되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(createHandaliResponse);
     }
+
+    @PostMapping("/{handali_id}/apartments-enter")
+    public ResponseEntity<String> enterApartment(@PathVariable Long handaliId) {
+        handaliService.enterApartment(handaliId);
+        return ResponseEntity.ok("한달이가 아파트에 성공적으로 입주했습니다!");
+    }
 }
