@@ -26,6 +26,12 @@ jobs:
             chmod +x build/libs/*.jar
       
             echo "==== Checking & Enabling Swap ===="
+            if [ -f /swapfile ]; then
+            echo "Existing Swap detected, removing..."
+            sudo swapoff /swapfile
+            sudo rm -f /swapfile
+            fi
+            
             sudo fallocate -l 1G /swapfile
             sudo chmod 600 /swapfile
             sudo mkswap /swapfile
