@@ -36,16 +36,20 @@ public class Handali {
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (job_id) REFERENCES job(job_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Job job;
 
+    // 🔹 Apart → Apartment로 이름 변경 (일관성 유지)
+    @Setter
     @ManyToOne
     @JoinColumns({
-            @JoinColumn(name = "apart_id", referencedColumnName = "apart_id"),
+            @JoinColumn(name = "apartment_id", referencedColumnName = "apartment_id"),
             @JoinColumn(name = "floor", referencedColumnName = "floor")
     })
-    private Apart apart;
+    private Apartment apartment;
 
-    public Handali(String nickname,LocalDate startDate,User user){
-        this.nickname=nickname;
-        this.startDate=startDate;
-        this.user=user;
+    // 생성자 (아파트 포함) - 02.01
+    public Handali(String nickname, LocalDate startDate, User user, Apartment apartment) {
+        this.nickname = nickname;
+        this.startDate = startDate;
+        this.user = user;
+        this.apartment = apartment;
     }
 }
