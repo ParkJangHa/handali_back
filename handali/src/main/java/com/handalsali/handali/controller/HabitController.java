@@ -3,14 +3,12 @@ package com.handalsali.handali.controller;
 import com.handalsali.handali.DTO.HabitDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.CreatedType;
-import com.handalsali.handali.exception.NoBlankException;
+import com.handalsali.handali.exception.MoreOneLessThreeSelectException;
 import com.handalsali.handali.service.HabitService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
-import java.time.LocalDate;
+
 import java.util.List;
 import java.util.Map;
 
@@ -26,27 +24,22 @@ public class HabitController {
         this.baseController = baseController;
     }
 
+    //[습관추가]
     @PostMapping
     public ResponseEntity<?> addHabitsForCurrentMonth(@RequestHeader("Authorization") String accessToken,
-                                                                                 @RequestBody HabitDTO.AddHabitRequest request){
+                                                      @RequestBody HabitDTO.AddHabitApiRequest request){
         String token = baseController.extraToken(accessToken);
 
-        if(request.getCategory()==null || request.getDetails()==null || request.getCreated_type()==null){
-            throw new NoBlankException("카테고리, 세부사항, 생성자를 입력해주세요.");
+        if(request.getHabits() == null || request.getHabits().isEmpty()) {
+            throw new MoreOneLessThreeSelectException("하나 이상의 습관을 선택해주세요.");
+        }
+        if(request.getHabits().size()>3){
+            throw new MoreOneLessThreeSelectException("습관은 최대 3개까지 선택할 수 있습니다.");
         }
 
-        Habit habit = habitService.addHabitsForCurrentMonth(
-                token,
-                request.getCategory(),
-                request.getDetails(),
-                request.getCreated_type());
+        List<HabitDTO.AddHabitResponse> addHabitResponse=habitService.addHabitsForCurrentMonth(token,request);
 
-        HabitDTO.AddHabitResponse habits = new HabitDTO.AddHabitResponse(
-                request.getCategory(),
-                request.getDetails(),
-                request.getCreated_type());
-
-        HabitDTO.AddHabitApiResponse response=new HabitDTO.AddHabitApiResponse("습관이 성공적으로 추가되었습니다.",habits);
+        HabitDTO.AddHabitApiResponse response=new HabitDTO.AddHabitApiResponse("습관이 성공적으로 추가되었습니다.",addHabitResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
