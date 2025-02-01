@@ -20,15 +20,24 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            cd /home/ubuntu/handali_back
+            # 1. main 브랜치 코드 가져오기 
+            cd /home/ubuntu/handali_back 
             git pull origin main
-            chmod +x gradlew
+
+            # 2. 코드 빌드하기
+            cd handali 
+            ./gradlew clean build
+
+            # 3. 권한 설정하기
+            chmod +x gradlew 
             chmod +x build/libs/*.jar
      
             echo "==== Stopping existing Java processes ===="
             pkill -f 'java -jar' || true
-            
+
+            #4. 빌드된 파일 백그라운드 실행하기
             echo "==== Running application in background ===="
-            nohup java -jar build/libs/*.jar > app.log 2>&1 & 
+            nohup java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+
       
             echo "==== Deployment Finished! ===="
