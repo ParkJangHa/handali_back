@@ -38,7 +38,7 @@ jobs:
 
             #4. 빌드된 파일 백그라운드 실행하기
             echo "==== Running application in background ===="
-            nohup java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+            setsid java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
 
       
             echo "==== Deployment Finished! ===="
