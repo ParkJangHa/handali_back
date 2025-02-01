@@ -82,7 +82,7 @@ public class HabitService {
 
     //[개발자, 카테고리별 습관 조회]
     public HabitDTO.getHabitsApiResponse getHabitsByDev(String token,String category){
-        User user=userService.tokenToUser(token);
+        userService.tokenToUser(token);
 
         try {
             Categoryname categoryNameEnum = Categoryname.valueOf(category);

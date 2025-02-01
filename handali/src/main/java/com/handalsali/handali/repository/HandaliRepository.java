@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Repository
 public interface HandaliRepository extends JpaRepository<Handali,Long> {
@@ -18,3 +19,4 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
             "and h.user=:user")
     Handali findHandaliByCurrentDateAndUser(@Param("user") User user);
 }
+

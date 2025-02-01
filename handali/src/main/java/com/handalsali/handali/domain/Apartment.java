@@ -7,10 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Getter
-public class Apart {
+public class Apartment {
     //복합키
     @EmbeddedId
     ApartId apartId;
@@ -19,4 +18,9 @@ public class Apart {
     @JoinColumn(name="user_id",
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE", name="fk_user"))
     private User user;
+
+    public Apartment(ApartId apartId, User user) {
+        this.apartId = apartId;
+        this.user = user;
+    }
 }

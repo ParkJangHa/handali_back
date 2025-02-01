@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -36,16 +34,23 @@ public class Handali {
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (job_id) REFERENCES job(job_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Job job;
 
+    //02.01
+    @Setter
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "apart_id", referencedColumnName = "apart_id"),
             @JoinColumn(name = "floor", referencedColumnName = "floor")
     })
-    private Apart apart;
+    private Apartment apartment;
 
-    public Handali(String nickname,LocalDate startDate,User user){
-        this.nickname=nickname;
-        this.startDate=startDate;
-        this.user=user;
+    // 생성자 (아파트 포함) - 02.01
+    public Handali(String nickname, LocalDate startDate, User user) {
+        this.nickname = nickname;
+        this.startDate = startDate;
+        this.user = user;
+    }
+
+    public void assignApartment(Apartment apartment) {
+        this.apartment = apartment;
     }
 }
