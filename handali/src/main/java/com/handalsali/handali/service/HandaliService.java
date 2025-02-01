@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -120,5 +122,18 @@ public class HandaliService {
 
         // 6. 응답 객체 반환
         return new HandaliDTO.ApartmentResponse(apartId, floor);
+    }
+
+    //[아파트 조회]
+    public List<HandaliDTO.ApartmentResponse> getUserApartments(String token) {
+        User user = userService.tokenToUser(token); // 사용자 인증
+        List<Apartment> apartments = apartmentRepository.findByUser(user); // 사용자 아파트 조회
+
+        return apartments.stream()
+                .map(apartment -> new HandaliDTO.ApartmentResponse(
+                        apartment.getApartId().getApartId(),  // 아파트 ID
+                        apartment.getApartId().getFloor()    // 층 정보
+                ))
+                .collect(Collectors.toList());
     }
 }
