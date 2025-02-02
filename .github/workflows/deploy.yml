@@ -3,7 +3,7 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - release/* #realease로 시작하는 모든 브랜치에서 푸시할때
+      - release/* # release로 시작하는 모든 브랜치에서 배포 실행
 
 jobs:
   deploy:
@@ -13,6 +13,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Detect Branch
+        id: detect_branch
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.4
         with:
@@ -21,30 +25,31 @@ jobs:
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
 
-            # 1. main 브랜치 코드 가져오기 
+            echo "🔍 현재 브랜치: ${{ env.BRANCH_NAME }}"
+
+            # 1. 현재 브랜치 코드 가져오기
             cd /home/ubuntu/handali_back 
-            git pull origin main
+            git pull origin ${{ env.BRANCH_NAME }}
 
-
-            # 2. gradlew 이 존재하는 디렉토리로 이동 및 권한 설정
+            # 2. gradlew 디렉토리 이동 및 권한 설정
             cd handali 
             chmod +x gradlew
 
             # 3. 애플리케이션 빌드
             ./gradlew clean build
 
-             
-
             # 4. 기존 애플리케이션 프로세스 종료 (PID 파일을 이용)
             if [ -f app.pid ]; then
               old_pid=$(cat app.pid)
-
+              echo "🔴 기존 프로세스 종료: $old_pid"
+              
               # 기존 프로세스 정상 종료 시도
               kill $old_pid || true
               sleep 5
 
-              # 아직 살아있으면, 강제 종료
+              # 아직 살아있으면 강제 종료
               if ps -p $old_pid > /dev/null; then
+                echo "🚨 기존 프로세스 종료 실패, 강제 종료 중..."
                 kill -9 $old_pid || true
                 sleep 2
               fi
@@ -52,21 +57,19 @@ jobs:
               rm -f app.pid
             fi
 
-            # 5. 빌드된 파일 백그라운드 실행하기
-            echo "==== Running application in background ===="
+            # 5. 빌드된 파일 실행
+            echo "🚀 애플리케이션 백그라운드 실행 중..."
             nohup java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
             echo $! > app.pid
 
-            # 6. 실행된 프로세스가 정상동작 하는지 확인
-              sleep 2
-              new_pid=$(cat app.pid)
-              if ps -p $new_pid > /dev/null; then
-                echo "✅ Application started successfully with PID $new_pid"
-              else
-                echo "🚨 Application failed to start!"
-                exit 1
-              fi
+            # 6. 실행된 프로세스 확인
+            sleep 2
+            new_pid=$(cat app.pid)
+            if ps -p $new_pid > /dev/null; then
+              echo "✅ 애플리케이션 성공적으로 실행됨 (PID: $new_pid)"
+            else
+              echo "🚨 애플리케이션 실행 실패!"
+              exit 1
+            fi
 
-
-
-            echo "==== Deployment Finished! ===="
+            echo "🎉 ==== 배포 완료! ===="
