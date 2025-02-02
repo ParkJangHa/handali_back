@@ -17,6 +17,7 @@ public class HandaliController {
         this.handaliService=handaliService;
     }
 
+    //[한달이 생성]
     @PostMapping("/handalis")
     public ResponseEntity<HandaliDTO.CreateHandaliResponse> handaliCreate(@RequestHeader("Authorization") String accessToken,
                                                 @RequestBody HandaliDTO.CreateHandaliRequest request){
@@ -26,4 +27,32 @@ public class HandaliController {
         HandaliDTO.CreateHandaliResponse createHandaliResponse=new HandaliDTO.CreateHandaliResponse(handali.getHandaliId(),handali.getNickname(),handali.getStartDate(),"한달이가 생성되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(createHandaliResponse);
     }
+
+
+    // [한달이 상태 조회]
+    @GetMapping("/handalis/{handali_id}")
+    public ResponseEntity<HandaliDTO.HandaliStatusResponse> getHandaliStatus(
+            @PathVariable("handali_id") Long handaliId,
+            @RequestHeader("Authorization") String accessToken) {
+
+        String token = baseController.extraToken(accessToken);
+        HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByIdAndMonth(handaliId, token);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // [스탯 조회]
+    @GetMapping("/handalis/{handali_id}/stats")
+    public ResponseEntity<HandaliDTO.StatResponse> getStatsByHandaliId(
+            @PathVariable("handali_id") Long handaliId,
+            @RequestHeader("Authorization") String accessToken) {
+
+        // 토큰 처리
+        String token = baseController.extraToken(accessToken);
+        // 서비스 계층에서 스탯 데이터 가져오기
+        HandaliDTO.StatResponse response = handaliService.getStatsByHandaliId(handaliId, token);
+
+        return ResponseEntity.ok(response);
+    }
+
 }
