@@ -1,5 +1,7 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.DTO.HandaliDTO;
+import com.handalsali.handali.DTO.StatDetailDTO;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.domain.User;
@@ -7,11 +9,14 @@ import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
 
 @Service
 @Transactional
@@ -62,5 +67,41 @@ public class HandaliService {
     //한달이 저장
     public void save(Handali handali){
         handaliRepository.save(handali);
+    }
+
+    // [한달이 상태 조회]
+    public HandaliDTO.HandaliStatusResponse getHandaliStatusByIdAndMonth(Long handaliId, String token) {
+        userService.tokenToUser(token);
+
+        Handali handali = handaliRepository.findById(handaliId)
+                .orElseThrow(() -> new RuntimeException("Handali not found"));
+
+        // 예: 생성일로부터 경과 일수를 계산하는 로직
+        int days_Since_Created = Period.between(handali.getStartDate(), LocalDate.now()).getDays()+1;
+
+        String message = "아직 30일이 되지 않았습니다.";
+        if (days_Since_Created == 30) {
+            message = "생성된지 30일이 되었습니다.";
+        }
+
+        return new HandaliDTO.HandaliStatusResponse(
+                handali.getHandaliId(),
+                handali.getNickname(),
+                days_Since_Created,
+                message
+        );
+
+    }
+
+    // [스탯 조회]
+    public HandaliDTO.StatResponse getStatsByHandaliId(Long handaliId, String token) {
+        // Handali 엔티티 존재 여부 확인 (예외 처리 포함)
+        handaliRepository.findById(handaliId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 handali_id에 대한 데이터가 없습니다."));
+
+        // 스탯 조회
+        List<StatDetailDTO> stats = handaliRepository.findStatsByHandaliId(handaliId);
+
+        return new HandaliDTO.StatResponse(stats);
     }
 }

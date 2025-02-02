@@ -9,6 +9,7 @@ import java.util.List;
 
 
 public class HabitDTO {
+    //습관 추가 응답 dto
     @Data
     @AllArgsConstructor
     public static class AddHabitResponse{
@@ -17,13 +18,15 @@ public class HabitDTO {
         private CreatedType created_type;
     }
 
+    //습관 추가 최종 응답 dto
     @Data
     @AllArgsConstructor
     public static class AddHabitApiResponse{
         private String message;
-        private AddHabitResponse habits;
+        private List<AddHabitResponse> habits;
     }
 
+    //습관 추가 요청 dto
     @Data
     public static class AddHabitRequest{
         @NotBlank(message = "카테고리를 입력해주세요.")
@@ -32,6 +35,12 @@ public class HabitDTO {
         private String details;
         @NotBlank(message = "생성자를 입력해주세요.")
         private CreatedType created_type;
+    }
+
+    //습관 추가 요청 최종 dto
+    @Data
+    public static class AddHabitApiRequest{
+        private List<AddHabitRequest> habits;
     }
 
     // 카테고리별 습관 조회에 대한 개별 습관 DTO

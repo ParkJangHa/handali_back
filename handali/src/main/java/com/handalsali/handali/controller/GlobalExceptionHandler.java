@@ -50,8 +50,8 @@ public class GlobalExceptionHandler {
     }
 
     //입력 데이터 받을 때, 빈칸 불가
-    @ExceptionHandler(NoBlankException.class)
-    public ResponseEntity<String> noBlankException(NoBlankException e){
+    @ExceptionHandler(MoreOneLessThreeSelectException.class)
+    public ResponseEntity<String> noBlankException(MoreOneLessThreeSelectException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 

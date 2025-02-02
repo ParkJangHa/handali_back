@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
 import java.util.Map;
@@ -34,30 +35,44 @@ public class HabitService {
 
 
     //[습관 추가] 이번달 초기 습관 추가 및 설정
-    public Habit addHabitsForCurrentMonth(String token, Categoryname categoryName, String details, CreatedType createdType){
+    public List<HabitDTO.AddHabitResponse> addHabitsForCurrentMonth(String token, HabitDTO.AddHabitApiRequest addHabitApiRequest){
         //1. 사용자 확인
         User user = userService.tokenToUser(token);
 
         //2. 습관 추가
-        Habit habit = habitRepository.findByCategoryNameAndDetailedHabitName(categoryName, details).orElseGet( //이미 있는 습관은 넘어 가고 없으면 추가
-                () -> {
-                    Habit newHabit = new Habit(categoryName, details, createdType);
-                    return habitRepository.save(newHabit);
-                }
-        );
+        List<HabitDTO.AddHabitResponse> addHabitResponses = new ArrayList<>();
 
-        //3. 사용자-습관 테이블에 추가
-        int currentMonth = LocalDate.now().getMonthValue();
-        if (userHabitRepository.existsByUserAndHabit(user, habit)) { //(이미 추가했던 습관일 경우, month 만 갱신)
-            UserHabit userHabit = userHabitRepository.findByUserAndHabit(user, habit);
-            userHabit.setMonth(currentMonth);
-            userHabitRepository.save(userHabit);
-        } else {
-            UserHabit userHabit = new UserHabit(user, habit, currentMonth);
-            userHabitRepository.save(userHabit);
+        for(HabitDTO.AddHabitRequest habitRequest : addHabitApiRequest.getHabits()){
+            Categoryname categoryName=habitRequest.getCategory();
+            String detailedHabitName= habitRequest.getDetails();
+            CreatedType createdType=habitRequest.getCreated_type();
+
+            //2-1. 습관이 없으면 데이터베이스에 추가, 있으면 건너뜀
+            Habit habit = habitRepository.findByCategoryNameAndDetailedHabitName(categoryName, detailedHabitName).orElseGet( //이미 있는 습관은 넘어 가고 없으면 추가
+                    () -> {
+                        Habit newHabit = new Habit(categoryName, detailedHabitName, createdType);
+                        return habitRepository.save(newHabit);
+                    }
+            );
+
+            //2-2. user-habit 테이블에 관계 추가
+            int currentMonth = LocalDate.now().getMonthValue();
+            if (userHabitRepository.existsByUserAndHabit(user, habit)) { //이미 추가했던 습관일 경우, month 만 갱신
+                UserHabit userHabit = userHabitRepository.findByUserAndHabit(user, habit);
+                userHabit.setMonth(currentMonth);
+                userHabitRepository.save(userHabit);
+            } else { //새로운 습관일 경우, 데이터베이스에 추가
+                UserHabit userHabit = new UserHabit(user, habit, currentMonth);
+                userHabitRepository.save(userHabit);
+            }
+
+            //2-3. 응답 형식에 객체 추가
+            addHabitResponses.add(new HabitDTO.AddHabitResponse(categoryName,detailedHabitName,createdType));
+
         }
 
-        return habit;
+
+        return addHabitResponses;
     }
 
     //카테고리, 세부습관으로 습관 찾기
