@@ -29,11 +29,8 @@ public class Stat {
     @OneToMany(mappedBy = "stat", cascade = CascadeType.ALL)
     private List<JobStat> jobStats; // Job-Stat 관계
 
-    //handali_id 컬럼 추가
-    @ManyToOne
-    @JoinColumn(name = "handali_id", nullable = false)
-    private Handali handali;
-
-    @Column(name = "handali_id", insertable = false, updatable = false)
-    private Long handaliId;
+    public Stat(TypeName typeName, float value){
+        this.typeName=typeName;
+        this.value=value;
+    }
 }
