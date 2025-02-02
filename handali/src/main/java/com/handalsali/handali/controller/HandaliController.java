@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/handalis")
 public class HandaliController {
     private BaseController baseController;
     private HandaliService handaliService;
@@ -17,8 +18,8 @@ public class HandaliController {
         this.handaliService=handaliService;
     }
 
-    //[한달이 생성]
-    @PostMapping("/handalis")
+    //[한달이 생성].
+    @PostMapping
     public ResponseEntity<HandaliDTO.CreateHandaliResponse> handaliCreate(@RequestHeader("Authorization") String accessToken,
                                                 @RequestBody HandaliDTO.CreateHandaliRequest request){
 
@@ -30,7 +31,7 @@ public class HandaliController {
 
 
     // [한달이 상태 조회]
-    @GetMapping("/handalis/{handali_id}")
+    @GetMapping("/{handali_id}")
     public ResponseEntity<HandaliDTO.HandaliStatusResponse> getHandaliStatus(
             @PathVariable("handali_id") Long handaliId,
             @RequestHeader("Authorization") String accessToken) {
@@ -42,7 +43,7 @@ public class HandaliController {
     }
 
     // [스탯 조회]
-    @GetMapping("/handalis/{handali_id}/stats")
+    @GetMapping("/{handali_id}/stats")
     public ResponseEntity<HandaliDTO.StatResponse> getStatsByHandaliId(
             @PathVariable("handali_id") Long handaliId,
             @RequestHeader("Authorization") String accessToken) {
