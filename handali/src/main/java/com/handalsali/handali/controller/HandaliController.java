@@ -18,7 +18,7 @@ public class HandaliController {
         this.handaliService=handaliService;
     }
 
-    //[한달이 생성]
+    //[한달이 생성].
     @PostMapping
     public ResponseEntity<HandaliDTO.CreateHandaliResponse> handaliCreate(@RequestHeader("Authorization") String accessToken,
                                                 @RequestBody HandaliDTO.CreateHandaliRequest request){
