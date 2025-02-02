@@ -3,7 +3,7 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - main  # main 브랜치에 Push될 때 실행
+      - release/* #realease로 시작하는 모든 브랜치에서 푸시할때
 
 jobs:
   deploy:
@@ -20,19 +20,19 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            
+
             # 1. main 브랜치 코드 가져오기 
             cd /home/ubuntu/handali_back 
             git pull origin main
-            
-            
+
+
             # 2. gradlew 이 존재하는 디렉토리로 이동 및 권한 설정
             cd handali 
             chmod +x gradlew
 
             # 3. 애플리케이션 빌드
             ./gradlew clean build
-            
+
              
 
             # 4. 기존 애플리케이션 프로세스 종료 (PID 파일을 이용)
@@ -51,7 +51,7 @@ jobs:
 
               rm -f app.pid
             fi
-            
+
             # 5. 빌드된 파일 백그라운드 실행하기
             echo "==== Running application in background ===="
             nohup java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
@@ -68,5 +68,5 @@ jobs:
               fi
 
 
-            
+
             echo "==== Deployment Finished! ===="
