@@ -26,27 +26,47 @@ jobs:
             git pull origin main
             
             
-            # 2. 코드 빌드하기
+            # 2. gradlew 이 존재하는 디렉토리로 이동 및 권한 설정
             cd handali 
+            chmod +x gradlew
+
+            # 3. 애플리케이션 빌드
             ./gradlew clean build
             
-            
-            # 3. 권한 설정하기
-            chmod +x gradlew 
+             
 
             # 4. 기존 애플리케이션 프로세스 종료 (PID 파일을 이용)
             if [ -f app.pid ]; then
               old_pid=$(cat app.pid)
-              echo "Stopping existing process with PID $old_pid"
-              kill -9 $old_pid || true
-              sleep 2
+
+              # 기존 프로세스 정상 종료 시도
+              kill $old_pid || true
+              sleep 5
+
+              # 아직 살아있으면, 강제 종료
+              if ps -p $old_pid > /dev/null; then
+                kill -9 $old_pid || true
+                sleep 2
+              fi
+
               rm -f app.pid
             fi
             
-            
-            #4. 빌드된 파일 백그라운드 실행하기
+            # 5. 빌드된 파일 백그라운드 실행하기
             echo "==== Running application in background ===="
-            setsid java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+            nohup java -jar build/libs/handali-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
             echo $! > app.pid
+
+            # 6. 실행된 프로세스가 정상동작 하는지 확인
+              sleep 2
+              new_pid=$(cat app.pid)
+              if ps -p $new_pid > /dev/null; then
+                echo "✅ Application started successfully with PID $new_pid"
+              else
+                echo "🚨 Application failed to start!"
+                exit 1
+              fi
+
+
             
             echo "==== Deployment Finished! ===="
