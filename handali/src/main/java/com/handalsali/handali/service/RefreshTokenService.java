@@ -15,17 +15,17 @@ public class RefreshTokenService {
         this.redisTemplate = redisTemplate;
     }
 
-    // Refresh Token 저장
+    /** Refresh Token 저장*/
     public void saveRefreshToken(String email, String refreshToken, long expirationTime) {
         redisTemplate.opsForValue().set("refreshToken:" + email, refreshToken, expirationTime, TimeUnit.MILLISECONDS);
     }
 
-    // Refresh Token 조회
+    /** Refresh Token 조회*/
     public String getRefreshToken(String email) {
         return redisTemplate.opsForValue().get("refreshToken:" + email);
     }
 
-    // Refresh Token 삭제
+    /** Refresh Token 삭제*/
     public void deleteRefreshToken(String email) {
         redisTemplate.delete("refreshToken:" + email);
     }

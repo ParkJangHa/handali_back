@@ -34,7 +34,7 @@ public class HandaliService {
         this.handaliStatRepository = handaliStatRepository;
     }
 
-    //[한달이 생성]
+    /**[한달이 생성]*/
     public Handali handaliCreate(String token,String nickname){
         //1. 사용자 인증
         User user=userService.tokenToUser(token);
@@ -52,12 +52,12 @@ public class HandaliService {
         return handali;
     }
 
-    //유저의 이번달 한달이 조회 - 다음 달로 넘어가는 순간 호출되면 한달이를 찾을 수 없는 예외 발생
+    /**유저의 이번달 한달이 조회 - 다음 달로 넘어가는 순간 호출되면 한달이를 찾을 수 없는 예외 발생*/
     public Handali findHandaliByCurrentDateAndUser(User user){
         return handaliRepository.findHandaliByCurrentDateAndUser(user);
     }
 
-    //한달이 찾고, [스탯 업데이트]
+    /**한달이 찾고, [스탯 업데이트]*/
     public boolean statUpdate(User user, Categoryname categoryname, float time, int satisfaction) {
         // 1. 한달이 찾기
         Handali handali = findHandaliByCurrentDateAndUser(user);
@@ -90,12 +90,12 @@ public class HandaliService {
 
     /**[스탯 조회]*/
 
-    //한달이 저장
+    /**한달이 저장*/
     public void save(Handali handali){
         handaliRepository.save(handali);
     }
 
-    // [한달이 상태 조회]
+    /** [한달이 상태 조회]*/
     public HandaliDTO.HandaliStatusResponse getHandaliStatusByIdAndMonth(Long handaliId, String token) {
         userService.tokenToUser(token);
 
@@ -119,7 +119,7 @@ public class HandaliService {
 
     }
 
-    // [스탯 조회]
+    /** [스탯 조회]*/
     public HandaliDTO.StatResponse getStatsByHandaliId(Long handaliId, String token) {
         // Handali 엔티티 존재 여부 확인 (예외 처리 포함)
         handaliRepository.findById(handaliId)

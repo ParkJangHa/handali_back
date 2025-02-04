@@ -22,7 +22,7 @@ public class StatService {
         this.handaliStatRepository = handaliStatRepository;
     }
 
-    //한달이 생성후, 스탯 초기화
+    /**한달이 생성후, 스탯 초기화*/
     public void statInit(Handali handali){
         float initValue=0;
 
@@ -70,7 +70,7 @@ public class StatService {
         return checkHandaliStat(handaliStat.getStat().getValue()) != 0;
     }
 
-    // 스탯 증가 계산
+    /** 스탯 증가 계산*/
     private float calculateStatValue(float time, int satisfaction) {
         // 기본 배율과 보너스 배율 설정
         final float baseMultiplier = 1.0f; // 기본 배율

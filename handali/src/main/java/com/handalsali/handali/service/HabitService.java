@@ -34,7 +34,7 @@ public class HabitService {
     }
 
 
-    //[습관 추가] 이번달 초기 습관 추가 및 설정
+    /**[습관 추가] 이번달 초기 습관 추가 및 설정*/
     public List<HabitDTO.AddHabitResponse> addHabitsForCurrentMonth(String token, HabitDTO.AddHabitApiRequest addHabitApiRequest){
         //1. 사용자 확인
         User user = userService.tokenToUser(token);
@@ -75,12 +75,12 @@ public class HabitService {
         return addHabitResponses;
     }
 
-    //카테고리, 세부습관으로 습관 찾기
+    /**카테고리, 세부습관으로 습관 찾기*/
     public Optional<Habit> findByCategoryAndDetailedHabitName(Categoryname categoryname, String detailedHabitName){
         return habitRepository.findByCategoryNameAndDetailedHabitName(categoryname,detailedHabitName);
     }
 
-    //[사용자, 카테고리별 습관 조회]
+    /**[사용자, 카테고리별 습관 조회]*/
     public HabitDTO.getHabitsApiResponse getHabitsByUser(String token,String category) {
         User user = userService.tokenToUser(token);
 
@@ -95,7 +95,7 @@ public class HabitService {
         }
     }
 
-    //[개발자, 카테고리별 습관 조회]
+    /**[개발자, 카테고리별 습관 조회]*/
     public HabitDTO.getHabitsApiResponse getHabitsByDev(String token,String category){
         User user=userService.tokenToUser(token);
 
@@ -110,7 +110,7 @@ public class HabitService {
         }
     }
 
-    //습관 조회 응답 형식
+    /**습관 조회 응답 형식*/
     private HabitDTO.getHabitsApiResponse mapToHabitsApiResponse(String category, List<Habit> habits) {
         HabitDTO.getHabitsApiResponse response = new HabitDTO.getHabitsApiResponse();
         response.setCategory(category);
@@ -129,7 +129,7 @@ public class HabitService {
 
 
 
-    //[달, 카테고리별 습관 조회]
+    /**[달, 카테고리별 습관 조회]*/
     public Map<String,Object> getHabitsByUserAndCategoryAndMonth(String token, Categoryname category, int month) {
         User user = userService.tokenToUser(token);
 

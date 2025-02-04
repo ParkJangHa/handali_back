@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface JobRepository extends JpaRepository<Job, Long> {
 
-    //한달이의 최대 스탯명과 동일하고, 스탯값보다 큰 직업 찾기
+    /**한달이의 최대 스탯명과 동일하고, 스탯값보다 큰 직업 찾기*/
     @Query("select j from Job j " +
             "join JobStat js on js.job=j " +
             "where js.typeName=:typeName and " +

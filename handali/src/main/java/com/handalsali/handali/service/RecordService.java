@@ -29,7 +29,7 @@ public class RecordService {
         this.handaliService = handaliService;
     }
 
-    //[습관 기록] 및 스탯 업데이트
+    /**[습관 기록] 및 스탯 업데이트*/
     public RecordDTO.recordTodayHabitResponse recordTodayHabit(String token, Categoryname categoryName, String detailedHabitName,
                                                                float time, int satisfaction, LocalDate date){
         //1. 사용자 확인

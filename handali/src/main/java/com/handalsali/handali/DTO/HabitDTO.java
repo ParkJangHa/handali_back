@@ -9,7 +9,7 @@ import java.util.List;
 
 
 public class HabitDTO {
-    //습관 추가 응답 dto
+    /**습관 추가 응답 dto*/
     @Data
     @AllArgsConstructor
     public static class AddHabitResponse{
@@ -18,7 +18,7 @@ public class HabitDTO {
         private CreatedType created_type;
     }
 
-    //습관 추가 최종 응답 dto
+    /**습관 추가 최종 응답 dto*/
     @Data
     @AllArgsConstructor
     public static class AddHabitApiResponse{
@@ -26,7 +26,7 @@ public class HabitDTO {
         private List<AddHabitResponse> habits;
     }
 
-    //습관 추가 요청 dto
+    /**습관 추가 요청 dto*/
     @Data
     public static class AddHabitRequest{
         @NotBlank(message = "카테고리를 입력해주세요.")
@@ -37,13 +37,13 @@ public class HabitDTO {
         private CreatedType created_type;
     }
 
-    //습관 추가 요청 최종 dto
+    /**습관 추가 요청 최종 dto*/
     @Data
     public static class AddHabitApiRequest{
         private List<AddHabitRequest> habits;
     }
 
-    // 카테고리별 습관 조회에 대한 개별 습관 DTO
+    /** 카테고리별 습관 조회에 대한 개별 습관 DTO*/
     @Data
     @AllArgsConstructor
     public static class HabitByCategoryResponse {
@@ -51,7 +51,7 @@ public class HabitDTO {
         private String detailedHabitName;
     }
 
-    // 카테고리별 습관 조회에 대한 응답 DTO
+    /** 카테고리별 습관 조회에 대한 응답 DTO*/
     @Data
     @AllArgsConstructor
     public static class HabitsByCategoryResponse {
@@ -60,14 +60,14 @@ public class HabitDTO {
         private List<HabitByCategoryResponse> habits;
     }
 
-    // 개발자와 사용자가 설정한 습관 조회에 대한 응답 DTO
+    /** 개발자와 사용자가 설정한 습관 조회에 대한 응답 DTO*/
     @Data
     @AllArgsConstructor
     public static class DeveloperHabitResponse {
         private String category;
         private List<HabitDetail> habits;
 
-        // 개발자 습관 조회의 개별 습관 세부 DTO
+        /** 개발자 습관 조회의 개별 습관 세부 DTO*/
         @Data
         @AllArgsConstructor
         public static class HabitDetail {

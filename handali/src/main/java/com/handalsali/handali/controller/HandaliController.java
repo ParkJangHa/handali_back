@@ -18,7 +18,7 @@ public class HandaliController {
         this.handaliService=handaliService;
     }
 
-    //[한달이 생성].
+    /**[한달이 생성]*/
     @PostMapping
     public ResponseEntity<HandaliDTO.CreateHandaliResponse> handaliCreate(@RequestHeader("Authorization") String accessToken,
                                                 @RequestBody HandaliDTO.CreateHandaliRequest request){
@@ -30,7 +30,7 @@ public class HandaliController {
     }
 
 
-    // [한달이 상태 조회]
+    /** [한달이 상태 조회]*/
     @GetMapping("/{handali_id}")
     public ResponseEntity<HandaliDTO.HandaliStatusResponse> getHandaliStatus(
             @PathVariable("handali_id") Long handaliId,
@@ -42,7 +42,7 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
-    // [스탯 조회]
+    /** [스탯 조회]*/
     @GetMapping("/{handali_id}/stats")
     public ResponseEntity<HandaliDTO.StatResponse> getStatsByHandaliId(
             @PathVariable("handali_id") Long handaliId,
@@ -56,7 +56,7 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
-    /**[한달이 상태 조회]*/
+    /**[한달이 상태 변화]*/
     @GetMapping("/change")
     public ResponseEntity<String> changeHandali(@RequestHeader("Authorization") String accessToken){
         String token = baseController.extraToken(accessToken);
