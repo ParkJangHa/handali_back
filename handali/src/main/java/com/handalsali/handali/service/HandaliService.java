@@ -3,11 +3,14 @@ package com.handalsali.handali.service;
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.StatDetailDTO;
 import com.handalsali.handali.domain.Handali;
+import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.enums_multyKey.Categoryname;
+import com.handalsali.handali.enums_multyKey.TypeName;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
+import com.handalsali.handali.repository.HandaliStatRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +25,13 @@ public class HandaliService {
     private UserService userService;
     private HandaliRepository handaliRepository;
     private StatService statService;
+    private HandaliStatRepository handaliStatRepository;
 
-    public HandaliService(UserService userService, HandaliRepository handaliRepository, StatService statService) {
+    public HandaliService(UserService userService, HandaliRepository handaliRepository, StatService statService, HandaliStatRepository handaliStatRepository) {
         this.userService = userService;
         this.handaliRepository = handaliRepository;
         this.statService = statService;
+        this.handaliStatRepository = handaliStatRepository;
     }
 
     //[한달이 생성]
@@ -62,13 +67,28 @@ public class HandaliService {
         return statService.statUpdateAndCheckHandaliStat(handali, categoryname, time, satisfaction);
     }
 
-//    /**[한달이 상태 변화]*/
-//    public String changeHandali(){
-//        //1. 사용자 확인
-//        //2. 한달이 찾기
-//        //3. 이미지 생성
-//    }
+    /**[한달이 상태 변화]-이미지 반환*/
+    public String changeHandali(String token){
+        //1. 사용자 확인
+        User user=userService.tokenToUser(token);
 
+        //2. 한달이 찾기
+        Handali handali = findHandaliByCurrentDateAndUser(user);
+
+        //3. 이미지 생성 - image_활동_지능_예술.png
+        StringBuilder imageName= new StringBuilder("image");
+        List<HandaliStat> handaliStats=handaliStatRepository.findByHandali(handali);
+        for(HandaliStat handaliStat:handaliStats){
+            int level=statService.checkHandaliStat(handaliStat.getStat().getValue());
+            imageName.append("_").append(level);
+        }
+        imageName.append(".png");
+
+        return imageName.toString();
+    }
+
+
+    /**[스탯 조회]*/
 
     //한달이 저장
     public void save(Handali handali){

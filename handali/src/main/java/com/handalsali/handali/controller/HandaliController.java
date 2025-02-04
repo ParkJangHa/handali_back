@@ -56,4 +56,12 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
+    /**[한달이 상태 조회]*/
+    @GetMapping("/change")
+    public ResponseEntity<String> changeHandali(@RequestHeader("Authorization") String accessToken){
+        String token = baseController.extraToken(accessToken);
+
+        return ResponseEntity.ok(handaliService.changeHandali(token));
+    }
+
 }
