@@ -70,13 +70,14 @@ public class HandaliService {
     }
 
     // [한달이 상태 조회]
+    // 02-07 - 한달이 없을때 예외 처리 추가
     public HandaliDTO.HandaliStatusResponse getHandaliStatusByIdAndMonth(Long handaliId, String token) {
         userService.tokenToUser(token);
 
         Handali handali = handaliRepository.findById(handaliId)
-                .orElseThrow(() -> new RuntimeException("Handali not found"));
+                .orElseThrow(() -> new HandaliNotFoundException("해당 한달이가 존재하지 않습니다."));
 
-        // 예: 생성일로부터 경과 일수를 계산하는 로직
+        // 생성일로부터 경과 일수를 계산하는 로직
         int days_Since_Created = Period.between(handali.getStartDate(), LocalDate.now()).getDays()+1;
 
         String message = "아직 30일이 되지 않았습니다.";
@@ -85,7 +86,6 @@ public class HandaliService {
         }
 
         return new HandaliDTO.HandaliStatusResponse(
-                handali.getHandaliId(),
                 handali.getNickname(),
                 days_Since_Created,
                 message

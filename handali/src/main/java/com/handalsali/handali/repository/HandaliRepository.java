@@ -21,9 +21,13 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
             "and h.user=:user")
     Handali findHandaliByCurrentDateAndUser(@Param("user") User user);
 
-    //handali_id에 대한 스탯 정보 조회 / 01.30
+    //handali_id를 이용한 스탯 정보 조회 / 02.06 수정
     @Query("SELECT new com.handalsali.handali.DTO.StatDetailDTO(s.typeName, s.value) " +
             "FROM Stat s join HandaliStat hs on hs.stat=s " +
             "WHERE hs.handali.handaliId = :handaliId")
     List<StatDetailDTO> findStatsByHandaliId(@Param("handaliId") Long handaliId);
+
+    // Job 참조 아파트 입주 한달이 조회
+    @Query("SELECT h FROM Handali h JOIN FETCH h.job WHERE h.apart.apartId.apartId = :apartId")
+    List<Handali> findByApartId(@Param("apartId") int apartId);
 }

@@ -1,5 +1,7 @@
 package com.handalsali.handali.domain;
 
+import com.handalsali.handali.DTO.JobStatDTO;
+import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,5 +49,16 @@ public class Handali {
         this.nickname=nickname;
         this.startDate=startDate;
         this.user=user;
+        this.job = job;
+        this.apart = apart;
+    }
+
+    // Job 정보 포함한 DTO 변환 메서드 추가
+    public JobStatDTO.JobResponse toJobResponse() {
+        return new JobStatDTO.JobResponse(
+                this.job.getWeekSalary(),  // Job의 주급
+                this.job.getName(),        // Job의 이름
+                new JobStatDTO.JobStat(TypeName.valueOf("체력"), 50.0f) // 기본값 설정 (필요 시 변경)
+        );
     }
 }

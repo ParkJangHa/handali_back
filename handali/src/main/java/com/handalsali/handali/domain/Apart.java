@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Apart {
     //복합키
     @EmbeddedId
-    ApartId apartId;
+    private ApartId apartId;
 
     @ManyToOne
     @JoinColumn(name="user_id",

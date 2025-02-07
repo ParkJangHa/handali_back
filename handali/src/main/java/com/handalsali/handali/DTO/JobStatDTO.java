@@ -9,7 +9,7 @@ public class JobStatDTO {
     @AllArgsConstructor
     public static class JobResponse{
         private int salary;
-        private String job_name;
+        private String name; //job_name -> name으로 변경 02/06
         private JobStat stat;
     }
 
