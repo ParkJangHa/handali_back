@@ -10,20 +10,19 @@ import java.util.List;
 
 public class HabitDTO {
     //습관 추가 응답 dto
-    @Data
-    @AllArgsConstructor
-    public static class AddHabitResponse{
-        private Categoryname category;
-        private String details;
-        private CreatedType created_type;
-    }
+//    @Data
+//    @AllArgsConstructor
+//    public static class AddHabitResponse{
+//        private Categoryname category;
+//        private String details;
+//        private CreatedType created_type;
+//    }
 
     //습관 추가 최종 응답 dto
     @Data
     @AllArgsConstructor
     public static class AddHabitApiResponse{
         private String message;
-        private List<AddHabitResponse> habits;
     }
 
     //습관 추가 요청 dto
