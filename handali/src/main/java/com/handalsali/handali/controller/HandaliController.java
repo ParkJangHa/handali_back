@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
+
 @RestController
 @RequestMapping("/handalis")
 public class HandaliController {
@@ -18,7 +20,7 @@ public class HandaliController {
         this.handaliService=handaliService;
     }
 
-    //[한달이 생성].
+    /**[한달이 생성]*/
     @PostMapping
     public ResponseEntity<HandaliDTO.CreateHandaliResponse> handaliCreate(@RequestHeader("Authorization") String accessToken,
                                                 @RequestBody HandaliDTO.CreateHandaliRequest request){
@@ -30,19 +32,18 @@ public class HandaliController {
     }
 
 
-    // [한달이 상태 조회]
-    @GetMapping("/{handali_id}")
+    /**[한달이 상태 조회]*/
+    @GetMapping("/view")
     public ResponseEntity<HandaliDTO.HandaliStatusResponse> getHandaliStatus(
-            @PathVariable("handali_id") Long handaliId,
             @RequestHeader("Authorization") String accessToken) {
 
         String token = baseController.extraToken(accessToken);
-        HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByIdAndMonth(handaliId, token);
+        HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
 
         return ResponseEntity.ok(response);
     }
 
-    // [스탯 조회]
+    /** [스탯 조회]*/
     @GetMapping("/{handali_id}/stats")
     public ResponseEntity<HandaliDTO.StatResponse> getStatsByHandaliId(
             @PathVariable("handali_id") Long handaliId,

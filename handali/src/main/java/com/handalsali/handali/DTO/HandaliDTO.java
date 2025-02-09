@@ -22,7 +22,7 @@ public class HandaliDTO {
         private String nickname;
     }
 
-
+    /**[한달이 상태 조회] 응답*/
     @Data
     @AllArgsConstructor
     public static class HandaliStatusResponse {

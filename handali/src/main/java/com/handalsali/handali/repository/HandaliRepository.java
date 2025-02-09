@@ -28,6 +28,7 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     }
 
     //handali_id를 이용한 스탯 정보 조회 / 02.06 수정
+
     @Query("SELECT new com.handalsali.handali.DTO.StatDetailDTO(s.typeName, s.value) " +
             "FROM Stat s join HandaliStat hs on hs.stat=s " +
             "WHERE hs.handali.handaliId = :handaliId")

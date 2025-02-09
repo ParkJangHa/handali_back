@@ -6,14 +6,15 @@ import com.handalsali.handali.domain.Apart;
 import com.handalsali.handali.enums_multyKey.ApartId;
 import com.handalsali.handali.repository.ApartRepository;
 import com.handalsali.handali.domain.Handali;
-import com.handalsali.handali.domain.Stat;
+import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.enums_multyKey.Categoryname;
+import com.handalsali.handali.enums_multyKey.TypeName;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
+import com.handalsali.handali.repository.HandaliStatRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +35,10 @@ public class HandaliService {
         this.apartRepository = apartRepository;
         this.handaliRepository = handaliRepository;
         this.statService = statService;
+        this.handaliStatRepository = handaliStatRepository;
     }
 
-    //[한달이 생성]
+    /**[한달이 생성]*/
     public Handali handaliCreate(String token,String nickname){
         //1. 사용자 인증
         User user=userService.tokenToUser(token);
@@ -54,23 +56,46 @@ public class HandaliService {
         return handali;
     }
 
-    //유저의 이번달 한달이 조회 - 다음 달로 넘어가는 순간 호출되면 한달이를 찾을 수 없는 예외 발생
+    /**유저의 이번달 한달이 조회 - 다음 달로 넘어가는 순간 호출되면 한달이를 찾을 수 없는 예외 발생*/
     public Handali findHandaliByCurrentDateAndUser(User user){
         Handali handali = handaliRepository.findLatestHandaliByCurrentDateAndUser(user);
         return handali;
     }
 
-    //한달이 찾고, [스탯 업데이트]
-    public void statUpdate(User user, Categoryname categoryname, float time, int satisfaction) {
+    /**한달이 찾고, [스탯 업데이트]*/
+    public boolean statUpdate(User user, Categoryname categoryname, float time, int satisfaction) {
         // 1. 한달이 찾기
         Handali handali = findHandaliByCurrentDateAndUser(user);
         if (handali == null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
 
         // 2. StatService로 한달이 객체 전달
-        statService.statUpdate(handali, categoryname, time, satisfaction);
+        return statService.statUpdateAndCheckHandaliStat(handali, categoryname, time, satisfaction);
     }
 
-    //한달이 저장
+    /**[한달이 상태 변화]-이미지 반환*/
+    public String changeHandali(String token){
+        //1. 사용자 확인
+        User user=userService.tokenToUser(token);
+
+        //2. 한달이 찾기
+        Handali handali = findHandaliByCurrentDateAndUser(user);
+
+        //3. 이미지 생성 - image_활동_지능_예술.png
+        StringBuilder imageName= new StringBuilder("image");
+        List<HandaliStat> handaliStats=handaliStatRepository.findByHandali(handali);
+        for(HandaliStat handaliStat:handaliStats){
+            int level=statService.checkHandaliStat(handaliStat.getStat().getValue());
+            imageName.append("_").append(level);
+        }
+        imageName.append(".png");
+
+        return imageName.toString();
+    }
+
+
+    /**[스탯 조회]*/
+
+    /**한달이 저장*/
     public void save(Handali handali){
         handaliRepository.save(handali);
     }
@@ -87,20 +112,16 @@ public class HandaliService {
         // 생성일로부터 경과 일수를 계산하는 로직
         int days_Since_Created = Period.between(handali.getStartDate(), LocalDate.now()).getDays()+1;
 
-        String message = "아직 30일이 되지 않았습니다.";
-        if (days_Since_Created == 30) {
-            message = "생성된지 30일이 되었습니다.";
-        }
 
         return new HandaliDTO.HandaliStatusResponse(
                 handali.getNickname(),
                 days_Since_Created,
-                message
+                handali.getUser().getTotal_coin()
         );
 
     }
 
-    // [스탯 조회]
+    /** [스탯 조회]*/
     public HandaliDTO.StatResponse getStatsByHandaliId(Long handaliId, String token) {
         // Handali 엔티티 존재 여부 확인 (예외 처리 포함)
         handaliRepository.findById(handaliId)

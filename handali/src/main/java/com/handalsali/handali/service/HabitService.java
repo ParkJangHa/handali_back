@@ -7,6 +7,7 @@ import com.handalsali.handali.domain.UserHabit;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.enums_multyKey.CreatedType;
 import com.handalsali.handali.exception.CreatedTypeOrCategoryNameWrongException;
+import com.handalsali.handali.exception.HabitNotExistsException;
 import com.handalsali.handali.repository.HabitRepository;
 import com.handalsali.handali.repository.UserHabitRepository;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class HabitService {
     private final UserService userService;
     private final HabitRepository habitRepository;
     private final UserHabitRepository userHabitRepository;
+    public static final int MONTH_NOT_ASSIGNED = 0;
 
     public HabitService(UserService userService, HabitRepository habitRepository, UserHabitRepository userHabitRepository) {
         this.userService = userService;
@@ -33,19 +35,17 @@ public class HabitService {
         this.userHabitRepository = userHabitRepository;
     }
 
+    /**[습관 추가] 사용자 습관 추가*/
+    public void createUserHabit(String token,HabitDTO.AddHabitApiRequest addHabitApiRequest) {
 
-    //[습관 추가] 이번달 초기 습관 추가 및 설정
-    public List<HabitDTO.AddHabitResponse> addHabitsForCurrentMonth(String token, HabitDTO.AddHabitApiRequest addHabitApiRequest){
         //1. 사용자 확인
         User user = userService.tokenToUser(token);
 
         //2. 습관 추가
-        List<HabitDTO.AddHabitResponse> addHabitResponses = new ArrayList<>();
-
-        for(HabitDTO.AddHabitRequest habitRequest : addHabitApiRequest.getHabits()){
-            Categoryname categoryName=habitRequest.getCategory();
-            String detailedHabitName= habitRequest.getDetails();
-            CreatedType createdType=habitRequest.getCreated_type();
+        for (HabitDTO.AddHabitRequest habitRequest : addHabitApiRequest.getHabits()) {
+            Categoryname categoryName = habitRequest.getCategory();
+            String detailedHabitName = habitRequest.getDetails();
+            CreatedType createdType = habitRequest.getCreated_type();
 
             //2-1. 습관이 없으면 데이터베이스에 추가, 있으면 건너뜀
             Habit habit = habitRepository.findByCategoryNameAndDetailedHabitName(categoryName, detailedHabitName).orElseGet( //이미 있는 습관은 넘어 가고 없으면 추가
@@ -56,31 +56,50 @@ public class HabitService {
             );
 
             //2-2. user-habit 테이블에 관계 추가
-            int currentMonth = LocalDate.now().getMonthValue();
-            if (userHabitRepository.existsByUserAndHabit(user, habit)) { //이미 추가했던 습관일 경우, month 만 갱신
-                UserHabit userHabit = userHabitRepository.findByUserAndHabit(user, habit);
-                userHabit.setMonth(currentMonth);
-                userHabitRepository.save(userHabit);
-            } else { //새로운 습관일 경우, 데이터베이스에 추가
-                UserHabit userHabit = new UserHabit(user, habit, currentMonth);
+            if (!userHabitRepository.existsByUserAndHabit(user, habit)) { //이미 추가했던 습관일 경우 건너뛰고, 새로운 습관일 경우만 추가
+                UserHabit userHabit = new UserHabit(user, habit);
                 userHabitRepository.save(userHabit);
             }
-
-            //2-3. 응답 형식에 객체 추가
-            addHabitResponses.add(new HabitDTO.AddHabitResponse(categoryName,detailedHabitName,createdType));
-
         }
-
-
-        return addHabitResponses;
     }
 
-    //카테고리, 세부습관으로 습관 찾기
+    /**[이번달 습관으로 지정] 이번달에 실행할 습관으로 지정*/
+    public void addHabitsForCurrentMonth(String token, HabitDTO.AddHabitApiRequest addHabitApiRequest){
+            //1. 사용자 확인
+            User user = userService.tokenToUser(token);
+
+            //2. 습관 추가
+            for (HabitDTO.AddHabitRequest habitRequest : addHabitApiRequest.getHabits()) {
+                Categoryname categoryName = habitRequest.getCategory();
+                String detailedHabitName = habitRequest.getDetails();
+                CreatedType createdType = habitRequest.getCreated_type();
+
+                //2-1. 습관이 없으면 오류
+                Habit habit = habitRepository.findByCategoryNameAndDetailedHabitName(categoryName, detailedHabitName).orElseThrow(
+                        ()->new HabitNotExistsException("습관이 존재하지 않습니다: "+detailedHabitName)
+                );
+
+                //2-2. user-habit 테이블에 관계 추가
+                int currentMonth = LocalDate.now().getMonthValue();
+                if (userHabitRepository.existsByUserAndHabit(user, habit)) { //이미 추가했던 습관일 경우, month 만 갱신
+                    UserHabit userHabit = userHabitRepository.findByUserAndHabit(user, habit);
+                    userHabit.setMonth(currentMonth);
+                    userHabitRepository.save(userHabit);
+                } else { //새로운 습관일 경우, 에러
+                    throw new HabitNotExistsException("사용자가 해당 습관을 추가하지 않았습니다: "+detailedHabitName);
+                }
+            }
+    }
+
+
+
+
+    /**카테고리, 세부습관으로 습관 찾기*/
     public Optional<Habit> findByCategoryAndDetailedHabitName(Categoryname categoryname, String detailedHabitName){
         return habitRepository.findByCategoryNameAndDetailedHabitName(categoryname,detailedHabitName);
     }
 
-    //[사용자, 카테고리별 습관 조회]
+    /**[사용자, 카테고리별 습관 조회]*/
     public HabitDTO.getHabitsApiResponse getHabitsByUser(String token,String category) {
         User user = userService.tokenToUser(token);
 
@@ -95,7 +114,7 @@ public class HabitService {
         }
     }
 
-    //[개발자, 카테고리별 습관 조회]
+    /**[개발자, 카테고리별 습관 조회]*/
     public HabitDTO.getHabitsApiResponse getHabitsByDev(String token,String category){
         User user=userService.tokenToUser(token);
 
@@ -110,7 +129,7 @@ public class HabitService {
         }
     }
 
-    //습관 조회 응답 형식
+    /**습관 조회 응답 형식*/
     private HabitDTO.getHabitsApiResponse mapToHabitsApiResponse(String category, List<Habit> habits) {
         HabitDTO.getHabitsApiResponse response = new HabitDTO.getHabitsApiResponse();
         response.setCategory(category);
@@ -129,7 +148,7 @@ public class HabitService {
 
 
 
-    //[달, 카테고리별 습관 조회]
+    /**[달, 카테고리별 습관 조회]*/
     public Map<String,Object> getHabitsByUserAndCategoryAndMonth(String token, Categoryname category, int month) {
         User user = userService.tokenToUser(token);
 

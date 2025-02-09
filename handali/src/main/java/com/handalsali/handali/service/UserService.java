@@ -21,7 +21,7 @@ public class UserService {
         this.refreshTokenService = refreshTokenService;
     }
 
-    //feat: 회원가입
+    /**[회원가입]*/
     public User signUp(String name, String email, String password, String phone, Date birthday){
         if(userRepository.existsByEmail(email)){
             throw new EmailAlreadyExistsException();
@@ -32,7 +32,7 @@ public class UserService {
         return  user;
     }
 
-    //feat: 로그인
+    /**[로그인]*/
     public String logIn(String email,String password){
         User user= userRepository.findByEmail(email);
         if(user==null || !user.checkPassword(password))
@@ -47,26 +47,26 @@ public class UserService {
         return "Bearer "+accessToken;
     }
 
-    //feat: 로그아웃
+    /**[로그아웃]*/
     public void logOut(String accessToken) {
         String email = tokenToEmail(accessToken);
         refreshTokenService.deleteRefreshToken(email);
         
     }
 
-    //토큰으로 이메일 찾기
+    /**토큰으로 이메일 찾기*/
     public String tokenToEmail(String accessToken){
         // 토큰에서 이메일 추출
         return jwtUtil.validateToken(accessToken).getSubject();
     }
 
-    //아이디로 사용자 찾기
+    /**아이디로 사용자 찾기*/
     public User userIdToUser(long userId){
         User user= userRepository.findByUserId(userId).orElseThrow(()-> new UserNotFoundException());
         return user;
     }
 
-    //토큰으로 사용자 찾기
+    /**토큰으로 사용자 찾기*/
     public User tokenToUser(String accessToken) {
         long userId=jwtUtil.extractUserId(accessToken);
         return userIdToUser(userId);
