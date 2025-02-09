@@ -33,4 +33,9 @@ public class UserHabit {
         this.habit=habit;
         this.month=month;
     }
+
+    public UserHabit(User user,Habit habit){
+        this.user=user;
+        this.habit=habit;
+    }
 }

@@ -28,7 +28,9 @@ jobs:
             echo "🔍 현재 브랜치: ${{ env.BRANCH_NAME }}"
 
             # 1. 현재 브랜치 코드 가져오기
-            cd /home/ubuntu/handali_back 
+            cd /home/ubuntu/handali_back
+            git fetch origin 
+            git checkout ${{ env.BRANCH_NAME }}
             git pull origin ${{ env.BRANCH_NAME }}
 
             # 2. gradlew 디렉토리 이동 및 권한 설정

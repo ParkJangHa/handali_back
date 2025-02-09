@@ -24,8 +24,27 @@ public class HabitController {
         this.baseController = baseController;
     }
 
+
     /**[습관추가]*/
     @PostMapping
+    public ResponseEntity<HabitDTO.AddHabitApiResponse> createUserHabit(@RequestHeader("Authorization") String accessToken,
+                                                                        @RequestBody HabitDTO.AddHabitApiRequest request) {
+        String token = baseController.extraToken(accessToken);
+        if(request.getHabits() == null || request.getHabits().isEmpty()) {
+            throw new MoreOneLessThreeSelectException("하나 이상의 습관을 선택해주세요.");
+        }
+        if(request.getHabits().size()>3){
+            throw new MoreOneLessThreeSelectException("습관은 최대 3개까지 선택할 수 있습니다.");
+        }
+
+        habitService.createUserHabit(token,request);
+
+        HabitDTO.AddHabitApiResponse response=new HabitDTO.AddHabitApiResponse("습관이 성공적으로 추가되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**[이번달 습관으로 지정]*/
+    @PostMapping("/set")
     public ResponseEntity<?> addHabitsForCurrentMonth(@RequestHeader("Authorization") String accessToken,
                                                       @RequestBody HabitDTO.AddHabitApiRequest request){
         String token = baseController.extraToken(accessToken);
@@ -37,9 +56,9 @@ public class HabitController {
             throw new MoreOneLessThreeSelectException("습관은 최대 3개까지 선택할 수 있습니다.");
         }
 
-        List<HabitDTO.AddHabitResponse> addHabitResponse=habitService.addHabitsForCurrentMonth(token,request);
+        habitService.addHabitsForCurrentMonth(token,request);
 
-        HabitDTO.AddHabitApiResponse response=new HabitDTO.AddHabitApiResponse("습관이 성공적으로 추가되었습니다.",addHabitResponse);
+        HabitDTO.AddHabitApiResponse response=new HabitDTO.AddHabitApiResponse("습관이 이번달 습관으로 지정되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

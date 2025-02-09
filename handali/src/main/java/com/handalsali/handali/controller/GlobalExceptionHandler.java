@@ -64,8 +64,8 @@ public class GlobalExceptionHandler {
 
     /**카테고리와 세부습관에 해당하는 습관이 없을 때*/
     @ExceptionHandler(HabitNotExistsException.class)
-    public ResponseEntity<String> habitNotExistsException() {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 카테고리의 세부습관이 없습니다.");
+    public ResponseEntity<String> habitNotExistsException(HabitNotExistsException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 
     }
     /**한달에 한달이 한마리 초과 불가*/

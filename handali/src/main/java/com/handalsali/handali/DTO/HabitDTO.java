@@ -23,7 +23,6 @@ public class HabitDTO {
     @AllArgsConstructor
     public static class AddHabitApiResponse{
         private String message;
-        private List<AddHabitResponse> habits;
     }
 
     /**습관 추가 요청 dto*/

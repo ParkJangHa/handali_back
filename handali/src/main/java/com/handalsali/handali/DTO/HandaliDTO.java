@@ -22,14 +22,13 @@ public class HandaliDTO {
         private String nickname;
     }
 
-
+    /**[한달이 상태 조회] 응답*/
     @Data
     @AllArgsConstructor
     public static class HandaliStatusResponse {
-        private Long handali_Id;         // 한달이 ID
-        private String nickname;        // 닉네임
-        private int days_Since_Created;   // 생성 이후 경과 일수
-        private String message;         // 30일이 되면, 메시지 추가
+        private String nickname;
+        private int days_since_created;
+        private int total_coin;
     }
 
 
