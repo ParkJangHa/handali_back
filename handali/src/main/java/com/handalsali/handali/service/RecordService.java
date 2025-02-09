@@ -1,5 +1,6 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.DTO.RecordDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.domain.Record;
 import com.handalsali.handali.domain.User;
@@ -28,9 +29,9 @@ public class RecordService {
         this.handaliService = handaliService;
     }
 
-    //[습관 기록] 및 스탯 업데이트
-    public Record recordTodayHabit(String token, Categoryname categoryName, String detailedHabitName,
-                                   float time, int satisfaction, LocalDate date){
+    /**[습관 기록] 및 스탯 업데이트*/
+    public RecordDTO.recordTodayHabitResponse recordTodayHabit(String token, Categoryname categoryName, String detailedHabitName,
+                                                               float time, int satisfaction, LocalDate date){
         //1. 사용자 확인
         User user=userService.tokenToUser(token);
         //2. 습관 아이디 확인
@@ -47,8 +48,11 @@ public class RecordService {
         recordRepository.save(record); //트랜잭션 때문에 스탯 업데이트가 실패하면 기록도 저장안되지만, 기록아이디는 ai라서 증가 되어 있음
 
         //5. 스탯 업데이트
-        handaliService.statUpdate(user,categoryName,time,satisfaction);
+        boolean isChange=handaliService.statUpdate(user,categoryName,time,satisfaction);
 
-        return record;
+        return new RecordDTO.recordTodayHabitResponse(
+                record.getRecordId(),
+                "습관이 성공적으로 기록되었습니다.",
+                isChange);
     }
 }

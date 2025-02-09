@@ -28,7 +28,7 @@ public class JobService {
         this.userService = userService;
     }
 
-    //[취업]
+    /**[취업]*/
     public JobStatDTO.JobResponse assignBestJobToHandali(String token, Long handaliId) {
         //1. 사용자 확인
         User user=userService.tokenToUser(token);
@@ -67,7 +67,7 @@ public class JobService {
         );
     }
 
-    // 가중치 기반 랜덤 선택
+    /** 가중치 기반 랜덤 선택*/
     private Job selectJobByWeightedRandom(List<Job> jobs) {
         // 1. 전체 가중치(주급의 합) 계산
         int totalWeight = jobs.stream()

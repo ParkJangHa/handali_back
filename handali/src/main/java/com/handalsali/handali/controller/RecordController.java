@@ -18,15 +18,18 @@ public class RecordController {
         this.baseController = baseController;
     }
 
-    //[습관 기록 및 스탯 업데이트]
+    /**[습관 기록 및 스탯 업데이트]*/
     @PostMapping("/habits/record")
     public ResponseEntity<RecordDTO.recordTodayHabitResponse> recordTodayHabit(@RequestHeader("Authorization") String accessToken,
                                                                                @RequestBody RecordDTO.recordTodayHabitRequest request){
         String token=baseController.extraToken(accessToken);
-        Record record=recordService.recordTodayHabit(token,request.getCategory(), request.getDetailed_habit_name(),
-                request.getTime(),request.getSatisfaction(),request.getDate());
 
-        RecordDTO.recordTodayHabitResponse response=new RecordDTO.recordTodayHabitResponse(record.getRecordId(),"습관이 성공적으로 기록되었습니다.");
+        RecordDTO.recordTodayHabitResponse response=recordService.recordTodayHabit(
+                token,request.getCategory(),
+                request.getDetailed_habit_name(),
+                request.getTime(),
+                request.getSatisfaction(),
+                request.getDate());
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

@@ -3,18 +3,13 @@ package com.handalsali.handali.service;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.Stat;
-import com.handalsali.handali.domain.User;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.enums_multyKey.TypeName;
-import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.exception.HandaliStatNotFoundException;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.StatRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 
 @Service
 @Transactional
@@ -27,7 +22,7 @@ public class StatService {
         this.handaliStatRepository = handaliStatRepository;
     }
 
-    //한달이 생성후, 스탯 초기화
+    /**한달이 생성후, 스탯 초기화*/
     public void statInit(Handali handali){
         float initValue=0;
 
@@ -50,8 +45,8 @@ public class StatService {
         handaliStatRepository.save(artHandaliStat);
     }
 
-    //[스탯 업데이트]
-    public void statUpdate(Handali handali, Categoryname categoryname, float time, int satisfaction){
+    /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
+    public boolean statUpdateAndCheckHandaliStat(Handali handali, Categoryname categoryname, float time, int satisfaction){
 //        //1. 한달이 찾기
 //        if(handali==null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
 
@@ -70,9 +65,12 @@ public class StatService {
         float incrementValue = calculateStatValue(time, satisfaction);
         handaliStat.getStat().setValue(handaliStat.getStat().getValue()+incrementValue);
         // 데이터는 트랜잭션 종료 시 자동으로 저장됨 (save 불필요)
+
+        //5. 한달이 상태 변화 검사
+        return checkHandaliStat(handaliStat.getStat().getValue()) != 0;
     }
 
-    // 스탯 증가 계산
+    /** 스탯 증가 계산*/
     private float calculateStatValue(float time, int satisfaction) {
         // 기본 배율과 보너스 배율 설정
         final float baseMultiplier = 1.0f; // 기본 배율
@@ -84,4 +82,17 @@ public class StatService {
         // 스탯 증가 값 계산
         return time * multiplier;
     }
+
+    /**스탯에 따른 레벨 반환*/
+    public int checkHandaliStat(float statValue){
+        int[] threshold={20,40,70}; //순서대로 1,2,3단계 조건
+        int level=0;
+        for(int limit:threshold){
+            if(statValue>=limit){
+                level++;
+            }
+        }
+        return level;
+    }
+
 }

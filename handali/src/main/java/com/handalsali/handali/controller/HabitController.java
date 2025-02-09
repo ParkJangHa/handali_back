@@ -23,7 +23,9 @@ public class HabitController {
         this.habitService = habitService;
         this.baseController = baseController;
     }
-    /**[습관 추가].*/
+
+
+    /**[습관추가]*/
     @PostMapping
     public ResponseEntity<HabitDTO.AddHabitApiResponse> createUserHabit(@RequestHeader("Authorization") String accessToken,
                                                                         @RequestBody HabitDTO.AddHabitApiRequest request) {
@@ -61,7 +63,7 @@ public class HabitController {
     }
 
 
-    //[카테고리, 사용자에 따른 습관 조회]
+    /**[카테고리, 사용자에 따른 습관 조회]*/
     @GetMapping("/category-user")
     public ResponseEntity<HabitDTO.getHabitsApiResponse> getHabitsByUser(
             @RequestHeader("Authorization") String accessToken,
@@ -73,7 +75,7 @@ public class HabitController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    //[카테고리, 개발자에 따른 습관 조회]
+    /**[카테고리, 개발자에 따른 습관 조회]*/
     @GetMapping("/category-dev")
     public ResponseEntity<HabitDTO.getHabitsApiResponse> getHabitsByDev(
             @RequestHeader("Authorization") String accessToken,
@@ -86,7 +88,7 @@ public class HabitController {
 
     }
 
-    //[카테고리,달에 따른 습관 조회]
+    /**[카테고리,달에 따른 습관 조회]*/
     @GetMapping("/category-month")
     public ResponseEntity<Map<String, Object>> getHabitsByUserAndCategoryAndMonth(
             @RequestHeader("Authorization") String accessToken,
