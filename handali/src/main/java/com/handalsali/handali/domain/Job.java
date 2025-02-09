@@ -30,12 +30,4 @@ public class Job {
         this.name=name;
         this.weekSalary=weekSalary;
     }
-
-    public JobStatDTO.JobResponse toDto(TypeName typeName, float value) {
-        return new JobStatDTO.JobResponse(
-                this.weekSalary,
-                this.name,
-                new JobStatDTO.JobStat(typeName, value)
-        );
-    }
 }

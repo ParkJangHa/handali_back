@@ -1,5 +1,6 @@
 package com.handalsali.handali.DTO;
 
+import com.handalsali.handali.domain.Job;
 import com.handalsali.handali.enums_multyKey.TypeName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,5 +19,13 @@ public class JobStatDTO {
     public static class JobStat{
         private TypeName type_name;
         private float value;
+    }
+
+    public static JobResponse fromEntity(Job job, TypeName typeName, float value) {
+        return new JobResponse(
+                job.getWeekSalary(),
+                job.getName(),
+                new JobStat(typeName, value)
+        );
     }
 }
