@@ -92,37 +92,7 @@ public class HabitService {
             }
     }
 
-//    /**습관을 데이터베이스에 추가*/
-//    public void setHabit(String token, HabitDTO.AddHabitApiRequest addHabitApiRequest, int month) {
-//        //1. 사용자 확인
-//        User user = userService.tokenToUser(token);
-//
-//        //2. 습관 추가
-//        for (HabitDTO.AddHabitRequest habitRequest : addHabitApiRequest.getHabits()) {
-//            Categoryname categoryName = habitRequest.getCategory();
-//            String detailedHabitName = habitRequest.getDetails();
-//            CreatedType createdType = habitRequest.getCreated_type();
-//
-//            //2-1. 습관이 없으면 데이터베이스에 추가, 있으면 건너뜀
-//            Habit habit = habitRepository.findByCategoryNameAndDetailedHabitName(categoryName, detailedHabitName).orElseGet( //이미 있는 습관은 넘어 가고 없으면 추가
-//                    () -> {
-//                        Habit newHabit = new Habit(categoryName, detailedHabitName, createdType);
-//                        return habitRepository.save(newHabit);
-//                    }
-//            );
-//
-//            //2-2. user-habit 테이블에 관계 추가
-////            int currentMonth = LocalDate.now().getMonthValue();
-//            if (userHabitRepository.existsByUserAndHabit(user, habit)) { //이미 추가했던 습관일 경우, month 만 갱신
-//                UserHabit userHabit = userHabitRepository.findByUserAndHabit(user, habit);
-//                userHabit.setMonth(month);
-//                userHabitRepository.save(userHabit);
-//            } else { //새로운 습관일 경우, 데이터베이스에 추가
-//                UserHabit userHabit = new UserHabit(user, habit, month);
-//                userHabitRepository.save(userHabit);
-//            }
-//        }
-//    }
+
 
 
     //카테고리, 세부습관으로 습관 찾기
