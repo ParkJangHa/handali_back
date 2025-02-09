@@ -3,6 +3,7 @@ package com.handalsali.handali.enums_multyKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -10,10 +11,11 @@ import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Embeddable
 public class ApartId implements Serializable {
     @Column(name="apart_id")
-    private long apartId;
+    private int apartId;
     private int floor;
 
     // equals()와 hashCode() 구현

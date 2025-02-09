@@ -1,6 +1,6 @@
 package com.handalsali.handali.service;
 
-import com.handalsali.handali.DTO.JobStatDTO;
+import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.repository.HandaliRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +11,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class ApartmentService {
-    @Autowired
-    private HandaliRepository handaliRepository;
+    private final HandaliRepository handaliRepository;
+
+    public ApartmentService(HandaliRepository handaliRepository) {
+        this.handaliRepository = handaliRepository;
+    }
 
     //[아파트에 입주한 모든 한달이 조회]
-    public List<JobStatDTO.JobResponse> getAllHandalis() {
-        return handaliRepository.findAll() // 모든 한달이 조회
+    public List<HandaliDTO.HandaliInApartmentResponse> getAllHandalisInApartments() {  // ✅ 반환 타입 수정
+        return handaliRepository.findAllHandalisInApartments()
                 .stream()
-                .map(Handali::toJobResponse) // DTO 변환
+                .map(Handali::toApartmentResponse) // DTO 변환 방식 수정
                 .collect(Collectors.toList());
     }
 }

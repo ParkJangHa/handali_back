@@ -2,6 +2,7 @@ package com.handalsali.handali.repository;
 
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.StatDetailDTO;
+import com.handalsali.handali.domain.Apart;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,21 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     // Job 참조 아파트 입주 한달이 조회
     @Query("SELECT h FROM Handali h JOIN FETCH h.job WHERE h.apart.apartId.apartId = :apartId")
     List<Handali> findByApartId(@Param("apartId") int apartId);
+
+    //아파트에 입주한 모든 한달이 조회
+    @Query("SELECT h FROM Handali h WHERE h.apart IS NOT NULL")
+    List<Handali> findAllHandalisInApartments();
+
+    //가장 최신 아파트 조회
+    @Query("SELECT a FROM Apart a ORDER BY a.apartId.apartId DESC")
+    List<Apart> findLatestApartmentList();
+
+    default Apart findLatestApartment() {
+        List<Apart> latestApartments = findLatestApartmentList();
+        return latestApartments.isEmpty() ? null : latestApartments.get(0);
+    }
+
+    // 특정 아파트에 입주한 한달이 수 조회
+    @Query("SELECT COUNT(h) FROM Handali h WHERE h.apart.apartId.apartId = :apartId")
+    int countHandalisInApartment(@Param("apartId") int apartId);
 }

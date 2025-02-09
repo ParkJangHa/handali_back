@@ -39,4 +39,24 @@ public class HandaliDTO {
         private List<StatDetailDTO> stat;
     }
 
+    @Data
+    @AllArgsConstructor
+    public static class ApartEnterResponse {
+        private int apart_id;
+        private int floor;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class HandaliInApartmentResponse {
+        private int apart_id;
+        private int floor;
+        private String nickname;
+        private LocalDate start_date;
+        private String job_name;
+        private int salary;
+        private String type_name;
+        private float value;
+    }
+
 }

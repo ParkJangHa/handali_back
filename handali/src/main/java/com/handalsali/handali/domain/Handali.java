@@ -1,5 +1,6 @@
 package com.handalsali.handali.domain;
 
+import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.JobStatDTO;
 import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
@@ -38,6 +39,7 @@ public class Handali {
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (job_id) REFERENCES job(job_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Job job;
 
+    @Setter
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "apart_id", referencedColumnName = "apart_id"),
@@ -53,12 +55,16 @@ public class Handali {
         this.apart = apart;
     }
 
-    // Job 정보 포함한 DTO 변환 메서드 추가
-    public JobStatDTO.JobResponse toJobResponse() {
-        return new JobStatDTO.JobResponse(
-                this.job.getWeekSalary(),  // Job의 주급
-                this.job.getName(),        // Job의 이름
-                new JobStatDTO.JobStat(TypeName.valueOf("체력"), 50.0f) // 기본값 설정 (필요 시 변경)
+    public HandaliDTO.HandaliInApartmentResponse toApartmentResponse() {
+        return new HandaliDTO.HandaliInApartmentResponse(
+                this.apart.getApartId().getApartId(), // 아파트 ID
+                this.apart.getApartId().getFloor(), // 층 수
+                this.nickname, // 닉네임
+                this.startDate, // 생성일
+                this.job != null ? this.job.getName() : null, // 직업명
+                this.job != null ? this.job.getWeekSalary() : 0, // 주급
+                "체력", // 예제 스탯 이름 (이 부분은 필요에 따라 변경)
+                30.5f // 예제 스탯 값 (이 부분은 필요에 따라 변경)
         );
     }
 }

@@ -2,6 +2,9 @@ package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.StatDetailDTO;
+import com.handalsali.handali.domain.Apart;
+import com.handalsali.handali.enums_multyKey.ApartId;
+import com.handalsali.handali.repository.ApartRepository;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.domain.User;
@@ -24,9 +27,11 @@ public class HandaliService {
     private UserService userService;
     private HandaliRepository handaliRepository;
     private StatService statService;
+    private final ApartRepository apartRepository;
 
-    public HandaliService(UserService userService, HandaliRepository handaliRepository, StatService statService) {
+    public HandaliService(UserService userService, HandaliRepository handaliRepository, ApartRepository apartRepository, StatService statService) {
         this.userService = userService;
+        this.apartRepository = apartRepository;
         this.handaliRepository = handaliRepository;
         this.statService = statService;
     }
@@ -74,6 +79,7 @@ public class HandaliService {
     public HandaliDTO.HandaliStatusResponse getHandaliStatusByIdAndMonth(Long handaliId, String token) {
         userService.tokenToUser(token);
 
+        //한달이 조회
         Handali handali = handaliRepository.findById(handaliId)
                 .orElseThrow(() -> new HandaliNotFoundException("해당 한달이가 존재하지 않습니다."));
 
@@ -103,5 +109,53 @@ public class HandaliService {
         List<StatDetailDTO> stats = handaliRepository.findStatsByHandaliId(handaliId);
 
         return new HandaliDTO.StatResponse(stats);
+    }
+
+
+    // [아파트 입주]
+    public HandaliDTO.ApartEnterResponse moveHandaliToApartment(Long handaliId, String token) {
+        userService.tokenToUser(token);
+
+        // 1. 한달이 조회
+        Handali handali = handaliRepository.findById(handaliId)
+                .orElseThrow(() -> new HandaliNotFoundException("해당 한달이가 존재하지 않습니다."));
+
+        // 2. 한달이가 직업을 가지고 있는지 확인
+        if (handali.getJob() == null) {
+            throw new IllegalStateException("한달이가 직업을 가져야 아파트에 입주할 수 있습니다.");
+        }
+
+        // 3. 생성 달과 현재 달 비교 (입주 조건)
+        if (handali.getStartDate().getMonthValue() == LocalDate.now().getMonthValue()) {
+            throw new IllegalStateException("한달이가 생성된 달과 현재 달이 같아 입주할 수 없습니다.");
+        }
+
+        // 4. 최신 아파트 조회
+        Apart latestApartment = apartRepository.findLatestApartment();
+
+        if (latestApartment == null) {
+            // 아파트가 없으면 새로 생성 (apart_id = 1, floor = 1)
+            latestApartment = apartRepository.save(new Apart(new ApartId(1, 1), handali.getUser()));
+        }
+
+        // 5. 해당 아파트의 현재 층 개수 확인
+        int currentFloor = handaliRepository.countHandalisInApartment(latestApartment.getApartId().getApartId());
+
+        if (currentFloor >= 12) {
+            latestApartment = apartRepository.save(new Apart(new ApartId(latestApartment.getApartId().getApartId() + 1, 1), handali.getUser()));
+            currentFloor = 1;
+        } else {
+            currentFloor += 1;
+        }
+
+        // 6. 한달이의 아파트 정보 업데이트
+        handali.setApart(latestApartment);
+        handaliRepository.save(handali);
+
+        // 7. 응답 DTO 반환
+        return new HandaliDTO.ApartEnterResponse(
+                latestApartment.getApartId().getApartId(),
+                currentFloor
+        );
     }
 }

@@ -1,5 +1,6 @@
 package com.handalsali.handali.controller;
 
+import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.JobStatDTO;
 import com.handalsali.handali.service.ApartmentService;
 import com.handalsali.handali.service.HandaliService;
@@ -26,20 +27,20 @@ public class ApartmentController {
 
     //[아파트 내 모든 한달이 조회]
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllApartments(
-            @RequestHeader("Authorization") String accessToken) { // JWT 인증 필수
+    public ResponseEntity<Map<String, Object>> getAllHandalisInApartments(
+            @RequestHeader("Authorization") String accessToken) {
 
-        // 토큰에서 유저 정보 추출
-        String token = baseController.extraToken(accessToken);
+        baseController.extraToken(accessToken);
 
-        // 모든 한달이 조회
-        List<JobStatDTO.JobResponse> handalis = apartmentService.getAllHandalis();
+        // 아파트에 입주한 한달이들만 조회
+        List<HandaliDTO.HandaliInApartmentResponse> handalis = apartmentService.getAllHandalisInApartments();
 
         if (handalis.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "등록된 한달이가 없습니다."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "등록된 한달이가 없습니다."));
         }
 
-        // JSON 형식으로 {"apartments": [...]} 반환
+        // JSON 형식 {"apartments": [...]} 로 반환
         Map<String, Object> response = new HashMap<>();
         response.put("apartments", handalis);
 
