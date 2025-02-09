@@ -61,13 +61,18 @@ public class StatService {
         HandaliStat handaliStat=handaliStatRepository.findByHandaliAndType(handali,currentStatType)
                 .orElseThrow(() -> new HandaliStatNotFoundException("스탯을 찾을 수 없습니다."));
 
-        //4. 스탯 값 업데이트
+        //4. 스탯 업데이트 전의 한달이 레벨 확인
+        int previousLevel=checkHandaliStat(handaliStat.getStat().getValue());
+
+        //5. 스탯 값 업데이트
         float incrementValue = calculateStatValue(time, satisfaction);
         handaliStat.getStat().setValue(handaliStat.getStat().getValue()+incrementValue);
-        // 데이터는 트랜잭션 종료 시 자동으로 저장됨 (save 불필요)
+        handaliStatRepository.save(handaliStat);
 
-        //5. 한달이 상태 변화 검사
-        return checkHandaliStat(handaliStat.getStat().getValue()) != 0;
+        //6. 한달이 상태 변화 검사
+        int nowLevel=checkHandaliStat(handaliStat.getStat().getValue());
+
+        return previousLevel!=nowLevel;
     }
 
     /** 스탯 증가 계산*/

@@ -21,6 +21,6 @@ public class RecordDTO {
     public static class recordTodayHabitResponse{
         private long record_id;
         private String message;
-        private boolean is_change;
+        private boolean appearance_change;
     }
 }
