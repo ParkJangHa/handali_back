@@ -23,7 +23,7 @@ public class HabitController {
         this.habitService = habitService;
         this.baseController = baseController;
     }
-    /**[습관 추가]*/
+    /**[습관 추가].*/
     @PostMapping
     public ResponseEntity<HabitDTO.AddHabitApiResponse> createUserHabit(@RequestHeader("Authorization") String accessToken,
                                                                         @RequestBody HabitDTO.AddHabitApiRequest request) {
