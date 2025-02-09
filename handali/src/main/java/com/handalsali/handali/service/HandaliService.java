@@ -56,7 +56,8 @@ public class HandaliService {
 
     //유저의 이번달 한달이 조회 - 다음 달로 넘어가는 순간 호출되면 한달이를 찾을 수 없는 예외 발생
     public Handali findHandaliByCurrentDateAndUser(User user){
-        return handaliRepository.findHandaliByCurrentDateAndUser(user);
+        Handali handali = handaliRepository.findLatestHandaliByCurrentDateAndUser(user);
+        return handali;
     }
 
     //한달이 찾고, [스탯 업데이트]
@@ -113,17 +114,20 @@ public class HandaliService {
 
 
     // [아파트 입주]
+    @Transactional
     public HandaliDTO.ApartEnterResponse moveHandaliToApartment(Long handaliId, String token) {
         userService.tokenToUser(token);
 
         // 1. 한달이 조회
         Handali handali = handaliRepository.findById(handaliId)
-                .orElseThrow(() -> new HandaliNotFoundException("해당 한달이가 존재하지 않습니다."));
+                .orElseThrow(() -> new HandaliNotFoundException("한달이 ID " + handaliId + "를 찾을 수 없습니다."));
 
         // 2. 한달이가 직업을 가지고 있는지 확인
         if (handali.getJob() == null) {
             throw new IllegalStateException("한달이가 직업을 가져야 아파트에 입주할 수 있습니다.");
         }
+
+        System.out.println("DEBUG: 한달이 ID " + handaliId + " 직업 확인 완료");
 
         // 3. 생성 달과 현재 달 비교 (입주 조건)
         if (handali.getStartDate().getMonthValue() == LocalDate.now().getMonthValue()) {
@@ -134,23 +138,51 @@ public class HandaliService {
         Apart latestApartment = apartRepository.findLatestApartment();
 
         if (latestApartment == null) {
+            System.out.println("DEBUG: 현재 아파트가 없음 → 새로운 아파트 생성");
             // 아파트가 없으면 새로 생성 (apart_id = 1, floor = 1)
-            latestApartment = apartRepository.save(new Apart(new ApartId(1, 1), handali.getUser()));
+            latestApartment = new Apart(new ApartId(1, 1), handali.getUser());
+            apartRepository.save(latestApartment);
+
+        } else {
+            if (!apartRepository.existsById(latestApartment.getApartId())) {
+                System.out.println("DEBUG: latestApartment가 영속 상태가 아님 → save() 호출");
+                apartRepository.save(latestApartment);
+            }
         }
 
+        System.out.println("DEBUG: 최신 아파트 ID: " + latestApartment.getApartId().getApartId());
+
         // 5. 해당 아파트의 현재 층 개수 확인
-        int currentFloor = handaliRepository.countHandalisInApartment(latestApartment.getApartId().getApartId());
+        Integer currentFloor = handaliRepository.countHandalisInApartment(latestApartment.getApartId().getApartId());
+        if (currentFloor == null) {
+            currentFloor = 0;
+        }
+
+        System.out.println("DEBUG: 현재 아파트 " + latestApartment.getApartId().getApartId() + " 층 수: " + currentFloor);
 
         if (currentFloor >= 12) {
-            latestApartment = apartRepository.save(new Apart(new ApartId(latestApartment.getApartId().getApartId() + 1, 1), handali.getUser()));
+            int newApartId = latestApartment.getApartId().getApartId() + 1;
+            System.out.println("DEBUG: 아파트 꽉 참 → 새로운 아파트 ID: " + newApartId);
+            latestApartment = new Apart(new ApartId(newApartId, 1), handali.getUser());
+            latestApartment = apartRepository.save(latestApartment);
             currentFloor = 1;
         } else {
             currentFloor += 1;
         }
 
+        System.out.println("DEBUG: 한달이 ID " + handaliId + " 입주 층: " + currentFloor);
+
         // 6. 한달이의 아파트 정보 업데이트
         handali.setApart(latestApartment);
+        handali.setFloor(currentFloor);
+
+        if (!apartRepository.existsById(latestApartment.getApartId())) {
+            System.out.println("DEBUG: latestApartment 영속 상태 아님 → save() 호출");
+            apartRepository.save(latestApartment);
+        }
         handaliRepository.save(handali);
+
+        System.out.println("DEBUG: 한달이 ID " + handaliId + " 아파트 입주 완료");
 
         // 7. 응답 DTO 반환
         return new HandaliDTO.ApartEnterResponse(

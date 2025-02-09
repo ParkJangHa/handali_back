@@ -30,10 +30,10 @@ public class ApartmentController {
     public ResponseEntity<Map<String, Object>> getAllHandalisInApartments(
             @RequestHeader("Authorization") String accessToken) {
 
-        baseController.extraToken(accessToken);
+        String token = baseController.extraToken(accessToken);
 
         // 아파트에 입주한 한달이들만 조회
-        List<HandaliDTO.HandaliInApartmentResponse> handalis = apartmentService.getAllHandalisInApartments();
+        List<HandaliDTO.HandaliInApartmentResponse> handalis = apartmentService.getAllHandalisInApartments(token);
 
         if (handalis.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -1,6 +1,6 @@
 package com.handalsali.handali.DTO;
 
-import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.domain.Handali;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,7 +12,7 @@ public class HandaliDTO {
     @AllArgsConstructor
     public static class CreateHandaliResponse{
         private long handali_id;
-        private String nickaname;
+        private String nickname;
         private LocalDate start_date;
         private String message;
     }
@@ -54,9 +54,28 @@ public class HandaliDTO {
         private String nickname;
         private LocalDate start_date;
         private String job_name;
-        private int salary;
+        private int week_salary;
         private String type_name;
-        private float value;
-    }
+        private float stat_value;
 
+        public static HandaliInApartmentResponse fromEntity(Handali handali) {
+            if (handali.getApart() == null) {
+                throw new IllegalStateException("Handali가 아파트 정보를 가지고 있지 않습니다.");
+            }
+
+            System.out.println("DEBUG: " + handali.getNickname() + "의 아파트 ID: " + handali.getApart().getApartId().getApartId());
+            System.out.println("DEBUG: " + handali.getNickname() + "의 층수: " + handali.getApart().getApartId().getFloor());
+
+            return new HandaliInApartmentResponse(
+                    handali.getApart().getApartId().getApartId(),  // 아파트 ID
+                    handali.getApart().getApartId().getFloor(),  // 층 수
+                    handali.getNickname(),  // 닉네임
+                    handali.getStartDate(),  // 생성일
+                    handali.getJob() != null ? handali.getJob().getName() : null,  // 직업명
+                    handali.getJob() != null ? handali.getJob().getWeekSalary() : 0,  // 주급
+                    "체력",  // 예제 스탯 이름
+                    30.5f   // 예제 스탯 값
+            );
+        }
+    }
 }
