@@ -56,14 +56,14 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
-    // [아파트 입주]
-    @PostMapping("/{handali_id}/apartments-enter")
-    public ResponseEntity<HandaliDTO.ApartEnterResponse> moveHandaliToApartment(
+    /** [취업 + 아파트 입주] **/
+    @PostMapping("/{handali_id}/job-apt")
+    public ResponseEntity<HandaliDTO.HandaliInApartmentResponse> processEmploymentAndMoveIn(
             @PathVariable("handali_id") Long handaliId,
             @RequestHeader("Authorization") String accessToken) {
 
         String token = baseController.extraToken(accessToken);
-        HandaliDTO.ApartEnterResponse response = handaliService.moveHandaliToApartment(handaliId, token);
+        HandaliDTO.HandaliInApartmentResponse response = handaliService.processEmploymentAndMoveIn(handaliId, token);
 
         return ResponseEntity.ok(response);
     }

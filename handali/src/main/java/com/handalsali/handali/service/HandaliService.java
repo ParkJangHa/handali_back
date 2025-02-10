@@ -2,16 +2,14 @@ package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.StatDetailDTO;
-import com.handalsali.handali.domain.Apart;
+import com.handalsali.handali.domain.*;
 import com.handalsali.handali.enums_multyKey.ApartId;
 import com.handalsali.handali.repository.ApartRepository;
-import com.handalsali.handali.domain.Handali;
-import com.handalsali.handali.domain.Stat;
-import com.handalsali.handali.domain.User;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
+import com.handalsali.handali.repository.JobRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -24,16 +22,20 @@ import java.util.List;
 @Service
 @Transactional
 public class HandaliService {
+    private final HandaliStatService handaliStatService;
     private UserService userService;
     private HandaliRepository handaliRepository;
     private StatService statService;
+    private final JobRepository jobRepository;
     private final ApartRepository apartRepository;
 
-    public HandaliService(UserService userService, HandaliRepository handaliRepository, ApartRepository apartRepository, StatService statService) {
+    public HandaliService(UserService userService, JobRepository jobRepository, HandaliRepository handaliRepository, ApartRepository apartRepository, StatService statService, HandaliStatService handaliStatService) {
         this.userService = userService;
         this.apartRepository = apartRepository;
         this.handaliRepository = handaliRepository;
+        this.jobRepository = jobRepository;
         this.statService = statService;
+        this.handaliStatService = handaliStatService;
     }
 
     //[한달이 생성]
@@ -113,81 +115,105 @@ public class HandaliService {
     }
 
 
-    // [아파트 입주]
+    /** [한달이 취업 및 아파트 입주] **/
     @Transactional
-    public HandaliDTO.ApartEnterResponse moveHandaliToApartment(Long handaliId, String token) {
-        userService.tokenToUser(token);
+    public HandaliDTO.HandaliInApartmentResponse processEmploymentAndMoveIn(Long handaliId, String token) {
+        // 1️⃣ 사용자 정보 확인 (토큰 검증)
+        User user = userService.tokenToUser(token);
 
-        // 1. 한달이 조회
+        // 2️⃣ 한달이 조회
         Handali handali = handaliRepository.findById(handaliId)
                 .orElseThrow(() -> new HandaliNotFoundException("한달이 ID " + handaliId + "를 찾을 수 없습니다."));
 
-        // 2. 한달이가 직업을 가지고 있는지 확인
+        // 3️⃣ 취업 처리 (기존에 직업이 없을 경우만)
         if (handali.getJob() == null) {
-            throw new IllegalStateException("한달이가 직업을 가져야 아파트에 입주할 수 있습니다.");
+            Job job = assignBestJobToHandali(handali);
+            handali.setJob(job);
         }
 
-        System.out.println("DEBUG: 한달이 ID " + handaliId + " 직업 확인 완료");
-
-        // 3. 생성 달과 현재 달 비교 (입주 조건)
-        if (handali.getStartDate().getMonthValue() == LocalDate.now().getMonthValue()) {
-            throw new IllegalStateException("한달이가 생성된 달과 현재 달이 같아 입주할 수 없습니다.");
+        // 4️⃣ 아파트 입주 처리 (기존에 입주한 아파트가 없을 경우만)
+        if (handali.getApart() == null) {
+            handali.setApart(assignApartmentToHandali(handali));
         }
 
-        // 4. 최신 아파트 조회
+        // 5️⃣ 저장
+        handaliRepository.save(handali);
+
+        // 6️⃣ DTO 변환 후 반환
+        return HandaliDTO.HandaliInApartmentResponse.fromEntity(handali);
+    }
+
+    /** 한달이의 최적 직업 할당 **/
+    private Job assignBestJobToHandali(Handali handali) {
+        // 1. 가장 높은 스탯 찾기
+        HandaliStat maxHandaliStat = handaliStatService.findMaxStatByHandaliId(handali.getHandaliId()).get(0);
+
+        // 2. 해당 스탯과 비교하여 직업 리스트 가져오기
+        List<Job> jobs = jobRepository.findJobByMaxHandaliStat(
+                maxHandaliStat.getStat().getTypeName(),
+                maxHandaliStat.getStat().getValue());
+
+        // 3. 직업이 없으면 백수
+        if (jobs.isEmpty()) {
+            return jobRepository.findByName("백수");
+        }
+
+        // 4. 주급을 기반으로 가중치 랜덤 선택
+        return selectJobByWeightedRandom(jobs);
+    }
+
+    /** 한달이의 아파트 배정 **/
+    private Apart assignApartmentToHandali(Handali handali) {
+        // 1. 최신 아파트 조회
         Apart latestApartment = apartRepository.findLatestApartment();
 
+        // 2. 아파트가 없으면 새로 생성
         if (latestApartment == null) {
-            System.out.println("DEBUG: 현재 아파트가 없음 → 새로운 아파트 생성");
-            // 아파트가 없으면 새로 생성 (apart_id = 1, floor = 1)
             latestApartment = new Apart(new ApartId(1, 1), handali.getUser());
             apartRepository.save(latestApartment);
-
-        } else {
-            if (!apartRepository.existsById(latestApartment.getApartId())) {
-                System.out.println("DEBUG: latestApartment가 영속 상태가 아님 → save() 호출");
-                apartRepository.save(latestApartment);
-            }
         }
 
-        System.out.println("DEBUG: 최신 아파트 ID: " + latestApartment.getApartId().getApartId());
-
-        // 5. 해당 아파트의 현재 층 개수 확인
+        // 3. 해당 아파트의 현재 층 개수 확인
         Integer currentFloor = handaliRepository.countHandalisInApartment(latestApartment.getApartId().getApartId());
         if (currentFloor == null) {
             currentFloor = 0;
         }
 
-        System.out.println("DEBUG: 현재 아파트 " + latestApartment.getApartId().getApartId() + " 층 수: " + currentFloor);
-
+        // 4. 층 수 증가 (최대 12층)
         if (currentFloor >= 12) {
             int newApartId = latestApartment.getApartId().getApartId() + 1;
-            System.out.println("DEBUG: 아파트 꽉 참 → 새로운 아파트 ID: " + newApartId);
             latestApartment = new Apart(new ApartId(newApartId, 1), handali.getUser());
-            latestApartment = apartRepository.save(latestApartment);
+            apartRepository.save(latestApartment);
             currentFloor = 1;
         } else {
             currentFloor += 1;
         }
 
-        System.out.println("DEBUG: 한달이 ID " + handaliId + " 입주 층: " + currentFloor);
-
-        // 6. 한달이의 아파트 정보 업데이트
-        handali.setApart(latestApartment);
+        // 5. 아파트 및 층수 할당
         handali.setFloor(currentFloor);
+        return latestApartment;
+    }
 
-        if (!apartRepository.existsById(latestApartment.getApartId())) {
-            System.out.println("DEBUG: latestApartment 영속 상태 아님 → save() 호출");
-            apartRepository.save(latestApartment);
+    /** 가중치 기반 랜덤 직업 선택 **/
+    private Job selectJobByWeightedRandom(List<Job> jobs) {
+        // 1. 전체 가중치(주급의 합) 계산
+        int totalWeight = jobs.stream()
+                .mapToInt(Job::getWeekSalary)
+                .sum();
+
+        // 2. 랜덤 값 생성 (0 ~ totalWeight)
+        int randomWeight = (int) (Math.random() * totalWeight);
+
+        // 3. 가중치 기반으로 직업 선택
+        int cumulativeWeight = 0;
+        for (Job job : jobs) {
+            cumulativeWeight += job.getWeekSalary();
+            if (randomWeight < cumulativeWeight) {
+                return job;
+            }
         }
-        handaliRepository.save(handali);
 
-        System.out.println("DEBUG: 한달이 ID " + handaliId + " 아파트 입주 완료");
-
-        // 7. 응답 DTO 반환
-        return new HandaliDTO.ApartEnterResponse(
-                latestApartment.getApartId().getApartId(),
-                currentFloor
-        );
+        // 기본값 (예외 발생 방지를 위해 마지막 직업 반환)
+        return jobs.get(jobs.size() - 1);
     }
 }

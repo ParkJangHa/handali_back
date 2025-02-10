@@ -41,13 +41,6 @@ public class HandaliDTO {
 
     @Data
     @AllArgsConstructor
-    public static class ApartEnterResponse {
-        private int apart_id;
-        private int floor;
-    }
-
-    @Data
-    @AllArgsConstructor
     public static class HandaliInApartmentResponse {
         private int apart_id;
         private int floor;
