@@ -2,7 +2,9 @@ package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.Handali;
+import com.handalsali.handali.domain.User;
 import com.handalsali.handali.service.HandaliService;
+import com.handalsali.handali.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class HandaliController {
     private BaseController baseController;
     private HandaliService handaliService;
+    private final UserService userService;
 
-    public HandaliController(BaseController baseController,HandaliService handaliService){
+    public HandaliController(BaseController baseController,HandaliService handaliService, UserService userService){
         this.baseController=baseController;
         this.handaliService=handaliService;
+        this.userService = userService;
     }
 
     //[한달이 생성].
@@ -56,15 +60,10 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
-    /** [취업 + 아파트 입주] **/
-    @PostMapping("/{handali_id}/job-apt")
-    public ResponseEntity<HandaliDTO.HandaliInApartmentResponse> processEmploymentAndMoveIn(
-            @PathVariable("handali_id") Long handaliId,
-            @RequestHeader("Authorization") String accessToken) {
-
-        String token = baseController.extraToken(accessToken);
-        HandaliDTO.HandaliInApartmentResponse response = handaliService.processEmploymentAndMoveIn(handaliId, token);
-
-        return ResponseEntity.ok(response);
+    // 🚀 강제 실행: 매달 1일 자동 실행을 지금 즉시 실행!
+    @PostMapping("/process-monthly")
+    public ResponseEntity<String> processMonthlyJobAndApartmentEntry() {
+        handaliService.processMonthlyJobAndApartmentEntry();
+        return ResponseEntity.ok("한달이 취업 + 아파트 입주가 강제로 실행되었습니다!");
     }
 }

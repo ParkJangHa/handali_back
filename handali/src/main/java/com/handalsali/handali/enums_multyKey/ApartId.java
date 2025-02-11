@@ -15,8 +15,10 @@ import java.util.Objects;
 @Embeddable
 public class ApartId implements Serializable {
     @Column(name="apart_id")
-    private int apartId;
-    private int floor;
+    private Long apartId;
+
+    @Column(name = "handali_id")
+    private Long handaliId;
 
     // equals()와 hashCode() 구현
     @Override
@@ -24,11 +26,11 @@ public class ApartId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ApartId apartId = (ApartId) o;
-        return Objects.equals(apartId, apartId.apartId) && Objects.equals(floor, apartId.floor);
+        return Objects.equals(apartId, apartId.apartId) && Objects.equals(handaliId, apartId.handaliId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(apartId, floor);
+        return Objects.hash(apartId, handaliId);
     }
 }

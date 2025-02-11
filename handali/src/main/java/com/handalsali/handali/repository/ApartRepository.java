@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ApartRepository extends JpaRepository<Apart, ApartId> {
+public interface ApartRepository extends JpaRepository<Apart, ApartId> { // ✅ 복합 키 사용
     @Query("SELECT a FROM Apart a ORDER BY a.apartId.apartId DESC LIMIT 1")
     Apart findLatestApartment();
 }

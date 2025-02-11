@@ -42,7 +42,7 @@ public class HandaliDTO {
     @Data
     @AllArgsConstructor
     public static class HandaliInApartmentResponse {
-        private int apart_id;
+        private Long apart_id;
         private int floor;
         private String nickname;
         private LocalDate start_date;
@@ -56,12 +56,12 @@ public class HandaliDTO {
                 throw new IllegalStateException("Handali가 아파트 정보를 가지고 있지 않습니다.");
             }
 
-            System.out.println("DEBUG: " + handali.getNickname() + "의 아파트 ID: " + handali.getApart().getApartId().getApartId());
-            System.out.println("DEBUG: " + handali.getNickname() + "의 층수: " + handali.getApart().getApartId().getFloor());
+            System.out.println("DEBUG: " + handali.getNickname() + "의 아파트 ID: " + handali.getApart().getApartId());
+            System.out.println("DEBUG: " + handali.getNickname() + "의 층수: " + handali.getApart().getFloor());
 
             return new HandaliInApartmentResponse(
-                    handali.getApart().getApartId().getApartId(),  // 아파트 ID
-                    handali.getApart().getApartId().getFloor(),  // 층 수
+                    Long.valueOf(handali.getApart().getApartId().getApartId()),  // 아파트 ID
+                    handali.getApart().getFloor(),  // 층 수
                     handali.getNickname(),  // 닉네임
                     handali.getStartDate(),  // 생성일
                     handali.getJob() != null ? handali.getJob().getName() : null,  // 직업명

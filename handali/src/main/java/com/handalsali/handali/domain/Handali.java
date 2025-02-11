@@ -1,15 +1,10 @@
 package com.handalsali.handali.domain;
 
-import com.handalsali.handali.DTO.HandaliDTO;
-import com.handalsali.handali.DTO.JobStatDTO;
-import com.handalsali.handali.enums_multyKey.ApartId;
-import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,7 +16,7 @@ public class Handali {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="handali_id")
-    private long handaliId;
+    private Long handaliId;
 
     @Column(nullable = false)
     private String nickname;
@@ -41,20 +36,15 @@ public class Handali {
     private Job job;
 
     @Setter
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumns({
-            @JoinColumn(name = "apart_id", referencedColumnName = "apart_id"),
-            @JoinColumn(name = "floor", referencedColumnName = "floor")
-    })
+    @OneToOne(mappedBy = "handali", cascade = CascadeType.ALL, orphanRemoval = true)
     private Apart apart;
+
+    @OneToMany(mappedBy = "handali", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HandaliStat> handaliStats;
 
     public Handali(String nickname,LocalDate startDate,User user){
         this.nickname=nickname;
         this.startDate=startDate;
         this.user=user;
-    }
-
-    public void setFloor(int floor) {
-        this.apart = new Apart(new ApartId(this.apart.getApartId().getApartId(), floor), this.apart.getUser());
     }
 }
