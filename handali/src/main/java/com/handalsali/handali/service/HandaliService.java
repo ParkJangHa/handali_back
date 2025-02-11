@@ -208,7 +208,7 @@ public class HandaliService {
         if (latestApartment == null) {
             latestApartment = new Apart(handali.getUser(), handali, handali.getNickname(), 1, 1L);
             apartRepository.save(latestApartment);
-            System.out.println("새로운 아파트 생성: ID=1");
+            System.out.println("새로운 아파트 생성: ID=1, 층수=1");
             return latestApartment;
         }
 
@@ -222,11 +222,13 @@ public class HandaliService {
         if (maxFloor < 12) {
             Apart newApartmentEntry = new Apart(latestApartment.getUser(), handali, handali.getNickname(), maxFloor + 1, latestApartment.getApartId().getApartId());
             apartRepository.save(newApartmentEntry);
+            System.out.println("기존 아파트 입주: ID=" + newApartmentEntry.getApartId() + ", 층수=" + (maxFloor + 1));
             return newApartmentEntry;
         }
 
         // 5. 12층 초과 시 새로운 아파트 생성
-        Apart newApartment = new Apart(handali.getUser(), handali, handali.getNickname(), 1, latestApartment.getApartId().getApartId() + 1);
+        Long newApartId = latestApartment.getApartId().getApartId() + 1;
+        Apart newApartment = new Apart(handali.getUser(), handali, handali.getNickname(), 1, newApartId);
         apartRepository.save(newApartment);
         System.out.println("새로운 아파트 생성: ID=" + newApartment.getApartId());
         return newApartment;

@@ -17,6 +17,9 @@ public class Apart {
     @EmbeddedId
     private ApartId apartId;  // 복합 키
 
+    @Column(name = "apart_id", nullable = false)
+    private Long apartIdValue;
+
     @Column(name = "floor", nullable = false)
     private Integer floor;
 
@@ -34,8 +37,9 @@ public class Apart {
             name = "fk_user"))
     private User user;
 
-    public Apart(User user, Handali handali, String nickname, int floor, Long apartId) {
-        this.apartId = new ApartId(apartId, handali.getHandaliId()); // 복합 키 설정
+    public Apart(User user, Handali handali, String nickname, int floor, Long apartIdValue) {
+        this.apartId = new ApartId(apartIdValue, handali.getHandaliId());
+        this.apartIdValue = apartIdValue;
         this.user = user;
         this.handali = handali;
         this.nickname = nickname;
