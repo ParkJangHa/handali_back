@@ -86,7 +86,7 @@ public class HabitService {
                     userHabit.setMonth(currentMonth);
                     userHabitRepository.save(userHabit);
                 } else { //새로운 습관일 경우, 추가
-                    UserHabit userHabit = new UserHabit(user, habit);
+                    UserHabit userHabit = new UserHabit(user, habit, currentMonth);
                     userHabitRepository.save(userHabit);
                 }
             }
