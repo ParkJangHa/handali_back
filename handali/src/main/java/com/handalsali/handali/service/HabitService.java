@@ -85,8 +85,9 @@ public class HabitService {
                     UserHabit userHabit = userHabitRepository.findByUserAndHabit(user, habit);
                     userHabit.setMonth(currentMonth);
                     userHabitRepository.save(userHabit);
-                } else { //새로운 습관일 경우, 에러
-                    throw new HabitNotExistsException("사용자가 해당 습관을 추가하지 않았습니다: "+detailedHabitName);
+                } else { //새로운 습관일 경우, 추가
+                    UserHabit userHabit = new UserHabit(user, habit);
+                    userHabitRepository.save(userHabit);
                 }
             }
     }
