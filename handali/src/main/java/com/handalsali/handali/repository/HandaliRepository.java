@@ -24,12 +24,6 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     //@Query("SELECT h FROM Handali h WHERE h.user = :user ORDER BY h.startDate DESC")
     //Optional<Handali> findLatestHandaliByUser(@Param("user") User user);
 
-    /** 이번 달 생성된 한달이 중 취업 + 입주하지 않은 한달이 조회 **/
-    //지난달 1일부터 말일까지인 한달이들 찾음 (+조건: 취업x and 아파트 입주x)
-    //@Query("SELECT h FROM Handali h WHERE h.startDate BETWEEN :startOfMonth AND :startOfNextMonth " +
-            //"AND (h.job IS NULL OR h.apart IS NULL)")
-    //List<Handali> findUnemployedHandalisForMonth(@Param("startOfMonth") LocalDate startOfMonth, @Param("startOfNextMonth") LocalDate startOfNextMonth);
-
     //test용
     @Query("SELECT h FROM Handali h WHERE h.startDate BETWEEN :startOfMonth AND :endOfMonth " +
             "AND (h.job IS NULL OR h.apart IS NULL)")
