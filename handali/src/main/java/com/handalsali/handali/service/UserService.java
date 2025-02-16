@@ -8,6 +8,7 @@ import com.handalsali.handali.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -71,5 +72,4 @@ public class UserService {
         long userId=jwtUtil.extractUserId(accessToken);
         return userIdToUser(userId);
     }
-
 }

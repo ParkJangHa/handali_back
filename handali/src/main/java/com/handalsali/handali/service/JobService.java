@@ -5,6 +5,7 @@ import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.Job;
 import com.handalsali.handali.domain.User;
+import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.JobRepository;
 import jakarta.transaction.Transactional;
@@ -33,6 +34,8 @@ public class JobService {
         //1. 사용자 확인
         User user=userService.tokenToUser(token);
 
+        // Handali Handali ="한달이를 찾을 수 있는 메서드 추가"
+
         //2. 한달이의 스탯중 가장 높은 값 찾기, 모든 값이 동일할 경우 가장 먼저 가져온 값을 사용
         HandaliStat maxHandaliStat = handaliStatService.findMaxStatByHandaliId(handaliId).get(0);
 
@@ -52,6 +55,9 @@ public class JobService {
 
         //6. 한달이에 직업 주기
         Handali handali = handaliService.findHandaliByCurrentDateAndUser(user);
+        if (handali == null) {
+            throw new HandaliNotFoundException("해당 유저의 이번달 한달이를 찾을 수 없습니다.");
+        }
         handali.setJob(job);
         handaliService.save(handali);
 

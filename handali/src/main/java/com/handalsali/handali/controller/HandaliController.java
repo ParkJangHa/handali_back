@@ -2,7 +2,9 @@ package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.Handali;
+import com.handalsali.handali.domain.User;
 import com.handalsali.handali.service.HandaliService;
+import com.handalsali.handali.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +16,12 @@ import java.time.YearMonth;
 public class HandaliController {
     private BaseController baseController;
     private HandaliService handaliService;
+    private final UserService userService;
 
-    public HandaliController(BaseController baseController,HandaliService handaliService){
+    public HandaliController(BaseController baseController,HandaliService handaliService, UserService userService){
         this.baseController=baseController;
         this.handaliService=handaliService;
+        this.userService = userService;
     }
 
     /**[한달이 생성]*/
@@ -57,12 +61,22 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
-    /**[한달이 상태 변화]*/
-    @GetMapping("/change")
-    public ResponseEntity<String> changeHandali(@RequestHeader("Authorization") String accessToken){
-        String token = baseController.extraToken(accessToken);
+    // [젤 최근 한달이 조회]
+    @GetMapping("/recent")
+    public ResponseEntity<HandaliDTO.RecentHandaliResponse> getRecentHandali(
+            @RequestHeader("Authorization") String accessToken) {
 
-        return ResponseEntity.ok(handaliService.changeHandali(token));
+        // 토큰 처리
+        String token = baseController.extraToken(accessToken);
+        HandaliDTO.RecentHandaliResponse response = handaliService.getRecentHandali(token);
+
+        return ResponseEntity.ok(response);
     }
 
+    // 🚀 강제 실행: 매달 1일 자동 실행을 지금 즉시 실행!
+    @PostMapping("/process-monthly")
+    public ResponseEntity<String> processMonthlyJobAndApartmentEntry() {
+        handaliService.processMonthlyJobAndApartmentEntry();
+        return ResponseEntity.ok("한달이 취업 + 아파트 입주가 강제로 실행되었습니다!");
+    }
 }

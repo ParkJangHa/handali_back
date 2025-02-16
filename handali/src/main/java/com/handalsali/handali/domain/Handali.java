@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class Handali {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="handali_id")
-    private long handaliId;
+    private Long handaliId;
 
     @Column(nullable = false)
     private String nickname;
@@ -36,12 +35,12 @@ public class Handali {
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (job_id) REFERENCES job(job_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Job job;
 
-    @ManyToOne
-    @JoinColumns({
-            @JoinColumn(name = "apart_id", referencedColumnName = "apart_id"),
-            @JoinColumn(name = "floor", referencedColumnName = "floor")
-    })
+    @Setter
+    @OneToOne(mappedBy = "handali", cascade = CascadeType.ALL, orphanRemoval = true)
     private Apart apart;
+
+    @OneToMany(mappedBy = "handali", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HandaliStat> handaliStats;
 
     public Handali(String nickname,LocalDate startDate,User user){
         this.nickname=nickname;

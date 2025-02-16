@@ -12,7 +12,7 @@ public class HandaliStatService {
     public HandaliStatService(HandaliStatRepository handaliStatRepository) {
         this.handaliStatRepository = handaliStatRepository;
     }
-    public List<HandaliStat> findMaxStatByHandaliId(Long handaliId) {
+        public List<HandaliStat> findMaxStatByHandaliId(Long handaliId) {
         return handaliStatRepository.findMaxStatByHandaliId(handaliId);
     }
 }

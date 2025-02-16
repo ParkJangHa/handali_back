@@ -90,4 +90,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handaliStatNotFoundException(HandaliStatNotFoundException e){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
+
+    //한달이가 존재하지 않을 때
+    @ExceptionHandler(HandaliNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleHandaliNotFoundException(HandaliNotFoundException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 }
