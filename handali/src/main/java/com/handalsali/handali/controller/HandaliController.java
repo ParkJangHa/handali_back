@@ -60,6 +60,18 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
+    // [젤 최근 한달이 조회]
+    @GetMapping("/recent")
+    public ResponseEntity<HandaliDTO.RecentHandaliResponse> getRecentHandali(
+            @RequestHeader("Authorization") String accessToken) {
+
+        // 토큰 처리
+        String token = baseController.extraToken(accessToken);
+        HandaliDTO.RecentHandaliResponse response = handaliService.getRecentHandali(token);
+
+        return ResponseEntity.ok(response);
+    }
+
     // 🚀 강제 실행: 매달 1일 자동 실행을 지금 즉시 실행!
     @PostMapping("/process-monthly")
     public ResponseEntity<String> processMonthlyJobAndApartmentEntry() {

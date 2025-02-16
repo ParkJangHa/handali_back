@@ -1,10 +1,7 @@
 package com.handalsali.handali.repository;
 
-import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.StatDetailDTO;
-import com.handalsali.handali.domain.Apart;
 import com.handalsali.handali.domain.Handali;
-import com.handalsali.handali.domain.Job;
 import com.handalsali.handali.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,8 +18,8 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     long countPetsByUserIdAndCurrentMonth(@Param("userId") User user);
 
     /** 시작일 기준으로 내림차순 정렬하여 가장 최신 한달이 1개 조회 **/
-    //@Query("SELECT h FROM Handali h WHERE h.user = :user ORDER BY h.startDate DESC")
-    //Optional<Handali> findLatestHandaliByUser(@Param("user") User user);
+    @Query("SELECT h FROM Handali h WHERE h.user.userId = :userId ORDER BY h.startDate DESC LIMIT 1")
+    Optional<Handali> findLatestHandaliByUser(@Param("userId") Long userId);
 
     //test용
     @Query("SELECT h FROM Handali h WHERE h.startDate BETWEEN :startOfMonth AND :endOfMonth " +
@@ -45,23 +42,4 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     //아파트에 입주한 모든 한달이 조회
     @Query("SELECT h FROM Handali h WHERE h.apart IS NOT NULL")
     List<Handali> findAllHandalisInApartments();
-
-    //가장 최신 아파트 조회
-    @Query("SELECT a FROM Apart a ORDER BY a.apartId.apartId DESC")
-    List<Apart> findLatestApartmentList();
-
-    // 아파트에 입주한 한달이 수 조회
-    @Query("SELECT COUNT(h) FROM Handali h WHERE h.apart.apartId = :apartId")
-    int countHandalisInApartment(@Param("apartId") int apartId);
-
-    // 현재 아파트 최고층 정보 조회
-    //@Query("SELECT MAX(a.floor) FROM Apart a WHERE a.apartId.apartId = :apartId")
-    //Integer findMaxFloorByApartment(@Param("apartId") Long apartId);
-
-    @Query("SELECT h.job FROM Handali h WHERE h.handaliId = :handaliId")
-    Job findJobByHandaliId(@Param("handaliId") Long handaliId);
-
-    @Query("SELECT h.apart FROM Handali h WHERE h.handaliId = :handaliId")
-    Apart findApartByHandaliId(@Param("handaliId") Long handaliId);
-
 }

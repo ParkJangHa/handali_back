@@ -155,12 +155,6 @@ public class HandaliService {
         }
     }
 
-    /** [최신 한달이 조회] **/
-    //public Handali findLatestHandaliByUser(User user) {
-        //return handaliRepository.findLatestHandaliByUser(user)
-                //.orElseThrow(() -> new HandaliNotFoundException("한달이를 찾을 수 없습니다."));
-    //}
-
     /** 한달이 취업 및 아파트 입주 **/
     @Transactional
     public void processEmploymentAndMoveIn(Handali handali) {
@@ -289,5 +283,18 @@ public class HandaliService {
 
         // 기본값 (예외 발생 방지를 위해 마지막 직업 반환)
         return jobs.get(jobs.size() - 1);
+    }
+
+    public HandaliDTO.RecentHandaliResponse getRecentHandali(String token) {
+        // 사용자 인증
+        User user = userService.tokenToUser(token);
+        if (user == null) {
+            throw new HandaliNotFoundException("사용자를 찾을 수 없습니다.");
+        }
+
+        // 가장 최근 생성된 한달이 찾기 (없으면 예외 발생)
+        return handaliRepository.findLatestHandaliByUser(user.getUserId())
+                .map(handali -> new HandaliDTO.RecentHandaliResponse(handali.getNickname(), handali.getHandaliId()))
+                .orElseThrow(() -> new HandaliNotFoundException("최근 생성된 한달이가 없습니다."));
     }
 }

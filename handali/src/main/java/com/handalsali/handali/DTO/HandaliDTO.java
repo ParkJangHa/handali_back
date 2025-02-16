@@ -3,6 +3,7 @@ package com.handalsali.handali.DTO;
 import com.handalsali.handali.domain.Handali;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -37,6 +38,14 @@ public class HandaliDTO {
     @AllArgsConstructor
     public static class StatResponse {
         private List<StatDetailDTO> stat;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RecentHandaliResponse {
+        private String nickname;
+        private Long handali_id;
     }
 
     @Data
