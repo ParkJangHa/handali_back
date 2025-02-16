@@ -123,8 +123,10 @@ public class HandaliService {
     // [매월 1일 자동 실행] 현재 키우고 있는 한달이들 취업 + 입주 처리
     @Transactional
     public void processMonthlyJobAndApartmentEntry() {
+        //----------------생성 달 기준 전달 한달이만 적용-----------------
         //LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
         //LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
+
         LocalDate startOfMonth = LocalDate.of(2025, 1, 1);
         LocalDate startOfNextMonth = LocalDate.of(2025, 12, 31);
 
