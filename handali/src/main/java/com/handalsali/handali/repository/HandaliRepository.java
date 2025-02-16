@@ -55,8 +55,8 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     int countHandalisInApartment(@Param("apartId") int apartId);
 
     // 현재 아파트 최고층 정보 조회
-    @Query("SELECT MAX(a.floor) FROM Apart a WHERE a.apartId.apartId = :apartId")
-    Integer findMaxFloorByApartment(@Param("apartId") Long apartId);
+    //@Query("SELECT MAX(a.floor) FROM Apart a WHERE a.apartId.apartId = :apartId")
+    //Integer findMaxFloorByApartment(@Param("apartId") Long apartId);
 
     @Query("SELECT h.job FROM Handali h WHERE h.handaliId = :handaliId")
     Job findJobByHandaliId(@Param("handaliId") Long handaliId);

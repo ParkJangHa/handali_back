@@ -3,6 +3,7 @@ package com.handalsali.handali.service;
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.DTO.StatDetailDTO;
 import com.handalsali.handali.domain.*;
+import com.handalsali.handali.enums_multyKey.ApartId;
 import com.handalsali.handali.repository.ApartRepository;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
@@ -12,7 +13,7 @@ import com.handalsali.handali.repository.JobRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.Optional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -122,11 +123,21 @@ public class HandaliService {
     // [매월 1일 자동 실행] 현재 키우고 있는 한달이들 취업 + 입주 처리
     @Transactional
     public void processMonthlyJobAndApartmentEntry() {
-        LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-        LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
+        //LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+        //LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
+        LocalDate startOfMonth = LocalDate.of(2025, 1, 1);
+        LocalDate startOfNextMonth = LocalDate.of(2025, 12, 31);
+
+        System.out.println("🗓️ startOfMonth: " + startOfMonth);
+        System.out.println("🗓️ endOfMonth: " + startOfNextMonth);
 
         List<Handali> handalis = handaliRepository.findUnemployedHandalisForMonth(startOfMonth, startOfNextMonth);
         System.out.println("🔍 처리 대상 한달이 수: " + handalis.size());
+
+        if (handalis.isEmpty()) {
+            System.out.println("⚠️ 이번 달에 취업 및 입주할 한달이가 없습니다.");
+            return;
+        }
 
         for (Handali handali : handalis) {
             System.out.println("🛠 처리 중: " + handali.getNickname() + " | 취업 여부: " +
@@ -151,6 +162,10 @@ public class HandaliService {
     /** 한달이 취업 및 아파트 입주 **/
     @Transactional
     public void processEmploymentAndMoveIn(Handali handali) {
+        if (handali == null) {
+            throw new IllegalArgumentException("한달이 객체가 null입니다.");
+        }
+
         // 1. 취업 처리
         if (handali.getJob() == null) {
             Job job = assignBestJobToHandali(handali);
@@ -160,18 +175,25 @@ public class HandaliService {
         }
 
         // 2. 아파트 입주 처리 (기존에 입주한 아파트가 없을 경우만)
-        Apart assignedApartment = assignApartmentToHandali(handali);
-        handali.setApart(assignedApartment);
+        if (handali.getApart() == null) {
+            Apart assignedApartment = assignApartmentToHandali(handali);
+            handali.setApart(assignedApartment);
+        }
 
         // 3. 저장
         handaliRepository.save(handali);
-        apartRepository.save(assignedApartment);
+        if (handali.getApart() != null) {
+            apartRepository.save(handali.getApart());
+        } else {
+            System.out.println("⚠️ 한달이 아파트 정보가 없습니다. 저장하지 않습니다.");
+        }
+        apartRepository.save(handali.getApart());
 
         // 4. 로그 확인
         System.out.println("✅ 취업 및 아파트 입주 완료: " + handali.getNickname() +
                 " | 직업: " + handali.getJob().getName() +
-                " | 아파트: " + assignedApartment.getApartId() +
-                " | 층수: " + assignedApartment.getFloor());
+                " | 아파트: " + handali.getApart().getApartId().getApartId() +
+                " | 층수: " + handali.getApart().getFloor());
 
     }
 
@@ -204,37 +226,38 @@ public class HandaliService {
     }
 
     /** 한달이의 아파트 배정 **/
+    // 생성 월에 따라 층 결정, 연도가 바뀌면 새로운 아파트에 입주
     private Apart assignApartmentToHandali(Handali handali) {
-        // 1. 최신 아파트 조회
-        Apart latestApartment = apartRepository.findLatestApartment();
+        int year = handali.getStartDate().getYear();  // 생성 연도
+        int month = handali.getStartDate().getMonthValue();
 
-        // 2. 아파트가 없으면 새로 생성
-        if (latestApartment == null) {
-            latestApartment = new Apart(handali.getUser(), handali, handali.getNickname(), 1, 1L);
-            apartRepository.save(latestApartment);
-            System.out.println("새로운 아파트 생성: ID=1, 층수=1");
-            return latestApartment;
+        Long yearValue = (long) year;
+        ApartId apartId = new ApartId(yearValue, month);
+
+        // 1️⃣ 해당 아파트 & 층이 존재하는지 확인
+        Optional<Apart> existingApartment = apartRepository.findById(apartId);
+
+        if (existingApartment.isPresent()) {
+            System.out.println("🔹 기존 아파트 사용: ID=" + apartId.getApartId() + ", 층수=" + apartId.getFloor());
+            return existingApartment.get();  // 이미 존재하면 새로운 객체를 만들지 않고 반환
         }
 
-        // 3. 해당 아파트의 현재 최고층 확인
-        Integer maxFloor = handaliRepository.findMaxFloorByApartment(latestApartment.getApartId().getApartId());
-        if (maxFloor == null) {
-            maxFloor = 0;
-        }
+        // 2️⃣ 새로운 아파트 생성
+        Apart newApartment = new Apart(
+                handali.getUser(),
+                handali,
+                handali.getNickname(),
+                month,  // 층수는 생성 월
+                yearValue  // 아파트 ID는 생성 연도
+        );
 
-        // 4. 12층 이하일 경우 기존 아파트에 입주
-        if (maxFloor < 12) {
-            Apart newApartmentEntry = new Apart(latestApartment.getUser(), handali, handali.getNickname(), maxFloor + 1, latestApartment.getApartId().getApartId());
-            apartRepository.save(newApartmentEntry);
-            System.out.println("기존 아파트 입주: ID=" + newApartmentEntry.getApartId() + ", 층수=" + (maxFloor + 1));
-            return newApartmentEntry;
-        }
+        // 3️⃣ 아파트 저장 전에 한달이를 먼저 저장 (JPA 연관 관계)
+        handaliRepository.save(handali);
 
-        // 5. 12층 초과 시 새로운 아파트 생성
-        Long newApartId = latestApartment.getApartId().getApartId() + 1;
-        Apart newApartment = new Apart(handali.getUser(), handali, handali.getNickname(), 1, newApartId);
+        // 4️⃣ 아파트 저장
         apartRepository.save(newApartment);
-        System.out.println("새로운 아파트 생성: ID=" + newApartment.getApartId());
+        System.out.println("🏢 새로운 아파트 생성: ID=" + newApartment.getApartId().getApartId() + ", 층수=" + newApartment.getApartId().getFloor());
+
         return newApartment;
     }
 
