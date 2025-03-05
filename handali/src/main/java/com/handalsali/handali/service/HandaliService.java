@@ -120,13 +120,14 @@ public class HandaliService {
         //processMonthlyJobAndApartmentEntry();
     //}
 
-    // [매월 1일 자동 실행] 현재 키우고 있는 한달이들 취업 + 입주 처리
+    /** [매월 1일 자동 실행] 현재 키우고 있는 한달이들 취업 + 입주 처리*/
     @Transactional
     public void processMonthlyJobAndApartmentEntry() {
         //----------------생성 달 기준 전달 한달이만 적용-----------------
         //LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
         //LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
 
+        //해당 년도 사이에 존재하는 모든 한달이가 한꺼번에 추가됨
         LocalDate startOfMonth = LocalDate.of(2025, 1, 1);
         LocalDate startOfNextMonth = LocalDate.of(2025, 12, 31);
 
@@ -171,24 +172,24 @@ public class HandaliService {
         }
 
         // 2. 아파트 입주 처리 (기존에 입주한 아파트가 없을 경우만)
-        if (handali.getApart() == null) {
+//        if (handali.getApart() == null) {
             Apart assignedApartment = assignApartmentToHandali(handali);
             handali.setApart(assignedApartment);
-        }
+//        }
 
         // 3. 저장
         handaliRepository.save(handali);
-        if (handali.getApart() != null) {
-            apartRepository.save(handali.getApart());
-        } else {
-            System.out.println("⚠️ 한달이 아파트 정보가 없습니다. 저장하지 않습니다.");
-        }
-        apartRepository.save(handali.getApart());
+//        if (handali.getApart() != null) {
+//            apartRepository.save(handali.getApart());
+//        } else {
+//            System.out.println("⚠️ 한달이 아파트 정보가 없습니다. 저장하지 않습니다.");
+//        }
+//        apartRepository.save(handali.getApart());
 
         // 4. 로그 확인
         System.out.println("✅ 취업 및 아파트 입주 완료: " + handali.getNickname() +
                 " | 직업: " + handali.getJob().getName() +
-                " | 아파트: " + handali.getApart().getApartId().getApartId() +
+                " | 아파트: " + handali.getApart().getApartId() +
                 " | 층수: " + handali.getApart().getFloor());
 
     }
@@ -227,16 +228,16 @@ public class HandaliService {
         int year = handali.getStartDate().getYear();  // 생성 연도
         int month = handali.getStartDate().getMonthValue();
 
-        Long yearValue = (long) year;
-        ApartId apartId = new ApartId(yearValue, month);
+//        Long yearValue = (long) year;
+//        ApartId apartId = new ApartId(year, month);
 
         // 1️⃣ 해당 아파트 & 층이 존재하는지 확인
-        Optional<Apart> existingApartment = apartRepository.findById(apartId);
-
-        if (existingApartment.isPresent()) {
-            System.out.println("🔹 기존 아파트 사용: ID=" + apartId.getApartId() + ", 층수=" + apartId.getFloor());
-            return existingApartment.get();  // 이미 존재하면 새로운 객체를 만들지 않고 반환
-        }
+//        Optional<Apart> existingApartment = apartRepository.findByApartIdAndFloor(year,month);
+//
+//        if (existingApartment.isPresent()) {
+//            System.out.println("🔹 기존 아파트 사용: ID=" + existingApartment + ", 층수=" + apartId.getFloor());
+//            return existingApartment.get();  // 이미 존재하면 새로운 객체를 만들지 않고 반환
+//        }
 
         // 2️⃣ 새로운 아파트 생성
         Apart newApartment = new Apart(
@@ -244,15 +245,15 @@ public class HandaliService {
                 handali,
                 handali.getNickname(),
                 month,  // 층수는 생성 월
-                yearValue  // 아파트 ID는 생성 연도
+                year  // 아파트 ID는 생성 연도
         );
 
         // 3️⃣ 아파트 저장 전에 한달이를 먼저 저장 (JPA 연관 관계)
-        handaliRepository.save(handali);
+//        handaliRepository.save(handali);
 
         // 4️⃣ 아파트 저장
         apartRepository.save(newApartment);
-        System.out.println("🏢 새로운 아파트 생성: ID=" + newApartment.getApartId().getApartId() + ", 층수=" + newApartment.getApartId().getFloor());
+//        System.out.println("🏢 새로운 아파트 생성: ID=" + newApartment.getApartId().getApartId() + ", 층수=" + newApartment.getApartId().getFloor());
 
         return newApartment;
     }

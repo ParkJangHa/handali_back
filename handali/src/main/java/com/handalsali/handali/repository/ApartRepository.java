@@ -15,6 +15,8 @@ public interface ApartRepository extends JpaRepository<Apart, ApartId> {
     Optional<Apart> findById(ApartId apartId);
 
     // 특정 연도의 최신 아파트 조회
-    @Query("SELECT a FROM Apart a WHERE a.apartId.apartId = :year ORDER BY a.apartId.floor DESC LIMIT 1")
+    @Query("SELECT a FROM Apart a WHERE a.apartId= :year ORDER BY a.floor DESC LIMIT 1")
     Optional<Apart> findLatestApartmentByYear(@Param("year") Long year);
+
+    Optional<Apart> findByApartIdAndFloor(int year, int month);
 }

@@ -40,7 +40,7 @@ public class ApartmentService {
 
         for (Handali handali : handalis) {
             Map<String, Object> response = new HashMap<>();
-            response.put("apart_id", handali.getApart().getApartId().getApartId());
+            response.put("apart_id", handali.getApart().getApartId());
             response.put("floor", handali.getApart().getFloor());
             response.put("nickname", handali.getNickname());
             response.put("start_date", handali.getStartDate());

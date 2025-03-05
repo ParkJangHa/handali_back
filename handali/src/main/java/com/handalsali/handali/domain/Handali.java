@@ -36,11 +36,11 @@ public class Handali {
     private Job job;
 
     @Setter
-    @OneToOne(mappedBy = "handali", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne
+    @JoinColumn(name="apart_total_id",
+            foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (apart_total_id) REFERENCES apart(apart_total_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Apart apart;
 
-    @OneToMany(mappedBy = "handali", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HandaliStat> handaliStats;
 
     public Handali(String nickname,LocalDate startDate,User user){
         this.nickname=nickname;

@@ -14,8 +14,16 @@ import lombok.Setter;
 @Setter
 public class Apart {
 
-    @EmbeddedId
-    private ApartId apartId;  // 복합 키
+    @Id
+    @Column(name="apart_total_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long apartTotalId;
+
+//    @Embedded
+//    private ApartId apartId;  // 복합 키
+
+    private int apartId;
+    private int floor;
 
     @OneToOne
     @JoinColumn(name="handali_id", referencedColumnName = "handali_id", nullable = false)
@@ -24,9 +32,9 @@ public class Apart {
     @Column(name = "nickname")
     private String nickname;
 
-    public int getFloor() {
-        return apartId.getFloor();
-    }
+//    public int getFloor() {
+//        return apartId.getFloor();
+//    }
 
     @ManyToOne
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(
@@ -34,8 +42,9 @@ public class Apart {
             name = "fk_user"))
     private User user;
 
-    public Apart(User user, Handali handali, String nickname, int floor, Long apartId) {
-        this.apartId = new ApartId(apartId, floor);
+    public Apart(User user, Handali handali, String nickname, int floor, int apartId) {
+        this.apartId = apartId;
+        this.floor = floor;
         this.user = user;
         this.handali = handali;
         this.nickname = nickname;
