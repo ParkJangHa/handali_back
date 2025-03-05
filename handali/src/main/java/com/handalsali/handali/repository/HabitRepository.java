@@ -14,10 +14,10 @@ import java.util.Optional;
 
 @Repository
 public interface HabitRepository extends JpaRepository<Habit,Long> {
-    //카테고리명, 세부습관명으로 습관 객체 찾기
+    /**카테고리명, 세부습관명으로 습관 객체 찾기*/
     Optional<Habit> findByCategoryNameAndDetailedHabitName(Categoryname categoryName, String detailedHabitName);
 
-    //[사용자, 카테고리별 습관 조회]
+    /**[사용자, 카테고리별 습관 조회]*/
     @Query("SELECT h FROM Habit h JOIN UserHabit uh ON h = uh.habit " +
             "WHERE uh.user = :user AND h.createdType = :created_type AND h.categoryName = :category")
     List<Habit> findByUserAndCreatedTypeAndCategory(
@@ -25,10 +25,10 @@ public interface HabitRepository extends JpaRepository<Habit,Long> {
             @Param("created_type") CreatedType createdType,
             @Param("category") Categoryname category);
 
-    //[개발자, 카테고리별 습관 조회]
+    /**[개발자, 카테고리별 습관 조회]*/
     List<Habit> findByCreatedTypeAndCategoryName(CreatedType createdType,Categoryname categoryname);
 
-    // [달, 카테고리별 습관 조회]
+    /** [달, 카테고리별 습관 조회]*/
     @Query("SELECT h FROM Habit h JOIN UserHabit uh ON h = uh.habit " +
             "WHERE uh.user = :user AND h.categoryName = :category AND uh.month = :month")
     List<Habit> findByUserAndCategoryAndMonth(

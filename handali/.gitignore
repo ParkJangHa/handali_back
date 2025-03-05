@@ -1,4 +1,8 @@
-
+# 서버에서 생성되는 파일 무시
+handali/app.log
+handali/application.log
+handali/nohup.out
+handali/app.pid
 
 HELP.md
 .gradle
