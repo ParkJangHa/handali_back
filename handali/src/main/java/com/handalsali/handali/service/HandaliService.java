@@ -84,7 +84,12 @@ public class HandaliService {
         }
         imageName.append(".png");
 
-        return imageName.toString();
+        String resultImage=imageName.toString();
+
+        //4. handali 테이블에 변경된 이미지 저장
+        handali.setImage(resultImage);
+        handaliRepository.save(handali);
+        return resultImage;
     }
 
 
@@ -108,7 +113,8 @@ public class HandaliService {
         return new HandaliDTO.HandaliStatusResponse(
                 handali.getNickname(),
                 days_Since_Created,
-                handali.getUser().getTotal_coin()
+                handali.getUser().getTotal_coin(),
+                handali.getImage()
         );
 
     }

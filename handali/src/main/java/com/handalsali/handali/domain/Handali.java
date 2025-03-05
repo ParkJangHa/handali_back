@@ -43,6 +43,9 @@ public class Handali {
     })
     private Apart apart;
 
+    @Setter
+    private String image="image_0_0_0.png";
+
     public Handali(String nickname,LocalDate startDate,User user){
         this.nickname=nickname;
         this.startDate=startDate;

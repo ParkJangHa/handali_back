@@ -29,6 +29,7 @@ public class HandaliDTO {
         private String nickname;
         private int days_since_created;
         private int total_coin;
+        private String image;
     }
 
 
