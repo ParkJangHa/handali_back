@@ -27,22 +27,11 @@ public class ApartmentController {
 
     //[아파트 내 모든 한달이 조회]
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllHandalisInApartments(
+    public ResponseEntity<List<Map<String,Object>>> getAllHandalisInApartments(
             @RequestHeader("Authorization") String accessToken) {
 
         String token = baseController.extraToken(accessToken);
-
-        // 아파트에 입주한 한달이들만 조회
-        List<HandaliDTO.HandaliInApartmentResponse> handalis = apartmentService.getAllHandalisInApartments(token);
-
-        if (handalis.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "등록된 한달이가 없습니다."));
-        }
-
-        // JSON 형식 {"apartments": [...]} 로 반환
-        Map<String, Object> response = new HashMap<>();
-        response.put("apartments", handalis);
+        List<Map<String,Object>> response=apartmentService.getAllHandalisInApartments(token);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
