@@ -285,6 +285,7 @@ public class HandaliService {
         return jobs.get(jobs.size() - 1);
     }
 
+    /**[마지막 생성 한달이 조회]*/
     public HandaliDTO.RecentHandaliResponse getRecentHandali(String token) {
         // 사용자 인증
         User user = userService.tokenToUser(token);
