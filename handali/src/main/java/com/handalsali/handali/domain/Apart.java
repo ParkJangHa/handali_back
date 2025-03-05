@@ -19,9 +19,6 @@ public class Apart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long apartTotalId;
 
-//    @Embedded
-//    private ApartId apartId;  // 복합 키
-
     private int apartId;
     private int floor;
 
@@ -31,10 +28,6 @@ public class Apart {
 
     @Column(name = "nickname")
     private String nickname;
-
-//    public int getFloor() {
-//        return apartId.getFloor();
-//    }
 
     @ManyToOne
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(

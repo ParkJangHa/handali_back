@@ -77,10 +77,10 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
-    // 🚀 강제 실행: 매달 1일 자동 실행을 지금 즉시 실행!
-    @PostMapping("/process-monthly")
-    public ResponseEntity<String> processMonthlyJobAndApartmentEntry() {
-        handaliService.processMonthlyJobAndApartmentEntry();
-        return ResponseEntity.ok("한달이 취업 + 아파트 입주가 강제로 실행되었습니다!");
-    }
+//    // (test) 🚀 강제 실행: 매달 1일 자동 실행을 지금 즉시 실행!
+//    @PostMapping("/process-monthly")
+//    public ResponseEntity<String> processMonthlyJobAndApartmentEntry() {
+//        handaliService.processMonthlyJobAndApartmentEntry();
+//        return ResponseEntity.ok("한달이 취업 + 아파트 입주가 강제로 실행되었습니다!");
+//    }
 }

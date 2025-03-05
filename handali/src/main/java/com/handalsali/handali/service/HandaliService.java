@@ -16,6 +16,7 @@ import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.JobRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -142,23 +143,23 @@ public class HandaliService {
         return new HandaliDTO.StatResponse(stats);
     }
 
-    // 매달 1일 오전 00:00:01(한국시간) 자동 실행
-    //@Scheduled(cron = "1 0 0 1 * *", zone = "Asia/Seoul")
-    //public void runMonthlyJobAndApartmentEntry() {
-        //System.out.println("🚀 [자동 실행] 매달 1일 한달이 취업 및 아파트 입주 실행");
-        //processMonthlyJobAndApartmentEntry();
-    //}
+//     매달 1일 오전 00:00:01(한국시간) 자동 실행
+    @Scheduled(cron = "1 0 0 1 * *", zone = "Asia/Seoul")
+    public void runMonthlyJobAndApartmentEntry() {
+        System.out.println("🚀 [자동 실행] 매달 1일 한달이 취업 및 아파트 입주 실행");
+        processMonthlyJobAndApartmentEntry();
+    }
 
     /** [매월 1일 자동 실행] 현재 키우고 있는 한달이들 취업 + 입주 처리*/
     @Transactional
     public void processMonthlyJobAndApartmentEntry() {
-        //----------------생성 달 기준 전달 한달이만 적용-----------------
-        //LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-        //LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
+//        ----------------생성 달 기준 전달 한달이만 적용-----------------
+        LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+        LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
 
-        //해당 년도 사이에 존재하는 모든 한달이가 한꺼번에 추가됨
-        LocalDate startOfMonth = LocalDate.of(2025, 1, 1);
-        LocalDate startOfNextMonth = LocalDate.of(2025, 12, 31);
+        //(test) 해당 년도 사이에 존재하는 모든 한달이가 한꺼번에 추가됨
+//        LocalDate startOfMonth = LocalDate.of(2025, 1, 1);
+//        LocalDate startOfNextMonth = LocalDate.of(2025, 12, 31);
 
         System.out.println("🗓️ startOfMonth: " + startOfMonth);
         System.out.println("🗓️ endOfMonth: " + startOfNextMonth);
