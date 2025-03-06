@@ -144,9 +144,15 @@ public class HandaliService {
     }
 
 //     매달 1일 오전 00:00:01(한국시간) 자동 실행
-    @Scheduled(cron = "1 0 0 1 * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "1 0 0 1 * *", zone = "Asia/Seoul")
+//    public void runMonthlyJobAndApartmentEntry() {
+//        System.out.println("🚀 [자동 실행] 매달 1일 한달이 취업 및 아파트 입주 실행");
+//        processMonthlyJobAndApartmentEntry();
+//    }
+
+    @Scheduled(cron = "*/5 * * * * *", zone = "Asia/Seoul")
     public void runMonthlyJobAndApartmentEntry() {
-        System.out.println("🚀 [자동 실행] 매달 1일 한달이 취업 및 아파트 입주 실행");
+        System.out.println("🚀 [자동 실행]5초 마다 자동 입주 실행");
         processMonthlyJobAndApartmentEntry();
     }
 
