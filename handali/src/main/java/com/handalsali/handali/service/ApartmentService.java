@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,22 +33,19 @@ public class ApartmentService {
         if (handalis.isEmpty()) {throw new HandaliNotFoundException("한달이가 존재하지 않습니다.");
         }
 
-        List<Map<String, Object>> responseList = new ArrayList<>();
-
-        for (Handali handali : handalis) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("apart_id", handali.getApart().getApartId());
-            response.put("floor", handali.getApart().getFloor());
-            response.put("nickname", handali.getNickname());
-            response.put("start_date", handali.getStartDate());
-            response.put("job_name", handali.getJob().getName());
-            response.put("week_salary", handali.getJob().getWeekSalary());
-            response.put("type_name", ""); // 나중에 정확한 값으로 수정
-            response.put("stat_value", 0); // 나중에 정확한 값으로 수정
-
-            responseList.add(response);
-        }
-
-        return responseList;
+        return handalis.stream()
+                .map(handali -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("apart_id", handali.getApart().getApartId());
+                    response.put("floor", handali.getApart().getFloor());
+                    response.put("nickname", handali.getNickname());
+                    response.put("start_date", handali.getStartDate());
+                    response.put("job_name", handali.getJob().getName());
+                    response.put("week_salary", handali.getJob().getWeekSalary());
+                    response.put("image", handali.getImage());
+                    return response;
+                })
+                .sorted(Comparator.comparing(map -> (Integer) map.get("apart_id"))) // apart_id 기준 오름차순 정렬
+                .collect(Collectors.toList());
     }
 }
