@@ -65,7 +65,7 @@ public class HandaliController {
         return ResponseEntity.ok(handaliService.changeHandali(token));
     }
 
-    // [젤 최근 한달이 조회]
+    /**[마지막 생성 한달이 조회]*/
     @GetMapping("/recent")
     public ResponseEntity<HandaliDTO.RecentHandaliResponse> getRecentHandali(
             @RequestHeader("Authorization") String accessToken) {

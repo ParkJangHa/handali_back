@@ -46,6 +46,10 @@ public class HandaliDTO {
     public static class RecentHandaliResponse {
         private String nickname;
         private Long handali_id;
+        private LocalDate start_date;
+        private String job_name;
+        private int salary;
+        private String image;
     }
 
     @Data

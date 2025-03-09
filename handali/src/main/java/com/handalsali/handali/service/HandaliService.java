@@ -332,7 +332,19 @@ public class HandaliService {
 
         // 가장 최근 생성된 한달이 찾기 (없으면 예외 발생)
         return handaliRepository.findLatestHandaliByUser(user.getUserId())
-                .map(handali -> new HandaliDTO.RecentHandaliResponse(handali.getNickname(), handali.getHandaliId()))
-                .orElseThrow(() -> new HandaliNotFoundException("최근 생성된 한달이가 없습니다."));
+                .map(handali
+                        -> {
+                    String jobName = (handali.getJob() != null) ? handali.getJob().getName() : "미취업";
+                    int weekSalary = (handali.getJob() != null) ? handali.getJob().getWeekSalary() : 0;
+
+                    return new HandaliDTO.RecentHandaliResponse(
+                            handali.getNickname(),
+                            handali.getHandaliId(),
+                            handali.getStartDate(),
+                            jobName,
+                            weekSalary,
+                            handali.getImage()
+                    );
+                }).orElseThrow(() -> new HandaliNotFoundException("최근 생성된 한달이가 없습니다."));
     }
 }
