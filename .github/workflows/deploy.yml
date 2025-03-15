@@ -32,7 +32,7 @@ jobs:
             echo "🔍 현재 브랜치: ${{ env.BRANCH_NAME }}"
 
             # 1. 현재 브랜치 코드 가져오기
-            cd ~/Documents/handali_project/handali_back
+            cd ~/handali_project/handali_back
             git fetch origin 
             git checkout ${{ env.BRANCH_NAME }}
             git pull origin ${{ env.BRANCH_NAME }}
