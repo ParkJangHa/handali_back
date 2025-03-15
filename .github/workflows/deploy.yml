@@ -20,15 +20,15 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.4
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ubuntu
-          key: ${{ secrets.AWS_SSH_KEY }}
+          host: ${{ secrets.MACBOOK_HOST }}
+          username: ${{ secrets.MACBOOK_USER }}
+          key: ${{ secrets.MACBOOK_SSH_KEY }}
           script: |
 
             echo "🔍 현재 브랜치: ${{ env.BRANCH_NAME }}"
 
             # 1. 현재 브랜치 코드 가져오기
-            cd /home/ubuntu/handali_back
+            cd /Users/hadahyeon/Documents/handali_project/handali_back
             git fetch origin 
             git checkout ${{ env.BRANCH_NAME }}
             git pull origin ${{ env.BRANCH_NAME }}
@@ -38,7 +38,7 @@ jobs:
             chmod +x gradlew
 
             # 3. 애플리케이션 빌드
-            ./gradlew clean build
+            ./gradlew clean build || { echo "🚨 빌드 실패!"; exit 1; }
 
             # 4. 기존 애플리케이션 프로세스 종료 (PID 파일을 이용)
             if [ -f app.pid ]; then
