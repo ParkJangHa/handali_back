@@ -17,9 +17,8 @@ jobs:
         id: detect_branch
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
       
-      - name: Debug MACBOOK_HOST
-        run: echo "MACBOOK_HOST=${{ secrets.MACBOOK_HOST }}"
-
+      - name: Check Java Version
+        run: java -version
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.4
