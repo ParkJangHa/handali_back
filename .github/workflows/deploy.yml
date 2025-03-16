@@ -63,6 +63,7 @@ jobs:
             # `tmux`가 있는 경로를 `$PATH`에 추가
             export PATH="/usr/local/bin:$PATH"
 
+
             # 서버 디렉토리로 이동
             cd ~/server
 
@@ -84,5 +85,5 @@ jobs:
 
             # 실행 확인
             sleep 2
-            tmux ls || echo "No tmux sessions running."
+            tmux ls
 
