@@ -24,10 +24,15 @@ jobs:
           cd $GITHUB_WORKSPACE/handali
           ./gradlew build -x test
 
+      - name: Verify JAR File Exists
+        run: |
+          ls -lah $GITHUB_WORKSPACE/handali/build/libs/
+
+
       - name : Upload build artifact
         uses : actions/upload-artifact@v4
         with : 
-          name : spring-boot-app
+          name : springbootapp
           path : $GITHUB_WORKSPACE/handali/build/libs/*.jar
   
   deploy:
