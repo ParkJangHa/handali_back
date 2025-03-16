@@ -22,7 +22,7 @@ jobs:
       - name : Build with gradle
         run : |
           cd $GITHUB_WORKSPACE/handali
-          ./gradlew build
+          ./gradlew build --continue
 
       - name : Upload build artifact
         uses : actions/upload-artifact@v4
