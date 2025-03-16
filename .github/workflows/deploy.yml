@@ -72,12 +72,12 @@ jobs:
             mv ~/server/temp/*.jar handali.jar
 
             # 기존 애플리케이션 종료
-            pkill -f 'java -jar handali.jar' || true
+            tmux kill-session -t handaliSession || true
 
             # 새로운 애플리케이션 실행
-            nohup java -jar handali.jar > server.log 2>&1 &
+            tmux new-session -d -s handaliSession "java -jar ~/server/handali.jar > ~/server/server.log 2>&1"
 
             # 실행 확인
             sleep 2
-            ps aux | grep 'java -jar handali.jar'
+            tmux ls
 
