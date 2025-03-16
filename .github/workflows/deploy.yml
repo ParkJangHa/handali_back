@@ -60,6 +60,11 @@ jobs:
           key: ${{ secrets.MACBOOK_SSH_KEY }}
           script: |
 
+            echo "Current PATH: $PATH"
+            which tmux
+            # `tmux`가 있는 경로를 `$PATH`에 추가
+            export PATH="/usr/local/bin:$PATH"
+
             # 서버 디렉토리로 이동
             cd ~/server
 
