@@ -60,10 +60,10 @@ jobs:
           key: ${{ secrets.MACBOOK_SSH_KEY }}
           script: |
 
-            echo "Current PATH: $PATH"
-            which tmux
+            # echo "Current PATH: $PATH"
             # `tmux`가 있는 경로를 `$PATH`에 추가
             export PATH="/usr/local/bin:$PATH"
+            which tmux
 
             # 서버 디렉토리로 이동
             cd ~/server
@@ -77,7 +77,9 @@ jobs:
             mv ~/server/temp/*.jar handali.jar
 
             # 기존 애플리케이션 종료
-            tmux kill-session -t handaliSession || true
+            if tmux has-session -t handaliSession 2>/dev/null; then
+               tmux kill-session -t handaliSession
+            fi
 
             # 새로운 애플리케이션 실행
             tmux new-session -d -s handaliSession "java -jar ~/server/handali.jar > ~/server/server.log 2>&1"
