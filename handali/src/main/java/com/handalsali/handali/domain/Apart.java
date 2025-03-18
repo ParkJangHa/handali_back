@@ -1,6 +1,5 @@
 package com.handalsali.handali.domain;
 
-import com.handalsali.handali.enums_multyKey.ApartId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +22,9 @@ public class Apart {
     private int floor;
 
     @OneToOne
-    @JoinColumn(name="handali_id", referencedColumnName = "handali_id", nullable = false)
+    @JoinColumn(name="handali_id", foreignKey = @ForeignKey(
+            foreignKeyDefinition = "FOREIGN KEY (handali_id) REFERENCES handali(handali_id) ON DELETE CASCADE ON UPDATE CASCADE",
+            name = "fk_user"))
     private Handali handali;
 
     @Column(name = "nickname")
