@@ -19,10 +19,10 @@ public interface HabitRepository extends JpaRepository<Habit,Long> {
 
     /**[사용자, 카테고리별 습관 조회]*/
     @Query("SELECT h FROM Habit h JOIN UserHabit uh ON h = uh.habit " +
-            "WHERE uh.user = :user AND h.createdType = :created_type AND h.categoryName = :category")
+            "WHERE uh.user = :user AND h.createdType = :createdType AND h.categoryName = :category")
     List<Habit> findByUserAndCreatedTypeAndCategory(
             @Param("user") User user,
-            @Param("created_type") CreatedType createdType,
+            @Param("createdType") CreatedType createdType,
             @Param("category") Categoryname category);
 
     /**[개발자, 카테고리별 습관 조회]*/
@@ -30,10 +30,10 @@ public interface HabitRepository extends JpaRepository<Habit,Long> {
 
     /** [달, 카테고리별 습관 조회]*/
     @Query("SELECT h FROM Habit h JOIN UserHabit uh ON h = uh.habit " +
-            "WHERE uh.user = :user AND h.categoryName = :category AND uh.month = :month")
+            "WHERE uh.user = :user AND h.categoryName = :categoryName AND uh.month = :month")
     List<Habit> findByUserAndCategoryAndMonth(
             @Param("user") User user,
-            @Param("category") Categoryname category,
+            @Param("categoryName") Categoryname category,
             @Param("month") int month);
 
 }

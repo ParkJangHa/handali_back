@@ -47,29 +47,27 @@ public class StatService {
 
     /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
     public boolean statUpdateAndCheckHandaliStat(Handali handali, Categoryname categoryname, float time, int satisfaction){
-//        //1. 한달이 찾기
-//        if(handali==null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
 
-        //2. 한달이의 어떤 스탯을 올려야 하는지 찾기
+        //3. 한달이의 어떤 스탯을 올려야 하는지 찾기
         TypeName currentStatType = switch (categoryname) {
             case ACTIVITY -> TypeName.ACTIVITY_SKILL;
             case ART -> TypeName.ART_SKILL;
             case INTELLIGENT -> TypeName.INTELLIGENT_SKILL;
         };
 
-        //3. 한달이의 스탯 타입에 따른 한달이-스탯 찾기
+        //4. 한달이의 스탯 타입에 따른 한달이-스탯 찾기
         HandaliStat handaliStat=handaliStatRepository.findByHandaliAndType(handali,currentStatType)
                 .orElseThrow(() -> new HandaliStatNotFoundException("스탯을 찾을 수 없습니다."));
 
-        //4. 스탯 업데이트 전의 한달이 레벨 확인
+        //5. 스탯 업데이트 전의 한달이 레벨 확인
         int previousLevel=checkHandaliStat(handaliStat.getStat().getValue());
 
-        //5. 스탯 값 업데이트
+        //6. 스탯 값 업데이트
         float incrementValue = calculateStatValue(time, satisfaction);
         handaliStat.getStat().setValue(handaliStat.getStat().getValue()+incrementValue);
         handaliStatRepository.save(handaliStat);
 
-        //6. 한달이 상태 변화 검사
+        //7. 한달이 상태 변화 검사
         int nowLevel=checkHandaliStat(handaliStat.getStat().getValue());
 
         return previousLevel!=nowLevel;

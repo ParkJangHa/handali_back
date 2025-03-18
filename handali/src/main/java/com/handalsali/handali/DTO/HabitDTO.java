@@ -9,14 +9,6 @@ import java.util.List;
 
 
 public class HabitDTO {
-    /**습관 추가 응답 dto*/
-    @Data
-    @AllArgsConstructor
-    public static class AddHabitResponse{
-        private Categoryname category;
-        private String details;
-        private CreatedType created_type;
-    }
 
     /**습관 추가 최종 응답 dto*/
     @Data
@@ -42,39 +34,7 @@ public class HabitDTO {
         private List<AddHabitRequest> habits;
     }
 
-    /** 카테고리별 습관 조회에 대한 개별 습관 DTO*/
-    @Data
-    @AllArgsConstructor
-    public static class HabitByCategoryResponse {
-        private Long habitId;
-        private String detailedHabitName;
-    }
-
-    /** 카테고리별 습관 조회에 대한 응답 DTO*/
-    @Data
-    @AllArgsConstructor
-    public static class HabitsByCategoryResponse {
-        private Categoryname category;
-        private int month;
-        private List<HabitByCategoryResponse> habits;
-    }
-
-    /** 개발자와 사용자가 설정한 습관 조회에 대한 응답 DTO*/
-    @Data
-    @AllArgsConstructor
-    public static class DeveloperHabitResponse {
-        private String category;
-        private List<HabitDetail> habits;
-
-        /** 개발자 습관 조회의 개별 습관 세부 DTO*/
-        @Data
-        @AllArgsConstructor
-        public static class HabitDetail {
-            private Long id;
-            private String detail;
-        }
-    }
-
+    /**개발자/사용자, 카테고리별 습관 조회*/
     @Data
     public static class getHabitsApiResponse{
         private String category;

@@ -27,7 +27,6 @@ public class HabitService {
     private final UserService userService;
     private final HabitRepository habitRepository;
     private final UserHabitRepository userHabitRepository;
-    public static final int MONTH_NOT_ASSIGNED = 0;
 
     public HabitService(UserService userService, HabitRepository habitRepository, UserHabitRepository userHabitRepository) {
         this.userService = userService;
@@ -72,7 +71,6 @@ public class HabitService {
             for (HabitDTO.AddHabitRequest habitRequest : addHabitApiRequest.getHabits()) {
                 Categoryname categoryName = habitRequest.getCategory();
                 String detailedHabitName = habitRequest.getDetails();
-                CreatedType createdType = habitRequest.getCreated_type();
 
                 //2-1. 습관이 없으면 오류
                 Habit habit = habitRepository.findByCategoryNameAndDetailedHabitName(categoryName, detailedHabitName).orElseThrow(
@@ -118,7 +116,7 @@ public class HabitService {
 
     /**[개발자, 카테고리별 습관 조회]*/
     public HabitDTO.getHabitsApiResponse getHabitsByDev(String token,String category){
-        User user=userService.tokenToUser(token);
+        userService.tokenToUser(token);
 
         try {
             Categoryname categoryNameEnum = Categoryname.valueOf(category);
