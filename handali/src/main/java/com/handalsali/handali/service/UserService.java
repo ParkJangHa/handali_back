@@ -38,9 +38,8 @@ public class UserService {
     /**[로그인]*/
     public String logIn(String email,String password){
         User user= userRepository.findByEmail(email);
-        if(user==null)
-            throw new UserNotFoundException();
-        if(!user.checkPassword(password))
+
+        if(user==null||!user.checkPassword(password))
             throw new EmailOrPwNotCorrectException();
 
         // Access Token 및 Refresh Token 생성
