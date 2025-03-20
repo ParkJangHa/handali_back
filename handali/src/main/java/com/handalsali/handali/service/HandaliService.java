@@ -102,9 +102,6 @@ public class HandaliService {
         return resultImage;
     }
 
-
-    /**[스탯 조회]*/
-
     /**한달이 저장*/
     public void save(Handali handali){
         handaliRepository.save(handali);

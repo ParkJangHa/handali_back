@@ -13,12 +13,10 @@ import org.springframework.web.bind.annotation.*;
 public class HandaliController {
     private BaseController baseController;
     private HandaliService handaliService;
-//    private UserService userService;
 
     public HandaliController(BaseController baseController,HandaliService handaliService){
         this.baseController=baseController;
         this.handaliService=handaliService;
-//        this.userService = userService;
     }
 
     /**[한달이 생성]*/
