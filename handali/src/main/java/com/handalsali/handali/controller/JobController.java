@@ -21,12 +21,4 @@ public class JobController {
         this.baseController = baseController;
     }
 
-    /**[취업]*/
-    @PostMapping("/handalis/{handali_id}/job")
-    public ResponseEntity<JobStatDTO.JobResponse> assignJob(@RequestHeader("Authorization") String accessToken,
-                                                @PathVariable("handali_id") Long handaliId) {
-        String token = baseController.extraToken(accessToken);
-
-        return ResponseEntity.status(HttpStatus.OK).body(jobService.assignBestJobToHandali(token,handaliId));
-    }
 }

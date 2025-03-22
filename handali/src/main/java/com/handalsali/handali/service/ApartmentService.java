@@ -1,10 +1,12 @@
 package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.HandaliDTO;
+import com.handalsali.handali.domain.Apart;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.exception.HandaliNotFoundException;
+import com.handalsali.handali.repository.ApartRepository;
 import com.handalsali.handali.repository.HandaliRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +19,31 @@ import java.util.stream.Collectors;
 public class ApartmentService {
     private final HandaliRepository handaliRepository;
     private final UserService userService;
-    private final HandaliService handaliService;
+    private final ApartRepository apartRepository;
 
-    public ApartmentService(HandaliRepository handaliRepository, UserService userService, HandaliService handaliService) {
+    public ApartmentService(HandaliRepository handaliRepository, UserService userService, ApartRepository apartRepository) {
         this.handaliRepository = handaliRepository;
         this.userService = userService;
-        this.handaliService = handaliService;
+        this.apartRepository = apartRepository;
+    }
+
+    /** 한달이의 아파트 배정 **/
+    // 생성 월에 따라 층 결정, 연도가 바뀌면 새로운 아파트에 입주
+    public Apart assignApartmentToHandali(Handali handali) {
+        int year = handali.getStartDate().getYear();  // 생성 연도
+        int month = handali.getStartDate().getMonthValue();
+
+        Apart newApartment = new Apart(
+                handali.getUser(),
+                handali,
+                handali.getNickname(),
+                month,  // 층수는 생성 월
+                year  // 아파트 ID는 생성 연도
+        );
+
+        apartRepository.save(newApartment);
+
+        return newApartment;
     }
 
     /**[아파트 내 모든 한달이 조회]*/
