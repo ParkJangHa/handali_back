@@ -17,7 +17,7 @@ public interface HandaliStatRepository extends JpaRepository<HandaliStat, Long> 
             " where hs.handali=:handali and s.typeName=:typeName")
     Optional<HandaliStat> findByHandaliAndType(@Param("handali") Handali handali, @Param("typeName") TypeName typeName);
 
-    /**어떤 한달이에 따른 한달이-스탯 관계 찾기, 활동, 지능, 예술 순으로 정렬하여 가져옴*/
+    /**어떤 한달이에 따른 한달이-스탯 관계 찾기, 활동, 지능, 예술 순으로 정렬하여 가져옴 --> 수정필요*/
     @Query("select hs from HandaliStat hs " +
             "join Stat s on hs.stat=s" +
             " where hs.handali=:handali " +

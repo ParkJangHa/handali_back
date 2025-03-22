@@ -68,13 +68,13 @@ public class HandaliService {
     }
 
     /**한달이 찾고, [스탯 업데이트]*/
-    public boolean statUpdate(User user, Categoryname categoryname, float time, int satisfaction) {
+    public boolean statUpdate(User user, Categoryname categoryname, int recordCount, float lastRecordTime,float time, int satisfaction) {
         // 1. 한달이 찾기
         Handali handali = findHandaliByCurrentDateAndUser(user);
         if (handali == null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
 
         // 2. StatService로 한달이 객체 전달
-        return statService.statUpdateAndCheckHandaliStat(handali, categoryname, time, satisfaction);
+        return statService.statUpdateAndCheckHandaliStat(handali, categoryname, recordCount,lastRecordTime, time, satisfaction);
     }
 
     /**[한달이 상태 변화]-이미지 반환*/
