@@ -6,13 +6,10 @@ import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.domain.*;
-import com.handalsali.handali.repository.ApartRepository;
+import com.handalsali.handali.repository.*;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
-import com.handalsali.handali.repository.HandaliRepository;
-import com.handalsali.handali.repository.HandaliStatRepository;
-import com.handalsali.handali.repository.JobRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.JoinColumn;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,13 +17,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 
 @Service
 @Transactional
 public class HandaliService {
+    private final RecordRepository recordRepository;
+    private final UserRepository userRepository;
     private UserService userService;
     private HandaliRepository handaliRepository;
     private StatService statService;
@@ -34,13 +36,15 @@ public class HandaliService {
     private JobService jobService;
     private ApartmentService apartmentService;
 
-    public HandaliService(UserService userService, HandaliRepository handaliRepository, StatService statService,HandaliStatRepository handaliStatRepository,JobService jobService,ApartmentService apartmentService) {
+    public HandaliService(UserService userService, HandaliRepository handaliRepository, StatService statService, HandaliStatRepository handaliStatRepository, JobService jobService, ApartmentService apartmentService, RecordRepository recordRepository, UserRepository userRepository) {
         this.userService = userService;
         this.handaliRepository = handaliRepository;
         this.statService = statService;
         this.handaliStatRepository = handaliStatRepository;
         this.jobService = jobService;
         this.apartmentService = apartmentService;
+        this.recordRepository = recordRepository;
+        this.userRepository = userRepository;
     }
 
     /**[한달이 생성]*/
@@ -230,5 +234,57 @@ public class HandaliService {
                             handali.getImage()
                     );
                 }).orElseThrow(() -> new HandaliNotFoundException("최근 생성된 한달이가 없습니다."));
+    }
+
+    /**직업에 따른 주급 사용자에게 지급
+     * 한달 기록 횟수*10 + 주급(12달이 지나면 지급량 없음)
+     * */
+    @Scheduled(cron="0 0 0 * * MON")
+//    @Scheduled(cron = "*/5 * * * * *", zone = "Asia/Seoul")
+    public void payWeekSalary(){
+
+        List<Handali> handalis = handaliRepository.findAllByJobIsNotNull();
+
+        for (Handali handali : handalis) {
+            //1. 한달이의 년월 및 주급 감소량 찾기
+            LocalDate handaliNow=handali.getStartDate();
+            YearMonth startYearMonth = YearMonth.from(handaliNow); //한달이 시작 년월
+            YearMonth currentYearMonth=YearMonth.now(); //현재 년월
+
+            long diffMonth= ChronoUnit.MONTHS.between(startYearMonth, currentYearMonth);
+            double salaryRatio = Math.max(0, 12-diffMonth) / 12.0; //1.0~0.0
+
+            LocalDate startDate = startYearMonth.atDay(1); //한달이 달의 시작 년월일
+            LocalDate endDate=startYearMonth.atEndOfMonth(); //한달이 달의 마지막 년월일
+
+            //2. 한달이의 사용자 찾기
+            User user = handali.getUser();
+
+            //3. 기록횟수 구하기
+            int recordCnt = recordRepository.countByUserAndDate(user, startDate, endDate);
+
+            //4. 한달이의 주급 구하기
+            int weekSalary = handali.getJob().getWeekSalary();
+
+            //5. 사용자에게 지급할 주급 계산하기
+            int totalSalary = recordCnt * 10 + (int)(weekSalary*salaryRatio);
+
+            //6. 저장하기
+            user.setTotal_coin(user.getTotal_coin()+totalSalary);
+            userRepository.save(user);
+
+            System.out.println(
+                    "\n📦 [주급 지급 완료] ==========================\n" +
+                            "👤 사용자 ID       : " + user.getUserId() + "\n" +
+                            "🎈 한달이 ID       : " + handali.getHandaliId() + "\n" +
+                            "🏢 직업명          : " + handali.getJob().getName() + "\n" +
+                            "📉 지급 비율       : " + String.format("%.0f%%", salaryRatio * 100) + "\n" +
+                            "💰 지급된 주급     : " + totalSalary + " 코인\n" +
+                            "💳 총 보유 코인    : " + user.getTotal_coin() + " 코인\n" +
+                            "🕒 지급 일시       : " + LocalDateTime.now() + "\n" +
+                            "============================================\n"
+            );
+
+        }
     }
 }

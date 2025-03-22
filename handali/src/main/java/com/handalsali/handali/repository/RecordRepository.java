@@ -22,4 +22,10 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
     int countByUserAndHabitAndDate(@Param("user")User user,@Param("habit")Habit habit,@Param("startDate")LocalDate startDate,@Param("endDate")LocalDate endDate);
 
     Record findTopByUserAndHabitOrderByDateDesc(User user, Habit habit);
+
+    @Query("select count(r) from Record r " +
+            "where r.user=:user and " +
+            "r.date >=:startDate and " +
+            "r.date <=:endDate")
+    int countByUserAndDate(@Param("user")User user,@Param("startDate")LocalDate startDate,@Param("endDate")LocalDate endDate);
 }
