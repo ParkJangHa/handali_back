@@ -2,7 +2,6 @@ package com.handalsali.handali.repository;
 
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
-import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.enums_multyKey.TypeName;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -36,4 +35,11 @@ public interface HandaliStatRepository extends JpaRepository<HandaliStat, Long> 
           )
     """)
     List<HandaliStat> findMaxStatByHandaliId(@Param("handaliId") Long handaliId);
+
+    @Query("select hs from HandaliStat hs " +
+            "join fetch hs.stat s " +
+            "where hs.handali=:handali " +
+            "and s.typeName in :typeNames ")
+    List<HandaliStat> findByHandaliAndStatType(@Param("handali") Handali handali, @Param("typeNames") List<TypeName> typeNames);
+
 }

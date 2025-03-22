@@ -27,8 +27,12 @@ public class Stat {
     @Setter
     private float value;
 
-    public Stat(TypeName typeName,float value) {
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    @Setter
+    private float lastMonthValue;
+
+    public Stat(TypeName typeName) {
         this.typeName=typeName;
-        this.value=value;
     }
 }

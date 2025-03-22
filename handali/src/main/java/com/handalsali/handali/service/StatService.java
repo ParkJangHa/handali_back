@@ -6,36 +6,46 @@ import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.enums_multyKey.TypeName;
 import com.handalsali.handali.exception.HandaliStatNotFoundException;
+import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.StatRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 
 @Service
 @Transactional
 public class StatService {
     private final StatRepository statRepository;
     private final HandaliStatRepository handaliStatRepository;
+    private final HandaliRepository handaliRepository;
 
-    public StatService(StatRepository statRepository, HandaliStatRepository handaliStatRepository) {
+    public StatService(StatRepository statRepository, HandaliStatRepository handaliStatRepository, HandaliRepository handaliRepository) {
         this.statRepository = statRepository;
         this.handaliStatRepository = handaliStatRepository;
+        this.handaliRepository = handaliRepository;
     }
 
     /**한달이 생성후, 스탯 초기화*/
     public void statInit(Handali handali){
-        float initValue=0;
 
-        //스탯 초기화
-        Stat activityStat=new Stat(TypeName.ACTIVITY_SKILL,initValue);
-        Stat intelligentStat=new Stat(TypeName.INTELLIGENT_SKILL,initValue);
-        Stat artStat=new Stat(TypeName.ART_SKILL,initValue);
+        //1. 스탯 초기화, 0
+        Stat activityStat=new Stat(TypeName.ACTIVITY_SKILL);
+        Stat intelligentStat=new Stat(TypeName.INTELLIGENT_SKILL);
+        Stat artStat=new Stat(TypeName.ART_SKILL);
 
+        //2. 지난달 스탯 반영
+        setLastMonthStat(activityStat, intelligentStat, artStat);
+
+        //3. 스탯 데이터베이스에 저장
         statRepository.save(activityStat);
         statRepository.save(intelligentStat);
         statRepository.save(artStat);
 
-        //한달이-스탯 관계 설정
+        //4. 한달이-스탯 관계 설정
         HandaliStat activityHandaliStat=new HandaliStat(handali,activityStat);
         HandaliStat intelligentHandaliStat=new HandaliStat(handali,intelligentStat);
         HandaliStat artHandaliStat=new HandaliStat(handali,artStat);
@@ -43,6 +53,31 @@ public class StatService {
         handaliStatRepository.save(activityHandaliStat);
         handaliStatRepository.save(intelligentHandaliStat);
         handaliStatRepository.save(artHandaliStat);
+    }
+
+    private void setLastMonthStat(Stat activityStat, Stat intelligentStat, Stat artStat) {
+        LocalDate now = LocalDate.now();
+        YearMonth yearMonth = YearMonth.from(now).minusMonths(1);
+        LocalDate startDate=yearMonth.atDay(1);
+        LocalDate endDate=yearMonth.atEndOfMonth();
+
+        //1. 지난달 한달이 찾기
+        Handali lastMonthHandali = handaliRepository.findLastMonthHandali(startDate, endDate);
+
+        //2. 지난달 한달이의 스탯 찾아서 현재 한달이의 스탯에 반영하기
+        if (lastMonthHandali != null) {
+            List<TypeName> typeNames=List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL,TypeName.ART_SKILL);
+
+            List<HandaliStat> handaliStats = handaliStatRepository.findByHandaliAndStatType(lastMonthHandali, typeNames);
+                for (HandaliStat handaliStat : handaliStats) {
+                    float value=handaliStat.getStat().getValue();
+                    switch(handaliStat.getStat().getTypeName()){
+                        case ACTIVITY_SKILL -> activityStat.setLastMonthValue(value);
+                        case INTELLIGENT_SKILL -> intelligentStat.setLastMonthValue(value);
+                        case ART_SKILL -> artStat.setLastMonthValue(value);
+                    }
+                }
+        }
     }
 
     /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
