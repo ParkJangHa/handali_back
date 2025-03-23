@@ -55,4 +55,8 @@ public class User {
     public boolean checkPassword(String rawPassword){
         return passwordEncoder.matches(rawPassword,this.password);
     }
+
+    public void setTotalCoin(int totalCoin) {
+        this.total_coin = totalCoin;
+    }
 }

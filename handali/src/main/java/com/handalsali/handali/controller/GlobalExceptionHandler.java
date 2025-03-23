@@ -91,6 +91,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    /** 잘못된 카테고리 or 상품명으로 구매 요청 시*/
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    /** 이미 구매한 상품을 다시 구매 요청 시*/
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalStateException(IllegalStateException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    /** 알 수 없는 오류 발생 시*/
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+        return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
+    }
+
 //    //한달이가 존재하지 않을 때
 //    @ExceptionHandler(HandaliNotFoundException.class)
 //    public ResponseEntity<Map<String, String>> handleHandaliNotFoundException(HandaliNotFoundException ex) {

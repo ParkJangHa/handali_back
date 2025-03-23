@@ -72,4 +72,9 @@ public class UserService {
         long userId=jwtUtil.extractUserId(accessToken);
         return userIdToUser(userId);
     }
+
+    /** 유저 정보 저장*/
+    public void save(User user) {
+        userRepository.save(user);
+    }
 }
