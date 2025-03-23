@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 
 public class UserDTO {
@@ -22,7 +23,7 @@ public class UserDTO {
         @NotBlank(message = "전화번호를 입력해주세요.")
         private String phone;
         @NotNull(message ="생년월일을 입력해주세요.")
-        private Date birthday;
+        private LocalDate birthday;
     }
 
     @Data

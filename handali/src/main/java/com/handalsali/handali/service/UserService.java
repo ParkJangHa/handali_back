@@ -10,6 +10,7 @@ import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -25,7 +26,7 @@ public class UserService {
     }
 
     /**[회원가입]*/
-    public User signUp(String name, String email, String password, String phone, Date birthday){
+    public User signUp(String name, String email, String password, String phone, LocalDate birthday){
         if(userRepository.existsByEmail(email)){
             throw new EmailAlreadyExistsException();
         }
