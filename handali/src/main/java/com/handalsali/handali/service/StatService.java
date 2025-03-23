@@ -102,6 +102,7 @@ public class StatService {
 
         //6. 스탯 값 업데이트
         float incrementValue = calculateStatValue(recordCount,lastRecordTime,handaliStat,time, satisfaction);
+        System.out.println("incrementValue = " + incrementValue);
         handaliStat.getStat().setValue(handaliStat.getStat().getValue()+incrementValue);
         handaliStatRepository.save(handaliStat);
 
@@ -116,7 +117,7 @@ public class StatService {
 
         //지난달 스탯값
         float lastMonthStatValue=handaliStat.getStat().getLastMonthValue();
-        System.out.println(lastMonthStatValue);
+        System.out.println("lastMonthStatValue: "+lastMonthStatValue);
 
         // 📌 비율 설정 (총합 기준 ≒ 13.5)
         final float ratioRecord = 8.5f;
