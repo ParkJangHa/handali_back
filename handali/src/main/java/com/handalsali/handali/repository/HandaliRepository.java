@@ -42,4 +42,15 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     //아파트에 입주한 모든 한달이 조회
     @Query("SELECT h FROM Handali h WHERE h.apart IS NOT NULL and h.user=:user")
     List<Handali> findAllByUser(User user);
+
+    /**지난달 한달이 찾기*/
+    @Query("select h from Handali h " +
+            "where h.startDate >=:startDate " +
+            "and h.startDate <=:endDate")
+    Handali findLastMonthHandali(@Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
+
+    /**직업을 가진 한달이 조회*/
+    @Query("select h from Handali h " +
+            "where h.job is not null")
+    List<Handali> findAllByJobIsNotNull();
 }
