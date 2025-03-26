@@ -48,7 +48,8 @@ public class HabitServiceTest {
     @Test
     void getHabitsByDev_ShouldReturnHabits_WhenCategoryIsValid() {
         // given
-        String category = "ACTIVITY";
+        String category = Categoryname.ACTIVITY.toString();
+        System.out.println("category = " + category);
         List<Habit> habits = List.of(
                 new Habit(Categoryname.ACTIVITY, "서핑", CreatedType.DEVELOPER),
                 new Habit(Categoryname.ACTIVITY, "요가", CreatedType.DEVELOPER)
