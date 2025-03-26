@@ -1,5 +1,6 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.DTO.StoreDTO;
 import com.handalsali.handali.domain.StoreItem;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.repository.StoreItemRepository;
@@ -19,39 +20,24 @@ public class StoreService {
     private final StoreItemRepository storeItemRepository;
     private final UserRepository userRepository;
 
-    // 특정 카테고리 내 특정 이름의 아이템 조회
-    public StoreItem getItemByCategoryAndName(String category, String name) {
-        return storeItemRepository.findByCategory(category)
-                .stream()
-                .filter(item -> item.getName().equals(name))
-                .findFirst()
-                .orElse(null);
-    }
-
     // 카테고리별 아이템 조회
-    public List<StoreItem> getItemsByCategory(String category,String token) {
+    public List<StoreItem> getItemsByCategory(String category) {
         return storeItemRepository.findByCategory(category);
     }
 
-    // 사용자 코인 잔액 조회
-    public int getUserCoins(String token) {
-        User user = userService.tokenToUser(token);
-        return user.getTotal_coin();
+    // 특정 카테고리 내 특정 아이템 조회
+    public Optional<StoreItem> getItemByCategoryAndName(String category, String name) {
+        return storeItemRepository.findByCategoryAndName(category, name);
     }
 
     // 아이템 구매 처리
     @Transactional
-    public String buyItem(String category, String name, int price, String token) {
+    public String buyItem(StoreDTO storeDTO, String token) {
         // 유저 조회
         User user = userService.tokenToUser(token);
 
-        // 유저의 코인이 부족한지 확인
-        if (user.getTotal_coin() < price) {
-            return "코인이 부족합니다.";
-        }
-
         //아이템 조회
-        Optional<StoreItem> itemOpt = storeItemRepository.findByCategoryAndName(category, name);
+        Optional<StoreItem> itemOpt = getItemByCategoryAndName(storeDTO.getCategory(), storeDTO.getName());
 
         if (itemOpt.isEmpty()) {
             return "아이템을 찾을 수 없습니다.";
@@ -64,8 +50,14 @@ public class StoreService {
             return "이미 구매한 아이템입니다.";
         }
 
+        // 유저의 코인 확인
+        int userTotalCoin = user.getTotal_coin();
+        if (userTotalCoin < storeDTO.getPrice()) {
+            return "코인이 부족합니다.";
+        }
+
         // 코인 차감 후 저장
-        user.setTotalCoin(user.getTotal_coin() - price);
+        user.setTotalCoin(userTotalCoin - storeDTO.getPrice());
         userRepository.save(user); // 변경된 코인 잔액 저장
 
         // 아이템 구매 처리
