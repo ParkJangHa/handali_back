@@ -109,11 +109,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
     }
 
-//    //한달이가 존재하지 않을 때
-//    @ExceptionHandler(HandaliNotFoundException.class)
-//    public ResponseEntity<Map<String, String>> handleHandaliNotFoundException(HandaliNotFoundException ex) {
-//        Map<String, String> errorResponse = new HashMap<>();
-//        errorResponse.put("error", ex.getMessage());
-//        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
-//    }
+    /**상점에 아이템이 존재하지 않는 오류*/
+    @ExceptionHandler(StoreItemNotExistsException.class)
+    public ResponseEntity<String> storeCategoryNotExsitsException(StoreItemNotExistsException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    /**상점에서 이미 구매한 물건인 경우 오류*/
+    @ExceptionHandler(StoreItemAlreadyBoughtException.class)
+    public ResponseEntity<String> storeCategoryAlreadyBoughtException(StoreItemAlreadyBoughtException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    /**상점에서 코인 부족 오류*/
+    @ExceptionHandler(InsufficientCoinException.class)
+    public ResponseEntity<String> insufficientCoinException(InsufficientCoinException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
 }
