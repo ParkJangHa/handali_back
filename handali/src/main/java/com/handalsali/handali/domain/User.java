@@ -3,6 +3,7 @@ package com.handalsali.handali.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +31,7 @@ public class User {
 
     @Column(nullable = false)
     @ColumnDefault("0")
+    @Setter
     private int total_coin;
 
     @Column(nullable = false)
