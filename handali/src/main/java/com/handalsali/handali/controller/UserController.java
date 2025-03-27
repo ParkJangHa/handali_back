@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class UserController {
     private final UserService userService;
-    private BaseController baseController;
+    private final BaseController baseController;
     public UserController(UserService userService, BaseController baseController) {
         this.userService = userService;
         this.baseController = baseController;

@@ -6,10 +6,8 @@ import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.domain.*;
-import com.handalsali.handali.enums_multyKey.ApartId;
 import com.handalsali.handali.repository.ApartRepository;
 import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.TypeName;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
@@ -19,7 +17,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -103,9 +101,6 @@ public class HandaliService {
         handaliRepository.save(handali);
         return resultImage;
     }
-
-
-    /**[스탯 조회]*/
 
     /**한달이 저장*/
     public void save(Handali handali){

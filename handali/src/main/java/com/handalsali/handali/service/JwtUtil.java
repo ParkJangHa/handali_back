@@ -22,7 +22,7 @@ public class JwtUtil {
 
     /** Access Token 생성*/
     public String generateToken(String email, long userId) {
-        long expirationTime = 1000 * 60 * 15; // 15분
+        long expirationTime = 1000 * 60 * 60; // 1시간
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)

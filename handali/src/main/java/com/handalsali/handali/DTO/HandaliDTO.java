@@ -63,37 +63,4 @@ public class HandaliDTO {
         @Schema(description = "마지막 한달이 이미지", example = "image_0_0_0.png")
         private String image;
     }
-
-    @Data
-    @AllArgsConstructor
-    public static class HandaliInApartmentResponse {
-        private Long apart_id;
-        private int floor;
-        private String nickname;
-        private LocalDate start_date;
-        private String job_name;
-        private int week_salary;
-        private String type_name;
-        private float stat_value;
-
-//        public static HandaliInApartmentResponse fromEntity(Handali handali) {
-//            if (handali.getApart() == null) {
-//                throw new IllegalStateException("Handali가 아파트 정보를 가지고 있지 않습니다.");
-//            }
-//
-//            System.out.println("DEBUG: " + handali.getNickname() + "의 아파트 ID: " + handali.getApart().getApartId());
-//            System.out.println("DEBUG: " + handali.getNickname() + "의 층수: " + handali.getApart().getFloor());
-//
-//            return new HandaliInApartmentResponse(
-//                    Long.valueOf(handali.getApart().getApartId().getApartId()),  // 아파트 ID
-//                    handali.getApart().getFloor(),  // 층 수
-//                    handali.getNickname(),  // 닉네임
-//                    handali.getStartDate(),  // 생성일
-//                    handali.getJob() != null ? handali.getJob().getName() : null,  // 직업명
-//                    handali.getJob() != null ? handali.getJob().getWeekSalary() : 0,  // 주급
-//                    "체력",  // 예제 스탯 이름
-//                    30.5f   // 예제 스탯 값
-//            );
-//        }
-    }
 }
