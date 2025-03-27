@@ -33,7 +33,7 @@ public class StatService {
     }
 
     /**한달이 생성후, 스탯 초기화*/
-    public void statInit(Handali handali){
+    public void statInit(User user,Handali handali){
 
         //1. 스탯 초기화, 0
         Stat activityStat=new Stat(TypeName.ACTIVITY_SKILL);
@@ -41,7 +41,7 @@ public class StatService {
         Stat artStat=new Stat(TypeName.ART_SKILL);
 
         //2. 지난달 스탯 반영
-        setLastMonthStat(activityStat, intelligentStat, artStat);
+        setLastMonthStat(user,activityStat, intelligentStat, artStat);
 
         //3. 스탯 데이터베이스에 저장
         statRepository.save(activityStat);
@@ -58,14 +58,14 @@ public class StatService {
         handaliStatRepository.save(artHandaliStat);
     }
 
-    private void setLastMonthStat(Stat activityStat, Stat intelligentStat, Stat artStat) {
+    private void setLastMonthStat(User user,Stat activityStat, Stat intelligentStat, Stat artStat) {
         LocalDate now = LocalDate.now();
         YearMonth yearMonth = YearMonth.from(now).minusMonths(1);
         LocalDate startDate=yearMonth.atDay(1);
         LocalDate endDate=yearMonth.atEndOfMonth();
 
-        //1. 지난달 한달이 찾기
-        Handali lastMonthHandali = handaliRepository.findLastMonthHandali(startDate, endDate);
+        //1. 사용자의 지난달 한달이 찾기
+        Handali lastMonthHandali = handaliRepository.findLastMonthHandali(user,startDate, endDate);
 
         //2. 지난달 한달이의 스탯 찾아서 현재 한달이의 스탯에 반영하기
         if (lastMonthHandali != null) {
@@ -102,6 +102,7 @@ public class StatService {
 
         //6. 스탯 값 업데이트
         float incrementValue = calculateStatValue(recordCount,lastRecordTime,handaliStat,time, satisfaction);
+        System.out.println("incrementValue = " + incrementValue);
         handaliStat.getStat().setValue(handaliStat.getStat().getValue()+incrementValue);
         handaliStatRepository.save(handaliStat);
 
@@ -116,7 +117,7 @@ public class StatService {
 
         //지난달 스탯값
         float lastMonthStatValue=handaliStat.getStat().getLastMonthValue();
-        System.out.println(lastMonthStatValue);
+        System.out.println("lastMonthStatValue: "+lastMonthStatValue);
 
         // 📌 비율 설정 (총합 기준 ≒ 13.5)
         final float ratioRecord = 8.5f;

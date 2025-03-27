@@ -9,6 +9,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 
 public class UserDTO {
@@ -28,7 +29,7 @@ public class UserDTO {
         private String phone;
         @Schema(description = "가입하려는 사용자의 생년월일", example = "1990-01-01")
         @NotNull(message ="생년월일을 입력해주세요.")
-        private Date birthday;
+        private LocalDate birthday;
     }
 
     @Data

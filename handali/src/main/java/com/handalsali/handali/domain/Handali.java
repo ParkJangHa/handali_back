@@ -23,6 +23,7 @@ public class Handali {
     private String nickname;
 
     @Column(nullable = false,name="start_date")
+    @Setter
     private LocalDate startDate;
 
     @ManyToOne
