@@ -1,8 +1,9 @@
 package com.handalsali.handali.DTO;
 
-import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.domain.Handali;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,7 +13,7 @@ public class HandaliDTO {
     @AllArgsConstructor
     public static class CreateHandaliResponse{
         private long handali_id;
-        private String nickaname;
+        private String nickname;
         private LocalDate start_date;
         private String message;
     }
@@ -29,6 +30,7 @@ public class HandaliDTO {
         private String nickname;
         private int days_since_created;
         private int total_coin;
+        private String image;
     }
 
 
@@ -38,4 +40,15 @@ public class HandaliDTO {
         private List<StatDetailDTO> stat;
     }
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RecentHandaliResponse {
+        private String nickname;
+        private Long handali_id;
+        private LocalDate start_date;
+        private String job_name;
+        private int salary;
+        private String image;
+    }
 }

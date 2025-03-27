@@ -3,11 +3,10 @@ package com.handalsali.handali.controller;
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.service.HandaliService;
+import com.handalsali.handali.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.YearMonth;
 
 @RestController
 @RequestMapping("/handalis")
@@ -39,7 +38,6 @@ public class HandaliController {
 
         String token = baseController.extraToken(accessToken);
         HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
-
         return ResponseEntity.ok(response);
     }
 
@@ -65,4 +63,22 @@ public class HandaliController {
         return ResponseEntity.ok(handaliService.changeHandali(token));
     }
 
+    /**[마지막 생성 한달이 조회]*/
+    @GetMapping("/recent")
+    public ResponseEntity<HandaliDTO.RecentHandaliResponse> getRecentHandali(
+            @RequestHeader("Authorization") String accessToken) {
+
+        // 토큰 처리
+        String token = baseController.extraToken(accessToken);
+        HandaliDTO.RecentHandaliResponse response = handaliService.getRecentHandali(token);
+
+        return ResponseEntity.ok(response);
+    }
+
+//    // (test) 🚀 강제 실행: 매달 1일 자동 실행을 지금 즉시 실행!
+//    @PostMapping("/process-monthly")
+//    public ResponseEntity<String> processMonthlyJobAndApartmentEntry() {
+//        handaliService.processMonthlyJobAndApartmentEntry();
+//        return ResponseEntity.ok("한달이 취업 + 아파트 입주가 강제로 실행되었습니다!");
+//    }
 }

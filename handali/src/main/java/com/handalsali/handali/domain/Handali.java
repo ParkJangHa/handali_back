@@ -36,12 +36,14 @@ public class Handali {
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (job_id) REFERENCES job(job_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Job job;
 
-    @ManyToOne
-    @JoinColumns({
-            @JoinColumn(name = "apart_id", referencedColumnName = "apart_id"),
-            @JoinColumn(name = "floor", referencedColumnName = "floor")
-    })
+    @Setter
+    @OneToOne
+    @JoinColumn(name="apart_total_id",
+            foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (apart_total_id) REFERENCES apart(apart_total_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Apart apart;
+
+    @Setter
+    private String image="image_0_0_0.png";
 
     public Handali(String nickname,LocalDate startDate,User user){
         this.nickname=nickname;

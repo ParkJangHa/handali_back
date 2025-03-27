@@ -27,7 +27,6 @@ public class HabitService {
     private final UserService userService;
     private final HabitRepository habitRepository;
     private final UserHabitRepository userHabitRepository;
-    public static final int MONTH_NOT_ASSIGNED = 0;
 
     public HabitService(UserService userService, HabitRepository habitRepository, UserHabitRepository userHabitRepository) {
         this.userService = userService;
@@ -72,7 +71,6 @@ public class HabitService {
             for (HabitDTO.AddHabitRequest habitRequest : addHabitApiRequest.getHabits()) {
                 Categoryname categoryName = habitRequest.getCategory();
                 String detailedHabitName = habitRequest.getDetails();
-                CreatedType createdType = habitRequest.getCreated_type();
 
                 //2-1. 습관이 없으면 오류
                 Habit habit = habitRepository.findByCategoryNameAndDetailedHabitName(categoryName, detailedHabitName).orElseThrow(
@@ -81,13 +79,15 @@ public class HabitService {
 
                 //2-2. user-habit 테이블에 관계 추가
                 int currentMonth = LocalDate.now().getMonthValue();
-                if (userHabitRepository.existsByUserAndHabit(user, habit)) { //이미 추가했던 습관일 경우, month 만 갱신
-                    UserHabit userHabit = userHabitRepository.findByUserAndHabit(user, habit);
-                    userHabit.setMonth(currentMonth);
-                    userHabitRepository.save(userHabit);
-                } else { //새로운 습관일 경우, 에러
-                    throw new HabitNotExistsException("사용자가 해당 습관을 추가하지 않았습니다: "+detailedHabitName);
+                UserHabit userHabit;
+                if (userHabitRepository.existsByUserAndHabit(user, habit)) { //이미 등록했던 습관일 경우
+                    userHabit = userHabitRepository.findByUserAndHabit(user, habit);
+
+                }else{ //처음 등록하는 습관일 경우
+                    userHabit = new UserHabit(user, habit);
                 }
+                userHabit.setMonth(currentMonth); //이번달 습관으로 지정
+                userHabitRepository.save(userHabit);
             }
     }
 
@@ -116,7 +116,7 @@ public class HabitService {
 
     /**[개발자, 카테고리별 습관 조회]*/
     public HabitDTO.getHabitsApiResponse getHabitsByDev(String token,String category){
-        User user=userService.tokenToUser(token);
+        userService.tokenToUser(token);
 
         try {
             Categoryname categoryNameEnum = Categoryname.valueOf(category);

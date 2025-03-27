@@ -1,5 +1,7 @@
 package com.handalsali.handali.domain;
 
+import com.handalsali.handali.DTO.JobStatDTO;
+import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +19,9 @@ public class Job {
 
     @Column(nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Handali> handalis;
 
     @Column(nullable = false,name="week_salary")
     private int weekSalary;
