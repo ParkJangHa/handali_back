@@ -1,6 +1,7 @@
 package com.handalsali.handali.DTO;
 
 import com.handalsali.handali.domain.Handali;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class HandaliDTO {
 
     @Data
     public static class CreateHandaliRequest{
+        @Schema(description = "생성한 한달이의 닉네임", example = "handa")
         private String nickname;
     }
 
@@ -27,9 +29,13 @@ public class HandaliDTO {
     @Data
     @AllArgsConstructor
     public static class HandaliStatusResponse {
+        @Schema(description = "해당하는 한달이의 닉네임", example = "handa")
         private String nickname;
+        @Schema(description = "한달이가 생성된 일수", example = "3")
         private int days_since_created;
+        @Schema(description = "토탈 코인", example = "100")
         private int total_coin;
+        @Schema(description = "변화한 한달이 사진", example = "image_0_0_0.png")
         private String image;
     }
 
@@ -44,11 +50,17 @@ public class HandaliDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class RecentHandaliResponse {
+        @Schema(description = "마지막 한달이 닉네임", example = "handa")
         private String nickname;
+        @Schema(description = "마지막 한달이 아이디", example = "8")
         private Long handali_id;
+        @Schema(description = "마지막 한달이 시작 날짜", example = "2025-03-07")
         private LocalDate start_date;
+        @Schema(description = "마지막 한달이 직업", example = "백수")
         private String job_name;
+        @Schema(description = "마지막 한달이 주급", example = "10")
         private int salary;
+        @Schema(description = "마지막 한달이 이미지", example = "image_0_0_0.png")
         private String image;
     }
 }
