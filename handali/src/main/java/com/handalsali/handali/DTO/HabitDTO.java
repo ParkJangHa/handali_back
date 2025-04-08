@@ -20,6 +20,7 @@ public class HabitDTO {
 
     /**습관 추가 요청 dto*/
     @Data
+    @AllArgsConstructor
     public static class AddHabitRequest{
         @Schema(description = "카테고리 종류", example = "ART")
         @NotBlank(message = "카테고리를 입력해주세요.")
@@ -34,6 +35,7 @@ public class HabitDTO {
 
     /**습관 추가 요청 최종 dto*/
     @Data
+    @AllArgsConstructor
     public static class AddHabitApiRequest{
         private List<AddHabitRequest> habits;
     }
