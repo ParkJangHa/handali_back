@@ -60,3 +60,10 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+//test {
+//	useJUnitPlatform() // JUnit5 사용 시 필요
+//	testLogging {
+//		events "passed", "failed", "skipped"
+//	}
+//}
