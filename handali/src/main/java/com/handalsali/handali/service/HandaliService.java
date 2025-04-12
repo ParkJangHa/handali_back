@@ -87,7 +87,8 @@ public class HandaliService {
         User user=userService.tokenToUser(token);
 
         //2. 한달이 찾기
-        Handali handali = findHandaliByCurrentDateAndUser(user);
+//        Handali handali = findHandaliByCurrentDateAndUser(user);
+        Handali handali=handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId());
 
         //3. 이미지 생성 - image_활동_지능_예술.png
         StringBuilder imageName= new StringBuilder("image");

@@ -1,12 +1,16 @@
 package com.handalsali.handali.service;
 
-import com.handalsali.handali.domain.Handali;
-import com.handalsali.handali.domain.Job;
-import com.handalsali.handali.domain.User;
+import com.handalsali.handali.DTO.HabitDTO;
+import com.handalsali.handali.domain.*;
+import com.handalsali.handali.enums_multyKey.Categoryname;
+import com.handalsali.handali.enums_multyKey.CreatedType;
+import com.handalsali.handali.enums_multyKey.TypeName;
 import com.handalsali.handali.repository.HandaliRepository;
+import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.RecordRepository;
 import com.handalsali.handali.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +43,26 @@ public class HandaliServiceTest {
     @Mock
     private RecordRepository recordRepository;
 
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private HandaliStatRepository handaliStatRepository;
+    @Mock
+    private StatService statService;
+
+    private String token;
+    private User user;
+    private Handali handali;
+
+    @BeforeEach
+    void setUp() {
+        token = "test-token";
+        user = new User("aaa@gmail.com", "name", "1234", "010-1234-5678", LocalDate.now());
+        handali=new Handali("aaa",LocalDate.now(),user);
+    }
+
+    /**직업에 따른 주급 사용자에게 지급*/
     @Test
     public void testPayWeekSalary(){
         //given
@@ -73,5 +97,46 @@ public class HandaliServiceTest {
         verify(userRepository).save(argThat(savedUser ->
                 savedUser.getTotal_coin() == totalCoin
         ));
+    }
+
+    /**[한달이 상태 변화]*/
+    @Test
+    public void testChangeHandali(){
+        //given
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
+
+        int activityValue=100; //정상레벨 1
+        int intelligentValue=1500; //최대치 초과 레벨
+        int artValue=0; //정상레벨 0
+        List<HandaliStat> stats = getHandaliStats(activityValue,intelligentValue,artValue);
+
+        when(handaliStatRepository.findByHandali(handali)).thenReturn(stats);
+        when(statService.checkHandaliStat(activityValue)).thenReturn(1);
+        when(statService.checkHandaliStat(intelligentValue)).thenReturn(5);
+        when(statService.checkHandaliStat(artValue)).thenReturn(0);
+
+        //when
+        String image = handaliService.changeHandali(token);
+
+        //then
+        assertEquals("image_1_5_0.png",image);
+        assertEquals("image_1_5_0.png",handali.getImage());
+        verify(handaliRepository).save(handali);
+    }
+
+    private List<HandaliStat> getHandaliStats(int activityValue,int intelligentValue,int artValue) {
+        Stat activityStat=new Stat(TypeName.ACTIVITY_SKILL);
+        activityStat.setValue(activityValue);
+        Stat intelligentStat=new Stat(TypeName.INTELLIGENT_SKILL);
+        intelligentStat.setValue(intelligentValue);
+        Stat artStat=new Stat(TypeName.ART_SKILL);
+        artStat.setValue(artValue);
+
+        return List.of(
+                new HandaliStat(handali,activityStat),
+                new HandaliStat(handali,intelligentStat),
+                new HandaliStat(handali,artStat)
+        );
     }
 }
