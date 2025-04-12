@@ -57,6 +57,7 @@ public class HabitServiceTest {
     }
 
 
+    /**[습관 추가]*/
     //새로운 습관, 새로운 사용자-습관 관계
     @Test
     public void testCreateUserHabit_newHabit_newUserHabit() {
@@ -142,6 +143,7 @@ public class HabitServiceTest {
         verify(userHabitRepository,never()).save(any());
     }
 
+    /**[이번달 습관으로 지정]*/
     //이미 등록했던 습관
     @Test
     public void testAddHabitsForCurrentMonth_existUserHabit(){

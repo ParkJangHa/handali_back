@@ -5,6 +5,7 @@ import com.handalsali.handali.domain.*;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.enums_multyKey.CreatedType;
 import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.RecordRepository;
@@ -13,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -138,5 +140,42 @@ public class HandaliServiceTest {
                 new HandaliStat(handali,intelligentStat),
                 new HandaliStat(handali,artStat)
         );
+    }
+
+    /**
+     * [한달이 생성]
+     */
+    @Test
+    public void testHandaliCreate(){
+        //given
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(handaliRepository.countPetsByUserIdAndCurrentMonth(user)).thenReturn(0L);
+
+
+        //when
+        handaliService.handaliCreate(token, "aaa");
+
+        //then
+        ArgumentCaptor<Handali> handaliCaptor = ArgumentCaptor.forClass(Handali.class);
+        verify(handaliRepository).save(handaliCaptor.capture());
+        Handali handali = handaliCaptor.getValue();
+
+        assertEquals("aaa",handali.getNickname());
+        assertEquals(user,handali.getUser());
+        assertEquals(LocalDate.now(),handali.getStartDate());
+    }
+
+    @Test
+    public void testHandaliCreate_error(){
+        //given
+        when(userService.tokenToUser(token)).thenReturn(user);
+
+        //when
+        when(handaliRepository.countPetsByUserIdAndCurrentMonth(user)).thenReturn(1L);
+
+        //then
+        assertThrows(HanCreationLimitException.class,()->{
+            handaliService.handaliCreate(token, "aaa");
+        });
     }
 }

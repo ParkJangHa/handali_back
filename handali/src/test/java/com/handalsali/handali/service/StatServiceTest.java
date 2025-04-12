@@ -39,6 +39,9 @@ public class StatServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * 한달이 생성 후, 스탯 초기화
+     */
     @Test
     public void testStatInit_지난달스탯반영(){
 
@@ -108,6 +111,9 @@ public class StatServiceTest {
         }
     }
 
+    /**
+     * [스탯 업데이트] 및 한달이 상태 변화 여부 체크
+     */
     @Test
     public void testStatUpdateAndCheckHandaliStat_levelUp_false(){
 
@@ -185,6 +191,10 @@ public class StatServiceTest {
         return handali;
     }
 
+    /**
+     * 스탯 증가 계산
+     */
+
     @Test
     public void testCalculateStatValue(){
         User user=new User("aaa@gmail.com","name","1234","010-1234-5678", LocalDate.now());
@@ -207,7 +217,9 @@ public class StatServiceTest {
 
     }
 
-
+    /**
+     * 스탯에 따른 레벨 반환
+     */
     @Test
     public void testCheckHandaliStat(){
         assertEquals(1,statService.checkHandaliStat(100));
