@@ -41,13 +41,11 @@ public class StatServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-    private User user;
     private RecordDTO.recordTodayHabitRequest request_levelup_false;
     private RecordDTO.recordTodayHabitRequest request_levelup_true;
 
     @BeforeEach
     public void setUp() {
-        user=new User("aaa@gmail.com","name","1234","010-1234-5678", LocalDate.now());
         request_levelup_false=new RecordDTO.recordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",3.0f,50,LocalDate.now());
         request_levelup_true=new RecordDTO.recordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",5.0f,100,LocalDate.now());
     }
@@ -131,7 +129,7 @@ public class StatServiceTest {
     public void testStatUpdateAndCheckHandaliStat_levelUp_false(){
 
         //1. 사용자, 한달이 설정
-        Handali handali = setHandaliAndUser(90,0);
+        User user = setHandaliAndUser(90,0);
 
         //2. 함수 실행
         boolean levelUp = statService.statUpdateAndCheckHandaliStat(
@@ -149,7 +147,7 @@ public class StatServiceTest {
     public void testStatUpdateAndCheckHandaliStat_levelUp_true(){
 
         //1. 사용자, 한달이 설정
-        Handali handali = setHandaliAndUser(90,0);
+        User user = setHandaliAndUser(90,0);
 
         //2. 함수 실행
         boolean levelUp = statService.statUpdateAndCheckHandaliStat(
@@ -163,27 +161,25 @@ public class StatServiceTest {
         assertFalse(levelUp);
     }
 
-//    @Test
-//    public void testStatUpdateAndCheckHandaliStat_levelUp_false_스탯이1000일때(){
-//
-//        //1. 사용자, 한달이 설정
-//        Handali handali = setHandaliAndUser(1000,0);
-//
-//        //2. 함수 실행
-//        boolean levelUp = statService.statUpdateAndCheckHandaliStat(
-//                user,
-//                Categoryname.ACTIVITY,
-//                15,
-//                2.0f,
-//                3.0f,
-//                50
-//        );
-//
-//        //3. 성장하지 않음
-//        assertFalse(levelUp);
-//    }
+    @Test
+    public void testStatUpdateAndCheckHandaliStat_levelUp_false_스탯이1000일때(){
 
-    private Handali setHandaliAndUser(float value,float lastMonthValue) {
+        //1. 사용자, 한달이 설정
+        User user = setHandaliAndUser(1000,0);
+
+        //2. 함수 실행
+        boolean levelUp = statService.statUpdateAndCheckHandaliStat(
+                user,
+                15,
+                2.0f,
+                request_levelup_false
+        );
+
+        //3. 성장하지 않음
+        assertFalse(levelUp);
+    }
+
+    private User setHandaliAndUser(float value,float lastMonthValue) {
         User user=new User("aaa@gmail.com","name","1234","010-1234-5678", LocalDate.now());
         userRepository.save(user);
 
@@ -191,13 +187,13 @@ public class StatServiceTest {
         handaliRepository.save(handali);
 
         Stat activityStat=new Stat(TypeName.ACTIVITY_SKILL);
-        activityStat.setValue(value); //100 -> 1단계
+        activityStat.setValue(value);
         activityStat.setLastMonthValue(lastMonthValue);
         statRepository.save(activityStat);
 
         HandaliStat activityHandaliStat=new HandaliStat(handali,activityStat);
         handaliStatRepository.save(activityHandaliStat);
-        return handali;
+        return user;
     }
 
     /**
