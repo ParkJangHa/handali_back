@@ -59,11 +59,7 @@ public class RecordController {
         String token=baseController.extraToken(accessToken);
 
         RecordDTO.recordTodayHabitResponse response=recordService.recordTodayHabit(
-                token,request.getCategory(),
-                request.getDetailed_habit_name(),
-                request.getTime(),
-                request.getSatisfaction(),
-                request.getDate());
+                token, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

@@ -1,9 +1,11 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.DTO.RecordDTO;
 import com.handalsali.handali.domain.*;
 import com.handalsali.handali.domain.Record;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.exception.HandaliStatNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
@@ -84,10 +86,14 @@ public class StatService {
     }
 
     /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
-    public boolean statUpdateAndCheckHandaliStat(Handali handali, Categoryname categoryname,  int recordCount, float lastRecordTime, float time, int satisfaction){
+    public boolean statUpdateAndCheckHandaliStat(User user, int recordCount, float lastRecordTime, RecordDTO.recordTodayHabitRequest request){
+
+        // 1. 한달이 찾기
+        Handali handali = handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId());
+        if (handali == null) throw new HandaliNotFoundException("한달이를 찾을 수 없습니다.");
 
         //3. 한달이의 어떤 스탯을 올려야 하는지 찾기
-        TypeName currentStatType = switch (categoryname) {
+        TypeName currentStatType = switch (request.getCategory()) {
             case ACTIVITY -> TypeName.ACTIVITY_SKILL;
             case ART -> TypeName.ART_SKILL;
             case INTELLIGENT -> TypeName.INTELLIGENT_SKILL;
@@ -101,7 +107,7 @@ public class StatService {
         int previousLevel=checkHandaliStat(handaliStat.getStat().getValue());
 
         //6. 스탯 값 업데이트
-        float incrementValue = calculateStatValue(recordCount,lastRecordTime,handaliStat,time, satisfaction);
+        float incrementValue = calculateStatValue(recordCount,lastRecordTime,handaliStat, request.getTime(), request.getSatisfaction());
         System.out.println("incrementValue = " + incrementValue);
         handaliStat.getStat().setValue(handaliStat.getStat().getValue()+incrementValue);
         handaliStatRepository.save(handaliStat);
