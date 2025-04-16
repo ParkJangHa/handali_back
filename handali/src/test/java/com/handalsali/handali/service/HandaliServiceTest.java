@@ -35,9 +35,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class HandaliServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-
     @InjectMocks
     private HandaliService handaliService;
 
@@ -45,13 +42,11 @@ public class HandaliServiceTest {
     private HandaliRepository handaliRepository;
 
     @Mock
-    private RecordRepository recordRepository;
-
-    @Mock
     private UserService userService;
 
     @Mock
     private HandaliStatRepository handaliStatRepository;
+
     @Mock
     private StatService statService;
 

@@ -7,6 +7,7 @@ import com.handalsali.handali.domain.User;
 import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.RecordRepository;
 import com.handalsali.handali.repository.UserRepository;
+import com.handalsali.handali.scheduler.HandaliScheduler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -33,14 +34,14 @@ public class HandaliSchedulerTest {
     @Mock
     private ApartmentService apartmentService;
 
-    @InjectMocks
-    private HandaliService handaliService;
-
     @Mock
     private RecordRepository recordRepository;
 
     @Mock
     private UserRepository userRepository;
+
+    @InjectMocks
+    private HandaliScheduler handaliScheduler;
 
     /**
      * [한달이 자동 취업 및 아파트 입주]
@@ -62,7 +63,7 @@ public class HandaliSchedulerTest {
         when(apartmentService.assignApartmentToHandali(handali)).thenReturn(apart);
 
         // When
-        handaliService.processMonthlyJobAndApartmentEntry();
+        handaliScheduler.processMonthlyJobAndApartmentEntry();
 
         // Then
         verify(jobService).assignBestJobToHandali(handali);
@@ -84,7 +85,7 @@ public class HandaliSchedulerTest {
                 .thenReturn(List.of());
 
         // When
-        handaliService.processMonthlyJobAndApartmentEntry();
+        handaliScheduler.processMonthlyJobAndApartmentEntry();
 
         // Then
         verify(jobService, never()).assignBestJobToHandali(any());
@@ -124,7 +125,7 @@ public class HandaliSchedulerTest {
                 .thenReturn(alreadyProcessedHandalis);
 
         // When
-        handaliService.processMonthlyJobAndApartmentEntry();
+        handaliScheduler.processMonthlyJobAndApartmentEntry();
 
         // Then
         // 실제로 새로 배정되거나 저장된 것이 없어야 함
@@ -162,7 +163,7 @@ public class HandaliSchedulerTest {
         int totalCoin=user.getTotal_coin()+totalSalary;
 
         //when
-        handaliService.payWeekSalary();
+        handaliScheduler.payWeekSalary();
 
         //then
         verify(userRepository).save(argThat(savedUser ->
