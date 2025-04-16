@@ -46,8 +46,9 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     /**지난달 한달이 찾기*/
     @Query("select h from Handali h " +
             "where h.startDate >=:startDate " +
-            "and h.startDate <=:endDate")
-    Handali findLastMonthHandali(@Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
+            "and h.startDate <=:endDate " +
+            "and h.user=:user")
+    Handali findLastMonthHandali(@Param("user") User user,@Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
 
     /**직업을 가진 한달이 조회*/
     @Query("select h from Handali h " +

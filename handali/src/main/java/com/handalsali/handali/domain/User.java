@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @Entity
@@ -38,9 +39,9 @@ public class User {
     private String phone;
 
     @Column(nullable = false)
-    private Date birthday;
+    private LocalDate birthday;
 
-    public User(String email, String name, String password, String phone, Date birthday){
+    public User(String email, String name, String password, String phone, LocalDate birthday){
         this.email=email;
         this.name=name;
         setPassword(password);
@@ -56,5 +57,9 @@ public class User {
     }
     public boolean checkPassword(String rawPassword){
         return passwordEncoder.matches(rawPassword,this.password);
+    }
+
+    public void setTotalCoin(int totalCoin) {
+        this.total_coin = totalCoin;
     }
 }

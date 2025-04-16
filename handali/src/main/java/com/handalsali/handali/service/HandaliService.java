@@ -60,7 +60,7 @@ public class HandaliService {
         handaliRepository.save(handali);
 
         //4. 한달이의 스탯 초기화
-        statService.statInit(handali);
+        statService.statInit(user,handali);
 
         return handali;
     }
