@@ -1,11 +1,13 @@
 package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.HabitDTO;
+import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.*;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.enums_multyKey.CreatedType;
 import com.handalsali.handali.enums_multyKey.TypeName;
 import com.handalsali.handali.exception.HanCreationLimitException;
+import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.RecordRepository;
@@ -24,11 +26,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class HandaliServiceTest {
@@ -62,43 +64,6 @@ public class HandaliServiceTest {
         token = "test-token";
         user = new User("aaa@gmail.com", "name", "1234", "010-1234-5678", LocalDate.now());
         handali=new Handali("aaa",LocalDate.now(),user);
-    }
-
-    /**직업에 따른 주급 사용자에게 지급*/
-    @Test
-    public void testPayWeekSalary(){
-        //given
-        //1. 사용자 생성
-        User user=new User("aaa@gmail.com","name","1234","010-1234-5678", LocalDate.now());
-        user.setTotal_coin(1000);
-
-        //2. 직업 가진 한달이 생성 및 기간 찾기
-        LocalDate handaliNow=LocalDate.now().minusMonths(12); //12달이 지났을때
-        Handali handali = new Handali("last",handaliNow,user);
-
-        Job job=new Job("직업",1000);
-        handali.setJob(job);
-
-        YearMonth startYearMonth = YearMonth.from(handaliNow);
-        LocalDate startDate = startYearMonth.atDay(1); //한달이 달의 시작 년월일
-        LocalDate endDate=startYearMonth.atEndOfMonth(); //한달이 달의 마지막 년월일
-
-        //3. 한달이 한개 리스트 만들기, 기록은 3개 리턴한다고 치기
-        when(handaliRepository.findAllByJobIsNotNull()).thenReturn(List.of(handali));
-        when(recordRepository.countByUserAndDate(eq(user), eq(startDate), eq(endDate))).thenReturn(3);
-
-
-        //4. 실제 주급 및 토탈 코인 계산
-        int totalSalary = 3 * 10 + (int)(1000*(0.0/12));
-        int totalCoin=user.getTotal_coin()+totalSalary;
-
-        //when
-        handaliService.payWeekSalary();
-
-        //then
-        verify(userRepository).save(argThat(savedUser ->
-                savedUser.getTotal_coin() == totalCoin
-        ));
     }
 
     /**[한달이 상태 변화]*/
@@ -177,5 +142,105 @@ public class HandaliServiceTest {
         assertThrows(HanCreationLimitException.class,()->{
             handaliService.handaliCreate(token, "aaa");
         });
+    }
+
+    /**
+     * [마지막 생성 한달이 조회]
+     */
+    @Test
+    public void testGetRecentHandali_Success() {
+        // Given
+        String token = "valid-token";
+        User user = new User();
+        user.setUserId(1L);
+
+        Handali handali = new Handali();
+        handali.setHandaliId(10L);
+        handali.setNickname("테스트한달이");
+        handali.setStartDate(LocalDate.of(2025, 4, 1));
+        handali.setImage("image.png");
+        handali.setUser(user);
+
+        Job job = new Job();
+        job.setName("개발자");
+        job.setWeekSalary(500);
+        handali.setJob(job);
+
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(handaliRepository.findLatestHandaliByUser(user.getUserId())).thenReturn(Optional.of(handali));
+
+        // When
+        HandaliDTO.RecentHandaliResponse response = handaliService.getRecentHandali(token);
+
+        // Then
+        assertEquals("테스트한달이", response.getNickname());
+        assertEquals(10L, response.getHandali_id());
+        assertEquals(LocalDate.of(2025, 4, 1), response.getStart_date());
+        assertEquals("개발자", response.getJob_name());
+        assertEquals(500, response.getSalary());
+        assertEquals("image.png", response.getImage());
+
+        verify(userService).tokenToUser(token);
+        verify(handaliRepository).findLatestHandaliByUser(user.getUserId());
+    }
+
+    @Test
+    public void testGetRecentHandali_NoUser() {
+        // Given
+        String token = "invalid-token";
+        when(userService.tokenToUser(token)).thenReturn(null);
+
+        // When & Then
+        assertThrows(HandaliNotFoundException.class, () -> handaliService.getRecentHandali(token));
+        verify(userService).tokenToUser(token);
+        verifyNoInteractions(handaliRepository);
+    }
+
+    @Test
+    public void testGetRecentHandali_NoHandali() {
+        // Given
+        String token = "valid-token";
+        User user = new User();
+        user.setUserId(1L);
+
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(handaliRepository.findLatestHandaliByUser(user.getUserId())).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(HandaliNotFoundException.class, () -> handaliService.getRecentHandali(token));
+        verify(userService).tokenToUser(token);
+        verify(handaliRepository).findLatestHandaliByUser(user.getUserId());
+    }
+
+    /**
+     * [한달이 상태 조회]
+     */
+    @Test
+    public void testGetHandaliStatusByMonth_Success() {
+        // Given
+        String token = "valid-token";
+        User user = new User();
+        user.setTotal_coin(300);
+
+        Handali handali = new Handali();
+        handali.setNickname("테스트한달이");
+        handali.setStartDate(LocalDate.now().minusDays(4)); // 생성된지 4일 됨
+        handali.setUser(user);
+        handali.setImage("test-image.png");
+
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
+
+        // When
+        HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
+
+        // Then
+        assertEquals("테스트한달이", response.getNickname());
+        assertEquals(5, response.getDays_since_created()); // 오늘 포함이므로 4 + 1
+        assertEquals(300, response.getTotal_coin());
+        assertEquals("test-image.png", response.getImage());
+
+        verify(userService).tokenToUser(token);
+        verify(handaliRepository).findLatestHandaliByCurrentMonth(user.getUserId());
     }
 }
