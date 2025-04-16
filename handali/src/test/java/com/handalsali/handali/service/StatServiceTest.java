@@ -7,193 +7,187 @@ import com.handalsali.handali.domain.Stat;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.exception.HandaliNotFoundException;
+import com.handalsali.handali.exception.HandaliStatNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.StatRepository;
-import com.handalsali.handali.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import com.handalsali.handali.domain.Record;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
+import static com.jayway.jsonpath.internal.path.PathCompiler.fail;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 public class StatServiceTest {
-    private static final Logger logger = LoggerFactory.getLogger(StatServiceTest.class);
 
-    @Autowired
+    @InjectMocks
     private StatService statService;
-    @Autowired
-    private HandaliRepository handaliRepository;
-    @Autowired
+    @Mock
     private StatRepository statRepository;
-    @Autowired
+    @Mock
+    private HandaliRepository handaliRepository;
+    @Mock
     private HandaliStatRepository handaliStatRepository;
-    @Autowired
-    private UserRepository userRepository;
 
-    private RecordDTO.recordTodayHabitRequest request_levelup_false;
-    private RecordDTO.recordTodayHabitRequest request_levelup_true;
+    private User user;
+    private Handali currentHandali;
+    private HandaliStat currentHandaliStat;
+    private Stat activityStat;
+    private RecordDTO.recordTodayHabitRequest request;
+    private final LocalDate testDate=LocalDate.of(2025,4,13);
 
     @BeforeEach
-    public void setUp() {
-        request_levelup_false=new RecordDTO.recordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",3.0f,50,LocalDate.now());
-        request_levelup_true=new RecordDTO.recordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",5.0f,100,LocalDate.now());
+    void setUp() {
+        user = new User("aaa@gmail.com", "name", "1234", "010-1234-5678", LocalDate.now());
+
+        currentHandali=new Handali("aaa",LocalDate.now(),user);
+        activityStat=new Stat();
+        activityStat.setValue(0);
+        activityStat.setLastMonthValue(0);
+        currentHandaliStat=new HandaliStat(currentHandali,activityStat);
+
+        request=new RecordDTO.recordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",3.0f,50,testDate);
     }
 
-    /**
-     * 한달이 생성 후, 스탯 초기화
-     */
+    /**한달이 생성후, 스탯 초기화*/
+    //지난달 한달이가 있을 경우
     @Test
-    public void testStatInit_지난달스탯반영(){
+    public void testStatInit_existLastHandali(){
+        //given
+        //지난 한달이 초기화
+        Handali lastHandali=new Handali("aaa",LocalDate.from(LocalDate.now().minusMonths(1).atStartOfDay()),user);
 
-        User user=new User("aaa@gmail.com","name","1234","010-1234-5678", LocalDate.now());
-        userRepository.save(user);
-
-        // 1. 지난달 한달이 생성 및 스탯 설정
-        Handali lastMonthHandali = new Handali("last",LocalDate.from(LocalDate.now().minusMonths(1).atStartOfDay()),user);
-        handaliRepository.save(lastMonthHandali);
-
-        Stat lastActivity=new Stat(TypeName.ACTIVITY_SKILL);
+        Stat lastActivity = new Stat(TypeName.ACTIVITY_SKILL);
         lastActivity.setValue(50);
-        Stat lastIntelligent=new Stat(TypeName.INTELLIGENT_SKILL);
+        Stat lastIntelligent = new Stat(TypeName.INTELLIGENT_SKILL);
         lastIntelligent.setValue(60);
-        Stat lastArt=new Stat(TypeName.ART_SKILL);
+        Stat lastArt = new Stat(TypeName.ART_SKILL);
         lastArt.setValue(70);
-        statRepository.saveAll(List.of(lastActivity,lastIntelligent,lastArt));
 
-        HandaliStat handaliStat1=new HandaliStat(lastMonthHandali,lastActivity);
-        HandaliStat handaliStat2=new HandaliStat(lastMonthHandali,lastArt);
-        HandaliStat handaliStat3=new HandaliStat(lastMonthHandali,lastIntelligent);
-        handaliStatRepository.saveAll(List.of(handaliStat1,handaliStat2,handaliStat3));
+        List<HandaliStat> lastMonthStats = List.of(
+                new HandaliStat(lastHandali, lastActivity),
+                new HandaliStat(lastHandali, lastIntelligent),
+                new HandaliStat(lastHandali, lastArt)
+        );
 
-        // 2. 새 한달이 생성 및 statInit()실행
-        Handali newHandali = new Handali("now",LocalDate.now(),user);
-        handaliRepository.save(newHandali);
+        when(handaliRepository.findLastMonthHandali(any(), any(), any()))
+                .thenReturn(lastHandali);
+        when(handaliStatRepository.findByHandaliAndStatType(eq(lastHandali), any()))
+                .thenReturn(lastMonthStats);
 
-        statService.statInit(user,newHandali);
 
-        // 3. 새로운 스탯이 잘 생성 됐는 지 확인
-        List<HandaliStat> stats=handaliStatRepository.findByHandali(newHandali);
-        assertEquals(3,stats.size());
+        //when
+        statService.statInit(user,currentHandali);
 
-        // 4. 지날달 스탯 값이 잘 반영 되었는지 확인
-        for (HandaliStat stat : stats) {
-            switch(stat.getStat().getTypeName()){
-                case ACTIVITY_SKILL -> assertEquals(50,stat.getStat().getLastMonthValue());
-                case INTELLIGENT_SKILL -> assertEquals(60,stat.getStat().getLastMonthValue());
-                case ART_SKILL -> assertEquals(70,stat.getStat().getLastMonthValue());
+        //then
+        ArgumentCaptor<Stat> statCaptor = ArgumentCaptor.forClass(Stat.class);
+        verify(statRepository, times(3)).save(statCaptor.capture());
+
+        List<Stat> savedStats = statCaptor.getAllValues();
+
+        assertEquals(3, savedStats.size());
+
+        for (Stat stat : savedStats) {
+            switch (stat.getTypeName()) {
+                case ACTIVITY_SKILL -> assertEquals(50f, stat.getLastMonthValue());
+                case INTELLIGENT_SKILL -> assertEquals(60f, stat.getLastMonthValue());
+                case ART_SKILL -> assertEquals(70f, stat.getLastMonthValue());
+                default -> fail("예상치 못한 Stat 타입: " + stat.getTypeName());
             }
+            assertEquals(0, stat.getValue());
         }
     }
 
+    //지난달 한달이가 존재하지 않을 경우
     @Test
-    public void testStatInit_지난달스탯반영_지난한달이가없을때(){
+    public void testStatInit_NotExistLastHandali(){
+        //given
+        //지난달 한달이가 존재하지 않음
+        when(handaliRepository.findLastMonthHandali(any(), any(), any()))
+                .thenReturn(null);
 
-        User user=new User("aaa@gmail.com","name","1234","010-1234-5678", LocalDate.now());
-        userRepository.save(user);
+        //when
+        statService.statInit(user,currentHandali);
 
-        // 1. 새 한달이 생성 및 statInit()실행
-        Handali newHandali = new Handali("now",LocalDate.now(),user);
-        handaliRepository.save(newHandali);
+        //then
+        ArgumentCaptor<Stat> statCaptor = ArgumentCaptor.forClass(Stat.class);
+        verify(statRepository, times(3)).save(statCaptor.capture());
+        List<Stat> savedStats=statCaptor.getAllValues();
+        assertEquals(3, savedStats.size());
 
-        statService.statInit(user,newHandali);
-
-        // 3. 새로운 스탯이 잘 생성 됐는 지 확인
-        List<HandaliStat> stats=handaliStatRepository.findByHandali(newHandali);
-        assertEquals(3,stats.size());
-
-        // 4. 지날달 스탯 값이 잘 반영 되었는지 확인
-        for (HandaliStat stat : stats) {
-            switch(stat.getStat().getTypeName()){
-                case ACTIVITY_SKILL -> assertEquals(0,stat.getStat().getLastMonthValue());
-                case INTELLIGENT_SKILL -> assertEquals(0,stat.getStat().getLastMonthValue());
-                case ART_SKILL -> assertEquals(0,stat.getStat().getLastMonthValue());
-            }
+        for(Stat stat: savedStats) {
+            assertEquals(0, stat.getLastMonthValue());
+            assertEquals(0, stat.getValue());
         }
     }
 
-    /**
-     * [스탯 업데이트] 및 한달이 상태 변화 여부 체크
-     */
+    /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
+    //상태가 변화하는 경우
     @Test
-    public void testStatUpdateAndCheckHandaliStat_levelUp_false(){
+    public void testStatUpdateAndCheckHandaliStat_changeStatus() {
+        //given
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId()))
+                .thenReturn(currentHandali); //한달이
+        when(handaliStatRepository.findByHandaliAndType(eq(currentHandali), any()))
+                .thenReturn(Optional.of(currentHandaliStat)); //한달이-스탯, 활동 현재,지난 스탯=0
+        //when
+        boolean status = statService.statUpdateAndCheckHandaliStat(user, 1000, 100f, request);
 
-        //1. 사용자, 한달이 설정
-        User user = setHandaliAndUser(90,0);
-
-        //2. 함수 실행
-        boolean levelUp = statService.statUpdateAndCheckHandaliStat(
-                user,
-                15,
-                2.0f,
-                request_levelup_false
-        );
-
-        //3. 성장하지 않음
-        assertFalse(levelUp);
+        //then
+        assertTrue(status);
+        assertTrue(currentHandaliStat.getStat().getValue()>0); //활동 스탯 증가 여부 확인
     }
 
+    //상태가 변하지 않는 경우
     @Test
-    public void testStatUpdateAndCheckHandaliStat_levelUp_true(){
+    public void testStatUpdateAndCheckHandaliStat_NotChangeStatus() {
+        //given
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId()))
+                .thenReturn(currentHandali); //한달이
+        when(handaliStatRepository.findByHandaliAndType(eq(currentHandali), any()))
+                .thenReturn(Optional.of(currentHandaliStat)); //한달이-스탯, 활동 현재,지난 스탯=0
+        //when
+        boolean status = statService.statUpdateAndCheckHandaliStat(user, 1, 100f, request);
 
-        //1. 사용자, 한달이 설정
-        User user = setHandaliAndUser(90,0);
-
-        //2. 함수 실행
-        boolean levelUp = statService.statUpdateAndCheckHandaliStat(
-                user,
-                15,
-                2.0f,
-                request_levelup_true
-        );
-
-        //3. 성장 했어야 함
-        assertFalse(levelUp);
+        //then
+        assertFalse(status);
+        assertTrue(currentHandaliStat.getStat().getValue()>0); //활동 스탯 증가 여부 확인
     }
 
+    //한달이 존재하지 않는 예외
     @Test
-    public void testStatUpdateAndCheckHandaliStat_levelUp_false_스탯이1000일때(){
+    public void testStatUpdateAndCheckHandaliStat_HandaliNotFoundException() {
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId()))
+                .thenReturn(null);
+        assertThrows(HandaliNotFoundException.class, ()
+                ->{statService.statUpdateAndCheckHandaliStat(user, 1, 100f, request);});
 
-        //1. 사용자, 한달이 설정
-        User user = setHandaliAndUser(1000,0);
 
-        //2. 함수 실행
-        boolean levelUp = statService.statUpdateAndCheckHandaliStat(
-                user,
-                15,
-                2.0f,
-                request_levelup_false
-        );
-
-        //3. 성장하지 않음
-        assertFalse(levelUp);
     }
 
-    private User setHandaliAndUser(float value,float lastMonthValue) {
-        User user=new User("aaa@gmail.com","name","1234","010-1234-5678", LocalDate.now());
-        userRepository.save(user);
+    //한달이 스탯이 존재하지 않는 예외
+    @Test
+    public void testStatUpdateAndCheckHandaliStat_HandaliStatNotFoundException() {
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId()))
+                .thenReturn(currentHandali); //한달이
+        when(handaliStatRepository.findByHandaliAndType(any(),any()))
+                .thenReturn(Optional.empty());
 
-        Handali handali = new Handali("now",LocalDate.now(),user);
-        handaliRepository.save(handali);
-
-        Stat activityStat=new Stat(TypeName.ACTIVITY_SKILL);
-        activityStat.setValue(value);
-        activityStat.setLastMonthValue(lastMonthValue);
-        statRepository.save(activityStat);
-
-        HandaliStat activityHandaliStat=new HandaliStat(handali,activityStat);
-        handaliStatRepository.save(activityHandaliStat);
-        return user;
+        assertThrows(HandaliStatNotFoundException.class, ()
+                ->{statService.statUpdateAndCheckHandaliStat(user, 1, 100f, request);});
     }
 
     /**
@@ -201,26 +195,22 @@ public class StatServiceTest {
      */
 
     @Test
-    public void testCalculateStatValue(){
-        User user=new User("aaa@gmail.com","name","1234","010-1234-5678", LocalDate.now());
-        userRepository.save(user);
+    public void testCalculateStatValue_basic(){
+        //given
+        int recordedDays=15;
+        float lastRecordedTime=0f;
+        HandaliStat handaliStat=currentHandaliStat; //활동 현재,지난 스탯=0
+        float currentTime=3.0f;
+        int satisfaction=50;
 
-        Handali handali = new Handali("now",LocalDate.now(),user);
-        handaliRepository.save(handali);
+        //when
+        float result=statService.calculateStatValue(recordedDays,lastRecordedTime,handaliStat,currentTime,satisfaction);
 
-        Stat activityStat=new Stat(TypeName.ACTIVITY_SKILL);
-        activityStat.setValue(0); //100 -> 1단계
-        activityStat.setLastMonthValue(100);
-        statRepository.save(activityStat);
-
-        HandaliStat activityHandaliStat=new HandaliStat(handali,activityStat);
-        handaliStatRepository.save(activityHandaliStat);
-
-        float result = statService.calculateStatValue(0, 0, activityHandaliStat, 2.0f, 50);
-
-        logger.info("[calculateStatValue 테스트 결과] 스탯 증가량: "+result);
-
+        //then
+        System.out.println(result);
+        assertTrue(result>0);
     }
+
 
     /**
      * 스탯에 따른 레벨 반환
