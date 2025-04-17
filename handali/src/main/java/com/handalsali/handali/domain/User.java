@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -45,22 +46,27 @@ public class User {
     public User(String email, String name, String password, String phone, LocalDate birthday){
         this.email=email;
         this.name=name;
-        setPassword(password);
+        this.password=password;
         this.phone=phone;
         this.birthday=birthday;
     }
 
 
     //비밀번호 암호화
-    private static final PasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
-    public void setPassword(String password) {
-        this.password = passwordEncoder.encode(password);
-    }
-    public boolean checkPassword(String rawPassword){
-        return passwordEncoder.matches(rawPassword,this.password);
-    }
+//    private static final PasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
+//    public void setPassword(String password) {
+//        this.password = passwordEncoder.encode(password);
+//    }
+//    public boolean checkPassword(String rawPassword){
+//        return passwordEncoder.matches(rawPassword,this.password);
+//    }
 
-    public void setTotalCoin(int totalCoin) {
-        this.total_coin = totalCoin;
+    // spring security 에서 사용 가능 하도록 UserDetails로  변환
+    public UserDetails toUserDetails() {
+        return org.springframework.security.core.userdetails.User
+                .withUsername(email)
+                .password(password)
+                .roles("USER")
+                .build();
     }
 }

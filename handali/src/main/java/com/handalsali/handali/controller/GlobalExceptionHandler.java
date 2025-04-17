@@ -31,18 +31,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    /**이메일/비밀번호 틀림*/
-    @ExceptionHandler(EmailOrPwNotCorrectException.class)
-    public ResponseEntity<String> badCredentialsException(Exception e){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이메일 또는 비밀번호가 틀렸습니다.");
-    }
-
-    /**jwt 토큰 유효성 검사*/
-    @ExceptionHandler(TokenValidationException.class)
-    public ResponseEntity<String> tokenValidationException(TokenValidationException e){
-        return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(e.getMessage());
-    }
-
     /**사용자 유무 확인*/
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<String> userNotFoundException(Exception e){
