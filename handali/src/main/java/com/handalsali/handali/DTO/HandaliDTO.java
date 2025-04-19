@@ -2,9 +2,7 @@ package com.handalsali.handali.DTO;
 
 import com.handalsali.handali.domain.Handali;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -47,6 +45,7 @@ public class HandaliDTO {
     }
 
     @Data
+    @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class RecentHandaliResponse {

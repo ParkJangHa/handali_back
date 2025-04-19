@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 public class RecordDTO {
     @Data
+    @AllArgsConstructor
     public static class recordTodayHabitRequest{
         @Schema(description = "카테고리 명", example = "ACTIVITY")
         private Categoryname category;
