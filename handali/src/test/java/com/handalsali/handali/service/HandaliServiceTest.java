@@ -223,7 +223,7 @@ public class HandaliServiceTest {
         assertEquals("테스트한달이", response.getNickname());
         assertEquals(5, response.getDays_since_created()); // 오늘 포함이므로 4 + 1
         assertEquals(300, response.getTotal_coin());
-        assertEquals("test-image.png", response.getImage());
+        assertEquals("test-image.png", response.getHandali_img());
 
         verify(userService).tokenToUser(token);
         verify(handaliRepository).findLatestHandaliByCurrentMonth(user.getUserId());
