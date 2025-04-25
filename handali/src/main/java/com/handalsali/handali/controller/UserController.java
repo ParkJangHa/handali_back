@@ -2,6 +2,9 @@ package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.UserDTO;
 import com.handalsali.handali.domain.User;
+import com.handalsali.handali.repository.UserRepository;
+import com.handalsali.handali.security.JwtUtil;
+import com.handalsali.handali.service.TokenBlacklistService;
 import com.handalsali.handali.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,19 +13,28 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final BaseController baseController;
-    public UserController(UserService userService, BaseController baseController) {
-        this.userService = userService;
-        this.baseController = baseController;
-    }
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final TokenBlacklistService tokenBlacklistService;
 
     /**
      * 회원가입
@@ -83,9 +95,22 @@ public class UserController {
                     """)))
     })
     @PostMapping("/login")
-    public ResponseEntity<String> logIn(@RequestBody UserDTO.LogInRequest request){
-        String accessToken=userService.logIn(request.getEmail(), request.getPassword());
-        return ResponseEntity.status(HttpStatus.OK).body(accessToken);
+    public ResponseEntity<?> logIn(@RequestBody UserDTO.LogInRequest request){
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+
+            User user = userRepository.findByEmail(request.getEmail());
+            String token = jwtUtil.generateToken(user.getEmail(), user.getUserId());
+
+            return ResponseEntity.ok("Bearer "+ token);
+
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "이메일 또는 비밀번호가 틀렸습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
     }
 
     /**
@@ -111,7 +136,9 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<String> logOut(@RequestHeader("Authorization") String accessToken) {
         String token = baseController.extraToken(accessToken);
-        userService.logOut(token);
+        long expirationTime=jwtUtil.getExpiration(token);
+        tokenBlacklistService.blacklistToken(token,expirationTime);
+
         return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 

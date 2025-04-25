@@ -5,6 +5,7 @@ import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -17,12 +18,14 @@ public class Job {
     @Column(name="job_id")
     private long jobId;
 
+    @Setter
     @Column(nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Handali> handalis;
 
+    @Setter
     @Column(nullable = false,name="week_salary")
     private int weekSalary;
 

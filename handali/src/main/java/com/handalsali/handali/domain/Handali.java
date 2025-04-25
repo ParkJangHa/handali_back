@@ -15,10 +15,12 @@ import java.util.List;
 public class Handali {
 
     @Id
+    @Setter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="handali_id")
     private long handaliId;
 
+    @Setter
     @Column(nullable = false)
     private String nickname;
 
@@ -26,6 +28,7 @@ public class Handali {
     @Setter
     private LocalDate startDate;
 
+    @Setter
     @ManyToOne
     @JoinColumn(name="user_id",
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE"))

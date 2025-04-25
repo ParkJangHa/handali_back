@@ -22,7 +22,7 @@ jobs:
       - name : Build with gradle
         run : |
           cd $GITHUB_WORKSPACE/handali
-          ./gradlew build -x test
+          ./gradlew build
 
       - name : Upload build artifact
         uses : actions/upload-artifact@v4
@@ -81,7 +81,7 @@ jobs:
             fi
 
             # 새로운 애플리케이션 실행
-            tmux new-session -d -s handaliSession "java -jar ~/server/handali.jar > ~/server/server.log 2>&1"
+            tmux new-session -d -s handaliSession "source ~/.zshrc && java -jar ~/server/handali.jar > ~/server/server.log 2>&1"
 
             # 실행 확인
             sleep 2

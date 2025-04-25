@@ -80,7 +80,7 @@ public class StoreService {
         UserStore userStore=new UserStore(user,store);
         userStoreRepository.save(userStore);
 
-        user.setTotalCoin(userTotalCoin-price);
+        user.setTotal_coin(userTotalCoin-price);
         userRepository.save(user);
 
         return "아이템을 구매했습니다.";

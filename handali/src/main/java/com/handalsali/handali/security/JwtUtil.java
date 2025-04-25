@@ -1,17 +1,12 @@
-package com.handalsali.handali.service;
+package com.handalsali.handali.security;
 
 import com.handalsali.handali.exception.TokenValidationException;
 import io.jsonwebtoken.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import java.util.Date;
 
-import java.sql.Date;
-
-import static javax.crypto.Cipher.SECRET_KEY;
 
 @Data
 @Service
@@ -32,20 +27,11 @@ public class JwtUtil {
                 .compact();
     }
 
-    /** Refresh Token 생성*/
-    public String generateRefreshToken(String email) {
-        long expirationTime = 1000 * 60 * 60 * 24 * 7; // 7일
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new java.util.Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
-    }
 
     /**토큰 검증 및 claim 반환*/
     public Claims validateToken(String token) {
         try {
+            System.out.println("validateToken() 호출됨");
             token = token.trim(); // 공백 제거
             return Jwts.parser()
                     .setSigningKey(secretKey)
@@ -68,5 +54,14 @@ public class JwtUtil {
     public long extractUserId(String token) {
         Claims claims = validateToken(token);
         return claims.get("userId", Long.class);
+    }
+
+    public long getExpiration(String token){
+        Date expirationDate= Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+        return expirationDate.getTime() - System.currentTimeMillis();
     }
 }
