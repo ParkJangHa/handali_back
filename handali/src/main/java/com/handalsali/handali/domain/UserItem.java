@@ -2,15 +2,12 @@ package com.handalsali.handali.domain;
 
 import com.handalsali.handali.enums.ItemType;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"user_id", "itemType"}) // 핵심!
-        }
-)
 @NoArgsConstructor
+@Getter
 public class UserItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,15 +25,26 @@ public class UserItem {
     @ManyToOne
     private Store store;
 
-    @Enumerated(EnumType.STRING)
-    private ItemType itemType;
-
     private boolean isAvailable;
 
-    public UserItem(User user, Store store, ItemType itemType, boolean isAvailable) {
+    public UserItem(User user, Store store) {
         this.user = user;
         this.store = store;
-        this.itemType = itemType;
-        this.isAvailable = isAvailable;
+        this.isAvailable = true;
+    }
+
+    //비지니스 로직
+    /**
+     * 아이템 적용 취소
+     */
+    public void cancelItem() {
+        this.isAvailable=false;
+    }
+
+    /**
+     * 아이템 적용
+     */
+    public void setItem(){
+        this.isAvailable=true;
     }
 }

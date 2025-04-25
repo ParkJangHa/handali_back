@@ -1,6 +1,7 @@
 package com.handalsali.handali.DTO;
 
 
+import com.handalsali.handali.enums.ItemType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jdk.jfr.DataAmount;
@@ -18,7 +19,7 @@ public class StoreDTO {
     @AllArgsConstructor
     public static class StoreViewResponse{
         private Long storeId;
-        private String category;
+        private ItemType item_type;
         private String name;
         private int price;
         private boolean isBuy;
@@ -28,10 +29,8 @@ public class StoreDTO {
     @Data
     public static class StoreBuyRequest{
         @NotBlank(message = "카테고리는 필수입니다.")
-        private String category;
+        private ItemType item_type;
         @NotBlank(message = "아이템 이름은 필수입니다.")
         private String name;
-        @Min(value = 1, message = "가격은 1 이상이어야 합니다.")
-        private int price;
     }
 }

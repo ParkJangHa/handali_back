@@ -91,11 +91,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
-    /** 알 수 없는 오류 발생 시*/
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e) {
-        return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
-    }
+//    /** 알 수 없는 오류 발생 시*/
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<String> handleException(Exception e) {
+//        return ResponseEntity.internalServerError().body("서버 오류가 발생했습니다.");
+//    }
 
     /**상점에 아이템이 존재하지 않는 오류*/
     @ExceptionHandler(StoreItemNotExistsException.class)
