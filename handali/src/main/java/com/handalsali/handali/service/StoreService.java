@@ -46,7 +46,7 @@ public class StoreService {
 
             StoreDTO.StoreViewResponse response=new StoreDTO.StoreViewResponse(
                     store.getStoreId(),
-                    store.getCategory(),
+                    store.getItemType(),
                     store.getName(),
                     store.getPrice(),
                     isBuy

@@ -5,25 +5,17 @@ import com.handalsali.handali.DTO.StatDetailDTO;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
-import com.handalsali.handali.domain.*;
 import com.handalsali.handali.repository.*;
-import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.JoinColumn;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
-import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Random;
 
 @Service
 @Transactional

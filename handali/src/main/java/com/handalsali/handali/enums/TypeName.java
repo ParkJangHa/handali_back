@@ -1,4 +1,4 @@
-package com.handalsali.handali.enums_multyKey;
+package com.handalsali.handali.enums;
 
 public enum TypeName {
     ACTIVITY_SKILL, //활동 스킬

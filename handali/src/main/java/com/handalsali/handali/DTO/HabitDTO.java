@@ -1,7 +1,7 @@
 package com.handalsali.handali.DTO;
 
-import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.CreatedType;
+import com.handalsali.handali.enums.Categoryname;
+import com.handalsali.handali.enums.CreatedType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

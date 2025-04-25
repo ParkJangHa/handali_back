@@ -1,7 +1,5 @@
 package com.handalsali.handali.domain;
 
-import com.handalsali.handali.DTO.JobStatDTO;
-import com.handalsali.handali.enums_multyKey.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

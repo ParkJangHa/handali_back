@@ -1,4 +1,4 @@
-package com.handalsali.handali.enums_multyKey;
+package com.handalsali.handali.enums;
 
 public enum Categoryname {
     ACTIVITY, //활동

@@ -4,8 +4,8 @@ import com.handalsali.handali.DTO.HabitDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.domain.UserHabit;
-import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.CreatedType;
+import com.handalsali.handali.enums.Categoryname;
+import com.handalsali.handali.enums.CreatedType;
 import com.handalsali.handali.exception.CreatedTypeOrCategoryNameWrongException;
 import com.handalsali.handali.exception.HabitNotExistsException;
 import com.handalsali.handali.repository.HabitRepository;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
 import java.util.Map;

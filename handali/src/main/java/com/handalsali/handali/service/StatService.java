@@ -2,9 +2,7 @@ package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.RecordDTO;
 import com.handalsali.handali.domain.*;
-import com.handalsali.handali.domain.Record;
-import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.enums.TypeName;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.exception.HandaliStatNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
@@ -12,7 +10,6 @@ import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.RecordRepository;
 import com.handalsali.handali.repository.StatRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

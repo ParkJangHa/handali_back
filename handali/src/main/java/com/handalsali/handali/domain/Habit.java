@@ -1,13 +1,11 @@
 package com.handalsali.handali.domain;
 
-import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.CreatedType;
+import com.handalsali.handali.enums.Categoryname;
+import com.handalsali.handali.enums.CreatedType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
