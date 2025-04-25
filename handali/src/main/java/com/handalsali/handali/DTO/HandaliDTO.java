@@ -34,7 +34,11 @@ public class HandaliDTO {
         @Schema(description = "토탈 코인", example = "100")
         private int total_coin;
         @Schema(description = "변화한 한달이 사진", example = "image_0_0_0.png")
-        private String image;
+        private String handali_img;
+        private String background_img;
+        private String wall_img;
+        private String sofa_img;
+        private String floor_img;
     }
 
 

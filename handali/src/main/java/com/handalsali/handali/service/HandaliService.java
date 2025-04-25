@@ -5,6 +5,8 @@ import com.handalsali.handali.DTO.StatDetailDTO;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
+import com.handalsali.handali.domain.UserItem;
+import com.handalsali.handali.enums.ItemType;
 import com.handalsali.handali.repository.*;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
@@ -16,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -25,6 +29,7 @@ public class HandaliService {
     private final HandaliRepository handaliRepository;
     private final StatService statService;
     private final HandaliStatRepository handaliStatRepository;
+    private final UserItemRepository userItemRepository;
 
     /**[한달이 생성]*/
     public Handali handaliCreate(String token,String nickname){
@@ -86,14 +91,28 @@ public class HandaliService {
 
         int days_Since_Created = Period.between(handali.getStartDate(), LocalDate.now()).getDays()+1;
 
+        String backgroundImg=getUserItemName(user,ItemType.BACKGROUND);
+        String wallImg=getUserItemName(user,ItemType.WALL);
+        String sofaImg=getUserItemName(user,ItemType.SOFA);
+        String floorImg=getUserItemName(user,ItemType.FLOOR);
 
         return new HandaliDTO.HandaliStatusResponse(
                 handali.getNickname(),
                 days_Since_Created,
                 handali.getUser().getTotal_coin(),
-                handali.getImage()
+                handali.getImage(),
+                backgroundImg,
+                wallImg,
+                sofaImg,
+                floorImg
         );
 
+    }
+
+    private String getUserItemName(User user,ItemType itemType) {
+        return userItemRepository.findByUserAndItemType(user, itemType)
+                .map(userItem->userItem.getStore().getName())
+                .orElse("none");
     }
 
     /** [스탯 조회]*/
