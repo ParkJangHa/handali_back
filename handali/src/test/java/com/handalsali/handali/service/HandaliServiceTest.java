@@ -7,6 +7,7 @@ import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
+import com.handalsali.handali.repository.UserItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,9 @@ public class HandaliServiceTest {
 
     @Mock
     private StatService statService;
+
+    @Mock
+    private UserItemRepository userItemRepository;
 
     private String token;
     private User user;
@@ -215,6 +219,8 @@ public class HandaliServiceTest {
 
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
+        when(userItemRepository.findByUserAndItemType(eq(user),any())).thenReturn(Optional.empty()); //유저 아이템이 존재하지 않을 경우
+
 
         // When
         HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
@@ -224,6 +230,7 @@ public class HandaliServiceTest {
         assertEquals(5, response.getDays_since_created()); // 오늘 포함이므로 4 + 1
         assertEquals(300, response.getTotal_coin());
         assertEquals("test-image.png", response.getHandali_img());
+        assertEquals("none",response.getBackground_img()); //유저 아이템의 반환 값이 전부 none
 
         verify(userService).tokenToUser(token);
         verify(handaliRepository).findLatestHandaliByCurrentMonth(user.getUserId());
