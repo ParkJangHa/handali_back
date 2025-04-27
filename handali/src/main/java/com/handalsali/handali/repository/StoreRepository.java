@@ -13,4 +13,6 @@ public interface StoreRepository extends JpaRepository<Store,Long> {
     List<Store> findByItemType(ItemType itemType);
 
     Optional<Store> findByItemTypeAndName(ItemType itemType, String name);
+
+    List<Store> findByPrice(int price);
 }
