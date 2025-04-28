@@ -18,10 +18,7 @@ import java.util.Optional;
 import java.util.List;
 import java.util.Map;
 
-
-
 @Service
-@Transactional
 public class HabitService {
     private final UserService userService;
     private final HabitRepository habitRepository;
@@ -34,6 +31,7 @@ public class HabitService {
     }
 
     /**[습관 추가] 사용자 습관 추가*/
+    @Transactional
     public void createUserHabit(String token,HabitDTO.AddHabitApiRequest addHabitApiRequest) {
 
         //1. 사용자 확인
@@ -62,6 +60,7 @@ public class HabitService {
     }
 
     /**[이번달 습관으로 지정] 이번달에 실행할 습관으로 지정*/
+    @Transactional
     public void addHabitsForCurrentMonth(String token, HabitDTO.AddHabitApiRequest addHabitApiRequest){
             //1. 사용자 확인
             User user = userService.tokenToUser(token);
