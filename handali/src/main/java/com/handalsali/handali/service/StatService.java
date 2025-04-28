@@ -17,7 +17,6 @@ import java.time.YearMonth;
 import java.util.List;
 
 @Service
-@Transactional
 public class StatService {
     private final StatRepository statRepository;
     private final HandaliStatRepository handaliStatRepository;
@@ -32,6 +31,7 @@ public class StatService {
     }
 
     /**한달이 생성후, 스탯 초기화*/
+    @Transactional
     public void statInit(User user,Handali handali){
 
         //1. 스탯 초기화, 0
@@ -83,6 +83,7 @@ public class StatService {
     }
 
     /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
+    @Transactional
     public boolean statUpdateAndCheckHandaliStat(User user, int recordCount, float lastRecordTime, RecordDTO.recordTodayHabitRequest request){
 
         // 1. 한달이 찾기

@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 
 @Service
-@Transactional
 public class RecordService {
     private final UserService userService;
     private final HabitService habitService;
@@ -29,6 +28,7 @@ public class RecordService {
     }
 
     /**[습관 기록] 및 스탯 업데이트*/
+    @Transactional
     public RecordDTO.recordTodayHabitResponse recordTodayHabit(String token, RecordDTO.recordTodayHabitRequest request){
         //1. 사용자 확인
         User user=userService.tokenToUser(token);

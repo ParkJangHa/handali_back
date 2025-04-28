@@ -30,9 +30,11 @@ spring:
       port: 6379
 
   flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+    enabled: true # Flyway 사용 여부
+    locations: classpath:db/migration # 마이그레이션 파일 위치
+    baseline-on-migrate: true # 초기 마이그레이션이 없을 때 baseline을 자동으로 설정
+    #placeholder-replacement: false # 기본적으로 SQL 파일에서 변수 치환을 활성화하지 않음
+
 
 jwt:
   secret: ${JWT_SECRET}

@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class HandaliService {
     private final UserService userService;
@@ -32,6 +31,7 @@ public class HandaliService {
     private final UserItemRepository userItemRepository;
 
     /**[한달이 생성]*/
+    @Transactional
     public Handali handaliCreate(String token,String nickname){
         //1. 사용자 인증
         User user=userService.tokenToUser(token);
@@ -50,6 +50,7 @@ public class HandaliService {
     }
 
     /**유저의 이번달 한달이 조회 - 다음 달로 넘어가는 순간 호출되면 한달이를 찾을 수 없는 예외 발생*/
+    @Transactional(readOnly = true)
     public Handali findHandaliByCurrentDateAndUser(User user){
         Handali handali = handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId());
         return handali;
@@ -57,6 +58,7 @@ public class HandaliService {
 
 
     /**[한달이 상태 변화]-이미지 반환*/
+    @Transactional
     public String changeHandali(String token){
         //1. 사용자 확인
         User user=userService.tokenToUser(token);
@@ -83,6 +85,7 @@ public class HandaliService {
     }
 
     /** [한달이 상태 조회]*/
+    @Transactional(readOnly = true)
     public HandaliDTO.HandaliStatusResponse getHandaliStatusByMonth(String token) {
         User user = userService.tokenToUser(token);
 
@@ -116,6 +119,7 @@ public class HandaliService {
     }
 
     /** [스탯 조회]*/
+    @Transactional(readOnly = true)
     public HandaliDTO.StatResponse getStatsByHandaliId(Long handaliId, String token) {
         // Handali 엔티티 존재 여부 확인 (예외 처리 포함)
         handaliRepository.findById(handaliId)
@@ -129,6 +133,7 @@ public class HandaliService {
 
 
     /**[마지막 생성 한달이 조회]*/
+    @Transactional(readOnly = true)
     public HandaliDTO.RecentHandaliResponse getRecentHandali(String token) {
         // 사용자 인증
         User user = userService.tokenToUser(token);
