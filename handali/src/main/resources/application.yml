@@ -17,7 +17,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate # 데이터베이스 스키마와 엔티티가 일치하는지 검사
 
   server:
     servlet:
@@ -32,7 +32,7 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: true
+    baseline-on-migrate: true # 현재 데이터베이스 상태를 버전1로 시작, V1_create_tables.sql 은 실행되지 않음
 
 jwt:
   secret: ${JWT_SECRET}
