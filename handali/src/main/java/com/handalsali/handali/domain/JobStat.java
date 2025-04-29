@@ -27,6 +27,7 @@ public class JobStat {
 //    private Stat stat;
 
     @ManyToOne
-    @JoinColumn(name="job_id",nullable = false)
+    @JoinColumn(name="job_id", nullable = false,
+            foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (job_id) REFERENCES job(job_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Job job;
 }
