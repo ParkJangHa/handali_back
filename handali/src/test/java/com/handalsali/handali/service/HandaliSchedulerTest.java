@@ -63,7 +63,7 @@ public class HandaliSchedulerTest {
         when(apartmentService.assignApartmentToHandali(handali)).thenReturn(apart);
 
         // When
-        handaliScheduler.processMonthlyJobAndApartmentEntry();
+        handaliScheduler.assignApartmentsToHandalis();
 
         // Then
         verify(jobService).assignBestJobToHandali(handali);
@@ -85,7 +85,7 @@ public class HandaliSchedulerTest {
                 .thenReturn(List.of());
 
         // When
-        handaliScheduler.processMonthlyJobAndApartmentEntry();
+        handaliScheduler.assignApartmentsToHandalis();
 
         // Then
         verify(jobService, never()).assignBestJobToHandali(any());
@@ -125,7 +125,7 @@ public class HandaliSchedulerTest {
                 .thenReturn(alreadyProcessedHandalis);
 
         // When
-        handaliScheduler.processMonthlyJobAndApartmentEntry();
+        handaliScheduler.assignApartmentsToHandalis();
 
         // Then
         // 실제로 새로 배정되거나 저장된 것이 없어야 함
