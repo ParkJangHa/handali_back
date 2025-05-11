@@ -43,7 +43,7 @@ public class RecordServiceTest {
     private String token;
     private Habit habit;
     private Record record;
-    private RecordDTO.recordTodayHabitRequest request;
+    private RecordDTO.RecordTodayHabitRequest request;
     private final LocalDate testDate=LocalDate.of(2025,4,13);
 
     @BeforeEach
@@ -52,7 +52,7 @@ public class RecordServiceTest {
         user = new User("aaa@gmail.com", "name", "1234", "010-1234-5678", testDate);
         habit=new Habit(Categoryname.ACTIVITY,"테니스", CreatedType.USER);
         record=new Record(user,habit,3.0f,50,testDate);
-        request=new RecordDTO.recordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",3.0f,50,testDate);
+        request=new RecordDTO.RecordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",3.0f,50,testDate);
     }
 
     /**[습관 기록] 및 스탯 업데이트*/

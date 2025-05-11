@@ -83,7 +83,7 @@ public class StatService {
     }
 
     /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
-    public boolean statUpdateAndCheckHandaliStat(User user, int recordCount, float lastRecordTime, RecordDTO.recordTodayHabitRequest request){
+    public boolean statUpdateAndCheckHandaliStat(User user, int recordCount, float lastRecordTime, RecordDTO.RecordTodayHabitRequest request){
 
         // 1. 한달이 찾기
         Handali handali = handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId());
