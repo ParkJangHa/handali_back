@@ -4,7 +4,6 @@ import com.handalsali.handali.DTO.RecordDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.domain.Record;
 import com.handalsali.handali.domain.User;
-import com.handalsali.handali.enums_multyKey.Categoryname;
 import com.handalsali.handali.exception.HabitNotExistsException;
 import com.handalsali.handali.exception.TodayHabitAlreadyRecordException;
 import com.handalsali.handali.repository.RecordRepository;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Optional;
 
 @Service
 @Transactional

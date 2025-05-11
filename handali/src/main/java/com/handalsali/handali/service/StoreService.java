@@ -4,6 +4,7 @@ import com.handalsali.handali.DTO.StoreDTO;
 import com.handalsali.handali.domain.Store;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.domain.UserStore;
+import com.handalsali.handali.enums.ItemType;
 import com.handalsali.handali.exception.InsufficientCoinException;
 import com.handalsali.handali.exception.StoreItemAlreadyBoughtException;
 import com.handalsali.handali.exception.StoreItemNotExistsException;
@@ -29,12 +30,12 @@ public class StoreService {
      * [카테고리별
      * 상점 물품 조회]
      */
-    public List<StoreDTO.StoreViewResponse> storeViewByCategory(String token, String category) {
+    public List<StoreDTO.StoreViewResponse> storeViewByCategory(String token, ItemType itemType) {
         //1. 사용자 찾기
         User user=userService.tokenToUser(token);
 
         //2. 상점 물품 전체 조회하여 리스트로 반환
-        List<Store> stores=storeRepository.findByCategory(category);
+        List<Store> stores=storeRepository.findByItemType(itemType);
         if(stores.isEmpty()) throw new StoreItemNotExistsException("상점에 해당 카테고리의 물품이 존재하지 않습니다.");
 
         //3. 유저상점 물품에 존재하면 is_Buy가 true 아니면 false 하여 저장
@@ -46,7 +47,7 @@ public class StoreService {
 
             StoreDTO.StoreViewResponse response=new StoreDTO.StoreViewResponse(
                     store.getStoreId(),
-                    store.getCategory(),
+                    store.getItemType(),
                     store.getName(),
                     store.getPrice(),
                     isBuy
@@ -66,7 +67,7 @@ public class StoreService {
         User user=userService.tokenToUser(token);
 
         //2. 카테고리, 이름이 동일한 상품 찾기
-        Store store = storeRepository.findByCategoryAndName(request.getCategory(), request.getName())
+        Store store = storeRepository.findByItemTypeAndName(request.getItem_type(), request.getName())
                 .orElseThrow(()->new StoreItemNotExistsException("상점에 카테고리, 이름에 해당하는 상품이 존재하지 않습니다."));
 
         if(userStoreRepository.findByUserAndStore(user, store)!=null) throw new StoreItemAlreadyBoughtException("이미 구매한 아이템입니다.");

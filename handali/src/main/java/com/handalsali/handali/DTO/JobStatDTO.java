@@ -1,7 +1,7 @@
 package com.handalsali.handali.DTO;
 
 import com.handalsali.handali.domain.Job;
-import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.enums.TypeName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

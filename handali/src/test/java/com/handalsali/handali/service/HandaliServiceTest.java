@@ -1,18 +1,13 @@
 package com.handalsali.handali.service;
 
-import com.handalsali.handali.DTO.HabitDTO;
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.*;
-import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.CreatedType;
-import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.enums.TypeName;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
-import com.handalsali.handali.repository.RecordRepository;
-import com.handalsali.handali.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import com.handalsali.handali.repository.UserItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,16 +15,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,6 +40,9 @@ public class HandaliServiceTest {
 
     @Mock
     private StatService statService;
+
+    @Mock
+    private UserItemRepository userItemRepository;
 
     private String token;
     private User user;
@@ -225,6 +219,8 @@ public class HandaliServiceTest {
 
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
+        when(userItemRepository.findByUserAndItemType(eq(user),any())).thenReturn(Optional.empty()); //유저 아이템이 존재하지 않을 경우
+
 
         // When
         HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
@@ -233,7 +229,8 @@ public class HandaliServiceTest {
         assertEquals("테스트한달이", response.getNickname());
         assertEquals(5, response.getDays_since_created()); // 오늘 포함이므로 4 + 1
         assertEquals(300, response.getTotal_coin());
-        assertEquals("test-image.png", response.getImage());
+        assertEquals("test-image.png", response.getHandali_img());
+        assertEquals("none",response.getBackground_img()); //유저 아이템의 반환 값이 전부 none
 
         verify(userService).tokenToUser(token);
         verify(handaliRepository).findLatestHandaliByCurrentMonth(user.getUserId());

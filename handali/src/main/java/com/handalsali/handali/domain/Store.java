@@ -1,5 +1,6 @@
 package com.handalsali.handali.domain;
 
+import com.handalsali.handali.enums.ItemType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,8 @@ public class Store {
     private Long storeId;
 
     @Column(nullable = false)
-    private String category; //배경, 소파, 벽장식, 바닥장식
+    @Enumerated(EnumType.STRING)
+    private ItemType itemType;
 
     @Column(nullable = false,unique = true)
     private String name;

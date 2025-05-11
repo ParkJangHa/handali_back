@@ -2,7 +2,7 @@ package com.handalsali.handali.repository;
 
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
-import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.enums.TypeName;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

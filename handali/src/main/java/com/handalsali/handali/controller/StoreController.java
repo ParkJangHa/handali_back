@@ -1,6 +1,7 @@
 package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.StoreDTO;
+import com.handalsali.handali.enums.ItemType;
 import com.handalsali.handali.service.StoreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +22,11 @@ public class StoreController {
     }
 
     @GetMapping("/view")
-    public ResponseEntity<List<StoreDTO.StoreViewResponse>> storeViewByCategory(@RequestParam String category,
+    public ResponseEntity<List<StoreDTO.StoreViewResponse>> storeViewByCategory(@RequestParam ItemType itemType,
                                                       @RequestHeader("Authorization") String accessToken) {
         String token = baseController.extraToken(accessToken);
 
-        List<StoreDTO.StoreViewResponse> responses = storeService.storeViewByCategory(token, category);
+        List<StoreDTO.StoreViewResponse> responses = storeService.storeViewByCategory(token, itemType);
 
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }

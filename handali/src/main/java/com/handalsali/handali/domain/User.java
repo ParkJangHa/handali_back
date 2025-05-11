@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +19,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Table(name="user")
+@SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +47,12 @@ public class User {
     @Column(nullable = false)
     private LocalDate birthday;
 
+    private boolean isDeleted = false;
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
     public User(String email, String name, String password, String phone, LocalDate birthday){
         this.email=email;
         this.name=name;
@@ -50,16 +60,6 @@ public class User {
         this.phone=phone;
         this.birthday=birthday;
     }
-
-
-    //비밀번호 암호화
-//    private static final PasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
-//    public void setPassword(String password) {
-//        this.password = passwordEncoder.encode(password);
-//    }
-//    public boolean checkPassword(String rawPassword){
-//        return passwordEncoder.matches(rawPassword,this.password);
-//    }
 
     // spring security 에서 사용 가능 하도록 UserDetails로  변환
     public UserDetails toUserDetails() {

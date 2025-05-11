@@ -1,13 +1,11 @@
 package com.handalsali.handali.domain;
 
-import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.enums.TypeName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-
-import java.util.List;
 
 @NoArgsConstructor
 @Entity

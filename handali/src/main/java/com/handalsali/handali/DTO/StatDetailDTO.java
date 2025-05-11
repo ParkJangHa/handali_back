@@ -1,6 +1,6 @@
 package com.handalsali.handali.DTO;
 
-import com.handalsali.handali.enums_multyKey.TypeName;
+import com.handalsali.handali.enums.TypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;

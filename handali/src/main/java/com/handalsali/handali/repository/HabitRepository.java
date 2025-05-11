@@ -2,8 +2,8 @@ package com.handalsali.handali.repository;
 
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.domain.User;
-import com.handalsali.handali.enums_multyKey.Categoryname;
-import com.handalsali.handali.enums_multyKey.CreatedType;
+import com.handalsali.handali.enums.Categoryname;
+import com.handalsali.handali.enums.CreatedType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

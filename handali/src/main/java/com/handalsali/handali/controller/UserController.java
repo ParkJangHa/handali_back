@@ -142,4 +142,19 @@ public class UserController {
         return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 
+
+    /**
+     * 회원 탈퇴
+     */
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String accessToken) {
+        String token = baseController.extraToken(accessToken);
+        User user = userService.tokenToUser(token);
+
+        user.delete();               // ← isDeleted = true
+        userRepository.save(user);  // ← DB 반영
+
+        return ResponseEntity.ok("회원 탈퇴 되었습니다.");
+    }
+
 }

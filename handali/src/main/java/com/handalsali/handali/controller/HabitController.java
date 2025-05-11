@@ -1,8 +1,7 @@
 package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.HabitDTO;
-import com.handalsali.handali.domain.Habit;
-import com.handalsali.handali.enums_multyKey.Categoryname;
+import com.handalsali.handali.enums.Categoryname;
 import com.handalsali.handali.exception.MoreOneLessThreeSelectException;
 import com.handalsali.handali.service.HabitService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,12 +10,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 
