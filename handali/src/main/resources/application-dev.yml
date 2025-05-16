@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/handali_db_dev
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: host.docker.internal
+      port: 6379
+
+server:
+  port: 8081

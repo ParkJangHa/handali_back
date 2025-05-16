@@ -1,12 +1,12 @@
 version: "3.8"
 services:
-  handali-dev:
+  handali-prod:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: handali-dev
+    container_name: handali-prod
     ports:
-      - "8081:8081"
+      - "8080:8080"
     env_file:
-      - .env.dev
+      - .env.prod
     restart: unless-stopped
