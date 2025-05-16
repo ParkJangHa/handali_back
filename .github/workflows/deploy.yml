@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - release/* # release로 시작하는 모든 브랜치에서 배포 실행
+      - main
 
 jobs:
   build:
@@ -51,6 +52,11 @@ jobs:
       - name: Copy JAR file to Mac Server
         run: |
           scp -i ~/.ssh/id_rsa build/libs/*.jar ${{ secrets.MACBOOK_USER }}@${{ secrets.MACBOOK_HOST }}:~/server/temp/
+
+      - name: List docker directory contents
+        run: |
+          ls -al
+          echo "-----------"
       
       - name: Deploy Spring Boot to Mac Server
         uses: appleboy/ssh-action@v0.1.4
