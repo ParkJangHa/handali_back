@@ -53,10 +53,6 @@ jobs:
         run: |
           scp -i ~/.ssh/id_rsa build/libs/*.jar ${{ secrets.MACBOOK_USER }}@${{ secrets.MACBOOK_HOST }}:~/server/temp/
 
-      - name: List docker directory contents
-        run: |
-          ls -al
-          echo "-----------"
       
       - name: Deploy Spring Boot to Mac Server
         uses: appleboy/ssh-action@v0.1.4
