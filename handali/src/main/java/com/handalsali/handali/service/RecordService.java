@@ -1,5 +1,9 @@
 package com.handalsali.handali.service;
 
+import com.handalsali.handali.DTO.Record.MonthlyRecordCountResponse;
+import com.handalsali.handali.DTO.Record.SatisfactionAvgByCategoryResponse;
+import com.handalsali.handali.DTO.Record.TotalRecordsByCategoryResponse;
+import com.handalsali.handali.DTO.Record.TotalTimeByCategoryResponse;
 import com.handalsali.handali.DTO.RecordDTO;
 import com.handalsali.handali.domain.Habit;
 import com.handalsali.handali.domain.Record;
@@ -12,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 
 @Service
 @Transactional
@@ -29,7 +34,7 @@ public class RecordService {
     }
 
     /**[습관 기록] 및 스탯 업데이트*/
-    public RecordDTO.recordTodayHabitResponse recordTodayHabit(String token, RecordDTO.recordTodayHabitRequest request){
+    public RecordDTO.RecordTodayHabitResponse recordTodayHabit(String token, RecordDTO.RecordTodayHabitRequest request){
         //1. 사용자 확인
         User user=userService.tokenToUser(token);
 
@@ -55,7 +60,7 @@ public class RecordService {
         //5. 스탯 업데이트
         boolean isChange=statService.statUpdateAndCheckHandaliStat(user,recordCount,lastRecordTime,request);
 
-        return new RecordDTO.recordTodayHabitResponse(
+        return new RecordDTO.RecordTodayHabitResponse(
                 record.getRecordId(),
                 "습관이 성공적으로 기록되었습니다.",
                 isChange);
@@ -80,5 +85,33 @@ public class RecordService {
         System.out.println("recordDats: " + recordedDays);
 
         return recordedDays;
+    }
+
+    /**
+     * [습관 기록 요약]
+     */
+    public RecordDTO.RecordSummaryResponse recordSummary(String token) {
+        User user = userService.tokenToUser(token);
+
+        //카테고리별 만족도 평균
+        List<SatisfactionAvgByCategoryResponse> avgSatisfactionByCategoryThisMonth = recordRepository.findAvgSatisfactionByCategoryThisMonth(user);
+
+        //카테고리별 누적 시간
+        List<TotalTimeByCategoryResponse> totalTimeByCategoryThisMonth = recordRepository.findTotalTimeByCategoryThisMonth(user);
+
+        //총 기록 횟수
+        int totalRecords = recordRepository.countByDateThisMonth(user);
+
+        //카테고리별 기록 횟수
+        List<TotalRecordsByCategoryResponse> totalRecordsByCategoryThisMonth = recordRepository.findTotalRecordsByCategoryThisMonth(user);
+
+        //달별 기록 횟수(1년)
+        LocalDate start = YearMonth.now().minusMonths(11).atDay(1);
+        LocalDate end=YearMonth.now().atEndOfMonth();
+        System.out.println(start+"  "+end);
+        List<MonthlyRecordCountResponse> monthlyRecordCounts = recordRepository.findMonthlyRecordCounts(user, start, end);
+
+        return new RecordDTO.RecordSummaryResponse(
+                avgSatisfactionByCategoryThisMonth,totalTimeByCategoryThisMonth,totalRecords,totalRecordsByCategoryThisMonth,monthlyRecordCounts);
     }
 }

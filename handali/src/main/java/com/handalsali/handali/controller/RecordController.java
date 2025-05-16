@@ -1,17 +1,13 @@
 package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.RecordDTO;
-import com.handalsali.handali.domain.Record;
 import com.handalsali.handali.service.RecordService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,13 +50,20 @@ public class RecordController {
                     """)))
     })
     @PostMapping("/habits/record")
-    public ResponseEntity<RecordDTO.recordTodayHabitResponse> recordTodayHabit(@RequestHeader("Authorization") String accessToken,
-                                                                               @RequestBody RecordDTO.recordTodayHabitRequest request){
+    public ResponseEntity<RecordDTO.RecordTodayHabitResponse> recordTodayHabit(@RequestHeader("Authorization") String accessToken,
+                                                                               @RequestBody RecordDTO.RecordTodayHabitRequest request){
         String token=baseController.extraToken(accessToken);
 
-        RecordDTO.recordTodayHabitResponse response=recordService.recordTodayHabit(
+        RecordDTO.RecordTodayHabitResponse response=recordService.recordTodayHabit(
                 token, request);
 
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/habits/summary")
+    public ResponseEntity<RecordDTO.RecordSummaryResponse> recordSummary(@RequestHeader("Authorization") String accessToken){
+        String token=baseController.extraToken(accessToken);
+        RecordDTO.RecordSummaryResponse response=recordService.recordSummary(token);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

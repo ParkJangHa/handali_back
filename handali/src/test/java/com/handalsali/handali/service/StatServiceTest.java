@@ -46,7 +46,7 @@ public class StatServiceTest {
     private Handali currentHandali;
     private HandaliStat currentHandaliStat;
     private Stat activityStat;
-    private RecordDTO.recordTodayHabitRequest request;
+    private RecordDTO.RecordTodayHabitRequest request;
     private final LocalDate testDate=LocalDate.of(2025,4,13);
 
     @BeforeEach
@@ -59,7 +59,7 @@ public class StatServiceTest {
         activityStat.setLastMonthValue(0);
         currentHandaliStat=new HandaliStat(currentHandali,activityStat);
 
-        request=new RecordDTO.recordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",3.0f,50,testDate);
+        request=new RecordDTO.RecordTodayHabitRequest(Categoryname.ACTIVITY,"테니스",3.0f,50,testDate);
     }
 
     /**한달이 생성후, 스탯 초기화*/

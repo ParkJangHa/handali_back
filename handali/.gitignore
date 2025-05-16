@@ -1,3 +1,6 @@
+.env.dev
+.env.prod
+
 # 서버에서 생성되는 파일 무시
 handali/app.log
 handali/application.log
