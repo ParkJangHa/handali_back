@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  handali-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"  # 내부는 8080, 외부는 8081
+    restart: unless-stopped
