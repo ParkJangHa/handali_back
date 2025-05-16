@@ -59,9 +59,15 @@ jobs:
           username: ${{ secrets.MACBOOK_USER }}
           key: ${{ secrets.MACBOOK_SSH_KEY }}
           script: |
-
-            # `tmux`가 있는 경로를 `$PATH`에 추가
-            export PATH="/usr/local/bin:$PATH"
+          
+            BRANCH="${{ github.ref_name }}"
+            if [ "$BRANCH" = "main" ]; then
+              PROFILE=prod
+              COMPOSE_FILE=docker-compose.prod.yml
+            else
+              PROFILE=dev
+              COMPOSE_FILE=docker-compose.dev.yml
+            fi
 
 
             # 서버 디렉토리로 이동
@@ -74,16 +80,8 @@ jobs:
 
             # 새로운 빌드 파일 ~/server/handali.jar 로 이동
             mv ~/server/temp/*.jar handali.jar
-
-            # 기존 애플리케이션 종료
-            if tmux has-session -t handaliSession 2>/dev/null; then
-               tmux kill-session -t handaliSession
-            fi
-
-            # 새로운 애플리케이션 실행
-            tmux new-session -d -s handaliSession "source ~/.zshrc && java -jar ~/server/handali.jar > ~/server/server.log 2>&1"
-
-            # 실행 확인
-            sleep 2
-            tmux ls
+            
+            # 컨테이너 재시작
+            docker-compose -f $COMPOSE_FILE down || true
+            docker-compose -f $COMPOSE_FILE up --build -d
 
