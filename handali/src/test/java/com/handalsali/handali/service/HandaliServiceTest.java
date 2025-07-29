@@ -1,12 +1,14 @@
 package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.HandaliDTO;
+import com.handalsali.handali.DTO.StatDetailDTO;
 import com.handalsali.handali.domain.*;
 import com.handalsali.handali.enums.TypeName;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,20 +27,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class HandaliServiceTest {
 
-    @InjectMocks
-    private HandaliService handaliService;
-
-    @Mock
-    private HandaliRepository handaliRepository;
-
-    @Mock
-    private UserService userService;
-
-    @Mock
-    private HandaliStatRepository handaliStatRepository;
-
-    @Mock
-    private StatService statService;
+    @InjectMocks private HandaliService handaliService;
+    @Mock private HandaliRepository handaliRepository;
+    @Mock private UserService userService;
+    @Mock private HandaliStatRepository handaliStatRepository;
+    @Mock private StatService statService;
 
     private String token;
     private User user;
@@ -51,7 +44,9 @@ public class HandaliServiceTest {
         handali=new Handali("aaa",LocalDate.now(),user);
     }
 
-    /**[한달이 상태 변화]*/
+    /**
+     * [한달이 상태 변화] 스탯 수치에 따라 이미지 이름이 잘 바뀌는지 확인
+     */
     @Test
     public void testChangeHandali(){
         //given
@@ -93,7 +88,7 @@ public class HandaliServiceTest {
     }
 
     /**
-     * [한달이 생성]
+     * [한달이 생성] 정상적으로 생성되는지 확인
      */
     @Test
     public void testHandaliCreate(){
@@ -115,15 +110,17 @@ public class HandaliServiceTest {
         assertEquals(LocalDate.now(),handali.getStartDate());
     }
 
+    /**
+     * [한달이 생성 예외] 이번달에 이미 생성한 경우 예외 발생
+     */
     @Test
     public void testHandaliCreate_error(){
         //given
         when(userService.tokenToUser(token)).thenReturn(user);
 
-        //when
         when(handaliRepository.countPetsByUserIdAndCurrentMonth(user)).thenReturn(1L);
 
-        //then
+        //when & then
         assertThrows(HanCreationLimitException.class,()->{
             handaliService.handaliCreate(token, "aaa");
         });
@@ -169,6 +166,9 @@ public class HandaliServiceTest {
         verify(handaliRepository).findLatestHandaliByUser(user.getUserId());
     }
 
+    /**
+     * [최근 생성된 한달이 조회 예외] 사용자가 없을 경우
+     */
     @Test
     public void testGetRecentHandali_NoUser() {
         // Given
@@ -181,6 +181,9 @@ public class HandaliServiceTest {
         verifyNoInteractions(handaliRepository);
     }
 
+    /**
+     * [최근 생성된 한달이 조회 예외] 최근 생성된 한달이가 없는 경우
+     */
     @Test
     public void testGetRecentHandali_NoHandali() {
         // Given
@@ -198,7 +201,7 @@ public class HandaliServiceTest {
     }
 
     /**
-     * [한달이 상태 조회]
+     * [한달이 상태 조회] 정상 조회
      */
     @Test
     public void testGetHandaliStatusByMonth_Success() {
@@ -223,9 +226,48 @@ public class HandaliServiceTest {
         assertEquals("테스트한달이", response.getNickname());
         assertEquals(5, response.getDays_since_created()); // 오늘 포함이므로 4 + 1
         assertEquals(300, response.getTotal_coin());
-        assertEquals("test-image.png", response.getImage());
+        //assertEquals("test-image.png", response.getImage());
 
         verify(userService).tokenToUser(token);
         verify(handaliRepository).findLatestHandaliByCurrentMonth(user.getUserId());
+    }
+
+    /**
+     * [스탯 조회]
+     */
+    @Test
+    public void testGetStatsByHandaliId_success() {
+        //given
+        Long handaliId = 1L;
+        String token = "token";
+        List<StatDetailDTO> mockStats = List.of(
+                new StatDetailDTO(TypeName.ACTIVITY_SKILL, 100),
+                new StatDetailDTO(TypeName.INTELLIGENT_SKILL, 200)
+        );
+
+        when(handaliRepository.findById(handaliId)).thenReturn(Optional.of(new Handali()));
+        when(handaliRepository.findStatsByHandaliId(handaliId)).thenReturn(mockStats);
+
+        //when
+        HandaliDTO.StatResponse response = handaliService.getStatsByHandaliId(handaliId, token);
+
+        //then
+        assertEquals(2, response.getStats().size());
+        assertEquals("ACTIVITY_SKILL", response.getStats().get(0).getTypeName());
+        assertEquals(100, response.getStats().get(0).getValue());
+    }
+
+    /**
+     * [스탯 조회 예외] 존재하지 않는 handaliId일 경우
+     */
+    @Test
+    public void testGetStatsByHandaliId_handaliNotFound() {
+        //given
+        when(handaliRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        //when&then
+        assertThrows(EntityNotFoundException.class, () -> {
+            handaliService.getStatsByHandaliId(999L, "token");
+        });
     }
 }

@@ -36,4 +36,12 @@ public class Habit {
         this.detailedHabitName=detailedHabitName;
         this.createdType=createdType;
     }
+
+    public Long getId() {
+        return habitId;
+    }
+
+    public String getDetail() {
+        return detailedHabitName;
+    }
 }

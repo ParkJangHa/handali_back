@@ -22,9 +22,15 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     Optional<Handali> findLatestHandaliByUser(@Param("userId") Long userId);
 
     //test용
-    @Query("SELECT h FROM Handali h WHERE h.startDate BETWEEN :startOfMonth AND :endOfMonth " +
+    //@Query("SELECT h FROM Handali h WHERE h.startDate BETWEEN :startOfMonth AND :endOfMonth " +
+            //"AND (h.job IS NULL OR h.apart IS NULL)")
+    //List<Handali> findUnemployedHandalisForMonth(@Param("startOfMonth") LocalDate startOfMonth, @Param("endOfMonth") LocalDate endOfMonth);
+
+    //위 test용 수정 -> endDate를 '이번 달 첫날'로 설정, endDate는 미포함되게 수정
+    @Query("SELECT h FROM Handali h WHERE h.startDate >= :startOfMonth AND h.startDate < :startOfNextMonth " +
             "AND (h.job IS NULL OR h.apart IS NULL)")
-    List<Handali> findUnemployedHandalisForMonth(@Param("startOfMonth") LocalDate startOfMonth, @Param("endOfMonth") LocalDate endOfMonth);
+    List<Handali> findUnemployedHandalisForMonth(@Param("startOfMonth") LocalDate startOfMonth,
+                                                 @Param("startOfNextMonth") LocalDate startOfNextMonth);
 
     /** 최신 한달이 1개 반환 (findHandaliByCurrentMonth를 기반으로) **/
     @Query("SELECT h FROM Handali h WHERE h.user.userId = :userId " +

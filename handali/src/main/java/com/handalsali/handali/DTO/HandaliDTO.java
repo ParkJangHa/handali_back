@@ -43,9 +43,16 @@ public class HandaliDTO {
 
 
     @Data
-    @AllArgsConstructor
     public static class StatResponse {
         private List<StatDetailDTO> stat;
+
+        public StatResponse(List<StatDetailDTO> stats) {
+            this.stat = stats;
+        }
+
+        public List<StatDetailDTO> getStats() {
+            return stat;
+        }
     }
 
     @Data

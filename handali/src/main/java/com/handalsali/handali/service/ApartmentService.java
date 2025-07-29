@@ -1,10 +1,7 @@
 package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.HandaliDTO;
-import com.handalsali.handali.domain.Apart;
-import com.handalsali.handali.domain.Handali;
-import com.handalsali.handali.domain.HandaliStat;
-import com.handalsali.handali.domain.User;
+import com.handalsali.handali.domain.*;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.repository.ApartRepository;
 import com.handalsali.handali.repository.HandaliRepository;
@@ -55,14 +52,21 @@ public class ApartmentService {
         }
 
         return handalis.stream()
+                .filter(handali -> handali.getApart() != null) // 아파트 없는 한달이 제외 25/07-02
                 .map(handali -> {
                     Map<String, Object> response = new HashMap<>();
-                    response.put("apart_id", handali.getApart().getApartId());
-                    response.put("floor", handali.getApart().getFloor());
+
+                    Apart apart = handali.getApart();
+                    Job job = handali.getJob();
+
+                    response.put("apart_id", apart.getApartId());
+                    response.put("floor", apart.getFloor());
                     response.put("nickname", handali.getNickname());
                     response.put("start_date", handali.getStartDate());
-                    response.put("job_name", handali.getJob().getName());
-                    response.put("week_salary", handali.getJob().getWeekSalary());
+
+                    // null-safe 처리 25/07-02
+                    response.put("job_name", job != null ? job.getName() : null);
+                    response.put("week_salary", job != null ? job.getWeekSalary() : null);
                     response.put("image", handali.getImage());
                     return response;
                 })

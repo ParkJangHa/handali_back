@@ -90,4 +90,18 @@ public class HabitDTO {
         @Schema(description = "카테고리에 따른 세부 활동명", example = "노래 만들기")
         private String detail;
     }
+
+    @Data
+    @AllArgsConstructor
+    public static class LastMonthHabitResponse {
+        private String category;
+        private List<HabitInfo> habits;
+
+        @Data
+        @AllArgsConstructor
+        public static class HabitInfo {
+            private Long habit_id;
+            private String detail;
+        }
+    }
 }
