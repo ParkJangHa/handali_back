@@ -38,10 +38,10 @@ public class JobService {
         // 2. 해당 스탯과 비교하여 직업 리스트 가져오기
         List<Job> jobs = jobRepository.findJobByMaxHandaliStat(
                 maxHandaliStat.getStat().getTypeName(),
-                maxHandaliStat.getStat().getValue());
+                maxHandaliStat.getValue());
 
         // 3. 가능한 직업이 없으면 백수 할당
-        if (jobs.isEmpty()) {
+        if (jobs == null || jobs.isEmpty()) {
             return jobRepository.save(jobRepository.findByName("백수"));
         }
 

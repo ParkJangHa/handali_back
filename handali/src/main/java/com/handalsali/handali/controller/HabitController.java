@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -169,5 +170,14 @@ public class HabitController {
 
         Map<String, Object> habits = habitService.getHabitsByUserAndCategoryAndMonth(token,category,month);
         return ResponseEntity.status(HttpStatus.OK).body(habits);
+    }
+
+    @GetMapping("/habits/lastmonth")
+    public ResponseEntity<List<HabitDTO.LastMonthHabitResponse>> getLastMonthHabits(
+            @RequestHeader("Authorization") @Parameter(description = "사용자 인증 토큰") String accessToken) {
+
+        String token = baseController.extraToken(accessToken);
+        List<HabitDTO.LastMonthHabitResponse> habits = habitService.getLastMonthHabits(token);
+        return ResponseEntity.ok(habits);
     }
 }

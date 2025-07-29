@@ -27,6 +27,12 @@ public class HandaliStat {
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (stat_id) REFERENCES stat(stat_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Stat stat;
 
+    private int value;
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
     public HandaliStat(Handali handali, Stat stat) {
         this.handali=handali;
         this.stat=stat;

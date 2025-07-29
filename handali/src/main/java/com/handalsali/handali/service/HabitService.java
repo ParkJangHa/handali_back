@@ -14,10 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 
 
 @Service
@@ -164,5 +165,33 @@ public class HabitService {
                 "category",category.name(),
                 "habits",habitsResponse
         );
+    }
+
+    public List<HabitDTO.LastMonthHabitResponse> getLastMonthHabits(String token) {
+        User user = userService.tokenToUser(token);
+
+        int lastMonth = LocalDate.now().minusMonths(1).getMonthValue();
+
+        List<UserHabit> lastMonthHabits = userHabitRepository.findByUserAndMonth(user, lastMonth);
+
+        // 카테고리별로 묶기
+        Map<Categoryname, List<UserHabit>> groupedByCategory = lastMonthHabits.stream()
+                .collect(Collectors.groupingBy(userHabit -> userHabit.getHabit().getCategoryName()));
+
+        List<HabitDTO.LastMonthHabitResponse> response = new ArrayList<>();
+
+        for (Map.Entry<Categoryname, List<UserHabit>> entry : groupedByCategory.entrySet()) {
+            String category = entry.getKey().name();
+            List<HabitDTO.LastMonthHabitResponse.HabitInfo> habits = entry.getValue().stream()
+                    .map(uh -> new HabitDTO.LastMonthHabitResponse.HabitInfo(
+                            uh.getHabit().getId(),
+                            uh.getHabit().getDetail()
+                    ))
+                    .collect(Collectors.toList());
+
+            response.add(new HabitDTO.LastMonthHabitResponse(category, habits));
+        }
+
+        return response;
     }
 }

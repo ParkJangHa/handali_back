@@ -28,14 +28,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class HabitServiceTest {
-    @InjectMocks
-    private HabitService habitService;
-    @Mock
-    private HabitRepository habitRepository;
-    @Mock
-    private UserHabitRepository userHabitRepository;
-    @Mock
-    private UserService userService;
+    @InjectMocks private HabitService habitService;
+    @Mock private HabitRepository habitRepository;
+    @Mock private UserHabitRepository userHabitRepository;
+    @Mock private UserService userService;
 
     private String token;
     private User user;
@@ -64,7 +60,6 @@ public class HabitServiceTest {
         //given
         when(userService.tokenToUser(token)).thenReturn(user);
 
-        //when
         //새로운 습관일 경우
         when(habitRepository.findByCategoryNameAndDetailedHabitName(category, details))
                 .thenReturn(Optional.empty());
@@ -75,6 +70,7 @@ public class HabitServiceTest {
         when(userHabitRepository.existsByUserAndHabit(user, newHabit))
                 .thenReturn(false);
 
+        //when
         habitService.createUserHabit(token,addHabitApiRequest);
 
         //then
@@ -98,7 +94,6 @@ public class HabitServiceTest {
         //given
         when(userService.tokenToUser(token)).thenReturn(user);
 
-        //when
         //습관이 기존에 존재할 경우
         Habit oldHabit=new Habit(category, details, createdType);
         when(habitRepository.findByCategoryNameAndDetailedHabitName(category, details))
@@ -108,6 +103,7 @@ public class HabitServiceTest {
         when(userHabitRepository.existsByUserAndHabit(user,oldHabit))
                 .thenReturn(false);
 
+        //when
         habitService.createUserHabit(token,addHabitApiRequest);
 
         //then
@@ -126,7 +122,6 @@ public class HabitServiceTest {
         //given
         when(userService.tokenToUser(token)).thenReturn(user);
 
-        //when
         //습관이 기존에 존재할 경우
         Habit oldHabit=new Habit(category, details, createdType);
         when(habitRepository.findByCategoryNameAndDetailedHabitName(category, details))
@@ -136,6 +131,7 @@ public class HabitServiceTest {
         when(userHabitRepository.existsByUserAndHabit(user,oldHabit))
                 .thenReturn(true);
 
+        //when
         habitService.createUserHabit(token,addHabitApiRequest);
 
         //then
@@ -154,7 +150,6 @@ public class HabitServiceTest {
         when(habitRepository.findByCategoryNameAndDetailedHabitName(category, details))
                 .thenReturn(Optional.of(habit));
 
-        //when
         //이미 등록했던 습관일 경우
         when(userHabitRepository.existsByUserAndHabit(user, habit))
                 .thenReturn(true);
@@ -162,6 +157,7 @@ public class HabitServiceTest {
         when(userHabitRepository.findByUserAndHabit(user,habit))
                 .thenReturn(existUserHabit);
 
+        //when
         habitService.addHabitsForCurrentMonth(token,addHabitApiRequest);
 
         //then
@@ -183,11 +179,11 @@ public class HabitServiceTest {
         when(habitRepository.findByCategoryNameAndDetailedHabitName(category, details))
                 .thenReturn(Optional.of(habit));
 
-        //when
         //새로 등록하는 습관일 경우
         when(userHabitRepository.existsByUserAndHabit(user, habit))
                 .thenReturn(false);
 
+        //when
         habitService.addHabitsForCurrentMonth(token,addHabitApiRequest);
 
         //then
@@ -205,14 +201,42 @@ public class HabitServiceTest {
         //given
         when(userService.tokenToUser(token)).thenReturn(user);
 
-        //when
         when(habitRepository.findByCategoryNameAndDetailedHabitName(any(), any()))
                 .thenReturn(Optional.empty());
 
-        //then
+        //when & then
         assertThrows(HabitNotExistsException.class,()->{
             habitService.addHabitsForCurrentMonth(token,addHabitApiRequest);
         });
 
+    }
+
+    // 여러 습관을 한번에 받을 경우 (2025/07-02 추가)
+    @Test
+    public void testCreateUserHabit_multipleHabits_mixedExistence() {
+        // given
+        HabitDTO.AddHabitRequest habit1 = new HabitDTO.AddHabitRequest(Categoryname.ACTIVITY, "아침 운동", CreatedType.USER);
+        HabitDTO.AddHabitRequest habit2 = new HabitDTO.AddHabitRequest(Categoryname.INTELLIGENT, "명상", CreatedType.USER);
+        HabitDTO.AddHabitApiRequest multiHabitRequest = new HabitDTO.AddHabitApiRequest(List.of(habit1, habit2));
+
+        Habit existingHabit = new Habit(Categoryname.ACTIVITY, "아침 운동", CreatedType.USER);
+        Habit newHabit = new Habit(Categoryname.INTELLIGENT, "명상", CreatedType.USER);
+
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(habitRepository.findByCategoryNameAndDetailedHabitName(Categoryname.ACTIVITY, "아침 운동"))
+                .thenReturn(Optional.of(existingHabit));
+        when(userHabitRepository.existsByUserAndHabit(user, existingHabit)).thenReturn(false);
+
+        when(habitRepository.findByCategoryNameAndDetailedHabitName(Categoryname.INTELLIGENT, "명상"))
+                .thenReturn(Optional.empty());
+        when(habitRepository.save(any())).thenReturn(newHabit);
+        when(userHabitRepository.existsByUserAndHabit(user, newHabit)).thenReturn(false);
+
+        // when
+        habitService.createUserHabit(token, multiHabitRequest);
+
+        // then
+        verify(habitRepository, times(1)).save(any()); // 명상만 새로 저장
+        verify(userHabitRepository, times(2)).save(any()); // 두 습관 다 관계 저장
     }
 }

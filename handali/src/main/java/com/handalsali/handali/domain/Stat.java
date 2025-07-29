@@ -33,4 +33,9 @@ public class Stat {
     public Stat(TypeName typeName) {
         this.typeName=typeName;
     }
+
+    public Stat(TypeName typeName, float value) {
+        this.typeName = typeName;
+        this.value = value;
+    }
 }

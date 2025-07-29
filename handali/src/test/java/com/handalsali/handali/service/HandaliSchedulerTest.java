@@ -8,6 +8,7 @@ import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.RecordRepository;
 import com.handalsali.handali.repository.UserRepository;
 import com.handalsali.handali.scheduler.HandaliScheduler;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,26 +26,26 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class HandaliSchedulerTest {
-    @Mock
-    private HandaliRepository handaliRepository;
+    // ======================== 의존성 주입 ========================
+    @Mock private HandaliRepository handaliRepository;
+    @Mock private JobService jobService;
+    @Mock private ApartmentService apartmentService;
+    @Mock private RecordRepository recordRepository;
+    @Mock private UserRepository userRepository;
+    @InjectMocks private HandaliScheduler handaliScheduler;
 
-    @Mock
-    private JobService jobService;
+    // ======================== 테스트 공통 자원 ========================
+    private Job defaultJob;
+    private Apart defaultApart;
 
-    @Mock
-    private ApartmentService apartmentService;
-
-    @Mock
-    private RecordRepository recordRepository;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @InjectMocks
-    private HandaliScheduler handaliScheduler;
+    @BeforeEach
+    void setUp() {
+        defaultJob = new Job("개발자", 7000);
+        defaultApart = new Apart();
+    }
 
     /**
-     * [한달이 자동 취업 및 아파트 입주]
+     * [생성된 한달이에게 직업과 아파트 할당 후 저장]
      */
     @Test
     public void testProcessMonthlyJobAndApartmentEntry_AssignsJobAndApartment() {
@@ -56,11 +57,8 @@ public class HandaliSchedulerTest {
         when(handaliRepository.findUnemployedHandalisForMonth(any(), any()))
                 .thenReturn(List.of(handali));
 
-        Job job = new Job("개발자", 7000);
-        Apart apart = new Apart();
-
-        when(jobService.assignBestJobToHandali(handali)).thenReturn(job);
-        when(apartmentService.assignApartmentToHandali(handali)).thenReturn(apart);
+        when(jobService.assignBestJobToHandali(handali)).thenReturn(defaultJob);
+        when(apartmentService.assignApartmentToHandali(handali)).thenReturn(defaultApart);
 
         // When
         handaliScheduler.processMonthlyJobAndApartmentEntry();
@@ -74,10 +72,12 @@ public class HandaliSchedulerTest {
 
         Handali saved = captor.getValue();
         assertEquals("개발자", saved.getJob().getName());
-        assertEquals(apart, saved.getApart());
+        assertEquals(defaultApart, saved.getApart());
     }
 
-    //한달이가 없을 경우 테스트
+    /**
+     * [예외 케이스] 대상 한달이가 없을 경우 처리 없이 종료되어야 함
+     */
     @Test
     public void testProcessMonthlyJobAndApartmentEntry_NoHandalisToProcess() {
         // Given
@@ -93,31 +93,23 @@ public class HandaliSchedulerTest {
         verify(handaliRepository, never()).save(any());
     }
 
-    // 한달이가 이미 취업했거나 입주했을 때 테스트
+    /**
+     * [예외 케이스] 이미 취업 or 입주한 한달이는 처리되지 않아야 함
+      */
     @Test
     public void testProcessMonthlyJobAndApartmentEntry_HandaliAlreadyHasJobOrApartment() {
         // Given
         User user = new User();
 
-        // 이미 직업이 있음 (입주 X)
-        Job existingJob = new Job("경비", 6000);
-        Handali employedOnly = new Handali();
-        employedOnly.setNickname("직업만 있음");
-        employedOnly.setJob(existingJob);
-        employedOnly.setApart(null);
+        Handali employedOnly = new Handali("직업만 있음", LocalDate.now(), user);
+        employedOnly.setJob(defaultJob);
 
-        // 이미 아파트 입주함 (직업 X)
-        Apart existingApart = new Apart(user, null, "닉", 2, 202);
-        Handali movedInOnly = new Handali();
-        movedInOnly.setNickname("입주만 함");
-        movedInOnly.setJob(null);
-        movedInOnly.setApart(existingApart);
+        Handali movedInOnly = new Handali("입주만 함", LocalDate.now(), user);
+        movedInOnly.setApart(defaultApart);
 
-        // 둘 다 있음
-        Handali fullyAssigned = new Handali();
-        fullyAssigned.setNickname("둘 다 있음");
-        fullyAssigned.setJob(existingJob);
-        fullyAssigned.setApart(existingApart);
+        Handali fullyAssigned = new Handali("둘 다 있음", LocalDate.now(), user);
+        fullyAssigned.setJob(defaultJob);
+        fullyAssigned.setApart(defaultApart);
 
         List<Handali> alreadyProcessedHandalis = List.of(employedOnly, movedInOnly, fullyAssigned);
 
@@ -134,7 +126,9 @@ public class HandaliSchedulerTest {
         verify(handaliRepository, never()).save(any());
     }
 
-    /**직업에 따른 주급 사용자에게 지급*/
+    /**
+     * 직업을 가진 한달이에게 주급을 계산하여 유저에게 코인 지급
+     * */
     @Test
     public void testPayWeekSalary(){
         //given
@@ -158,7 +152,7 @@ public class HandaliSchedulerTest {
         when(recordRepository.countByUserAndDate(eq(user), eq(startDate), eq(endDate))).thenReturn(3);
 
 
-        //4. 실제 주급 및 토탈 코인 계산
+        //4. 실제 주급 및 토탈 코인 계산    *계산식 수정 필요*
         int totalSalary = 3 * 10 + (int)(1000*(0.0/12));
         int totalCoin=user.getTotal_coin()+totalSalary;
 
@@ -170,4 +164,45 @@ public class HandaliSchedulerTest {
                 savedUser.getTotal_coin() == totalCoin
         ));
     }
+
+    /**
+     * [경계 테스트] 이번 달 생성된 한달이는 처리 대상에서 제외되어야 함
+     */
+    @Test
+    public void testProcessMonthlyJobAndApartmentEntry_ShouldSkipCurrentMonthHandalis() {
+        // Given
+        LocalDate now = LocalDate.now(); // 이번 달
+        LocalDate lastMonth = now.minusMonths(1); // 전달
+
+        // 이번 달 생성된 한달이 (잘못 처리되면 안 됨)
+        Handali currentMonthHandali = new Handali("이번달", now, new User());
+        // 전달 생성된 한달이 (처리 대상)
+        Handali lastMonthHandali = new Handali("전달", lastMonth, new User());
+
+        // 반환 목록에 둘 다 포함되었을 경우 시뮬레이션
+        when(handaliRepository.findUnemployedHandalisForMonth(any(), any()))
+                .thenReturn(List.of(currentMonthHandali, lastMonthHandali));
+
+        Job job = defaultJob;
+        Apart apart = defaultApart;
+
+        // 전달 한달이만 매핑
+        when(jobService.assignBestJobToHandali(lastMonthHandali)).thenReturn(job);
+        when(apartmentService.assignApartmentToHandali(lastMonthHandali)).thenReturn(apart);
+
+        // When
+        handaliScheduler.processMonthlyJobAndApartmentEntry();
+
+        // Then
+        // 전달 생성된 한달이에 대해서만 처리
+        verify(jobService).assignBestJobToHandali(lastMonthHandali);
+        verify(apartmentService).assignApartmentToHandali(lastMonthHandali);
+        verify(handaliRepository).save(lastMonthHandali);
+
+        // 현재 달 생성된 한달이에 대해서는 처리하지 않아야 함
+        verify(jobService, never()).assignBestJobToHandali(currentMonthHandali);
+        verify(apartmentService, never()).assignApartmentToHandali(currentMonthHandali);
+        verify(handaliRepository, never()).save(currentMonthHandali);
+    }
+
 }
