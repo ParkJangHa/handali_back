@@ -180,4 +180,16 @@ public class StatService {
         return level;
     }
 
+    /**스탯에 따라 가장 가까운 레벨의 최댓값 반환*/
+    public int findMaxLevel(float statValue) {
+        int[] threshold = {100, 250, 450, 700, 1000};
+        for (int i = 0; i < threshold.length; i++) {
+            if (statValue <= threshold[i]) {
+                return threshold[i];
+            }
+        }
+        // statValue가 가장 높은 threshold를 초과할 경우
+        return threshold[threshold.length - 1];
+    }
+
 }
