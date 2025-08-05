@@ -14,6 +14,7 @@ import com.handalsali.handali.repository.RecordRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -93,16 +94,19 @@ public class RecordService {
     public RecordDTO.RecordSummaryResponse recordSummary(String token) {
         User user = userService.tokenToUser(token);
 
-        //카테고리별 만족도 평균
+        /**
+         * 달별
+         */
+        //카테고리별 이번달 만족도 평균
         List<SatisfactionAvgByCategoryResponse> avgSatisfactionByCategoryThisMonth = recordRepository.findAvgSatisfactionByCategoryThisMonth(user);
 
-        //카테고리별 누적 시간
+        //카테고리별 이번달 누적 시간
         List<TotalTimeByCategoryResponse> totalTimeByCategoryThisMonth = recordRepository.findTotalTimeByCategoryThisMonth(user);
 
-        //총 기록 횟수
+        //이번달 총 기록 횟수
         int totalRecords = recordRepository.countByDateThisMonth(user);
 
-        //카테고리별 기록 횟수
+        //카테고리별 이번달 기록 횟수
         List<TotalRecordsByCategoryResponse> totalRecordsByCategoryThisMonth = recordRepository.findTotalRecordsByCategoryThisMonth(user);
 
         //달별 기록 횟수(1년)
@@ -111,7 +115,34 @@ public class RecordService {
         System.out.println(start+"  "+end);
         List<MonthlyRecordCountResponse> monthlyRecordCounts = recordRepository.findMonthlyRecordCounts(user, start, end);
 
+        /**
+         * 주별
+         */
+        // 이번주 시작일과 종료일 계산 (월~일)
+        LocalDate today = LocalDate.now();
+        DayOfWeek currentDayOfWeek = today.getDayOfWeek();
+        LocalDate startOfWeek = today.minusDays(currentDayOfWeek.getValue() - 1); // 월요일
+        LocalDate endOfWeek = startOfWeek.plusDays(6); // 일요일
+
+        System.out.println("이번 주: " + startOfWeek + " ~ " + endOfWeek);
+
+        // 카테고리별 이번주 만족도 평균
+        List<SatisfactionAvgByCategoryResponse> avgSatisfactionByCategoryThisWeek =
+                recordRepository.findAvgSatisfactionByCategoryBetweenDates(user, startOfWeek, endOfWeek);
+
+        // 카테고리별 이번주 누적 시간
+        List<TotalTimeByCategoryResponse> totalTimeByCategoryThisWeek =
+                recordRepository.findTotalTimeByCategoryBetweenDates(user, startOfWeek, endOfWeek);
+
+        // 이번주 총 기록 횟수
+        int totalRecordsThisWeek = recordRepository.countByDateBetween(user, startOfWeek, endOfWeek);
+
+        // 카테고리별 이번주 기록 횟수
+        List<TotalRecordsByCategoryResponse> totalRecordsByCategoryThisWeek =
+                recordRepository.findTotalRecordsByCategoryBetweenDates(user, startOfWeek, endOfWeek);
+
         return new RecordDTO.RecordSummaryResponse(
-                avgSatisfactionByCategoryThisMonth,totalTimeByCategoryThisMonth,totalRecords,totalRecordsByCategoryThisMonth,monthlyRecordCounts);
+                avgSatisfactionByCategoryThisMonth,totalTimeByCategoryThisMonth,totalRecords,totalRecordsByCategoryThisMonth,monthlyRecordCounts,
+                avgSatisfactionByCategoryThisWeek,totalTimeByCategoryThisWeek,totalRecordsThisWeek,totalRecordsByCategoryThisWeek );
     }
 }
