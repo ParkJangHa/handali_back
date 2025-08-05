@@ -157,4 +157,19 @@ public class UserController {
         return ResponseEntity.ok("회원 탈퇴 되었습니다.");
     }
 
+    /**일일 퀘스트 보상*/
+    @PostMapping("/quest-award")
+    public ResponseEntity<String> questAward(@RequestHeader("Authorization") String accessToken,
+                                             @RequestBody UserDTO.QuestAwardRequest request) {
+        String token = baseController.extraToken(accessToken);
+        User user = userService.tokenToUser(token);
+
+        if (request.getCoin() <= 0) {
+            return ResponseEntity.badRequest().body("코인은 0보다 커야 합니다.");
+        }
+
+        userService.giveQuestReward(user, request.getCoin());
+        return ResponseEntity.ok("일일 퀘스트 보상이 지급되었습니다.");
+    }
+
 }
