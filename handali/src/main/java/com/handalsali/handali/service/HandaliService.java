@@ -7,11 +7,14 @@ import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.domain.UserItem;
 import com.handalsali.handali.enums.ItemType;
+import com.handalsali.handali.enums.TypeName;
 import com.handalsali.handali.repository.*;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,6 +99,32 @@ public class HandaliService {
         String sofaImg=getUserItemName(user,ItemType.SOFA);
         String floorImg=getUserItemName(user,ItemType.FLOOR);
 
+        //스탯 타입별 스탯값 추출하기
+        // 스탯값 변수 초기화 (기본값)
+        float activityValue = 0.0f;
+        float artValue = 0.0f;
+        float intelligentValue = 0.0f;
+
+        Optional<HandaliStat> activityStat = handaliStatRepository.findByHandaliAndType(handali, TypeName.ACTIVITY_SKILL);
+        if (activityStat.isPresent()) {
+            activityValue = activityStat.get().getStat().getValue();
+        }
+
+        Optional<HandaliStat> artStat = handaliStatRepository.findByHandaliAndType(handali, TypeName.ART_SKILL);
+        if (artStat.isPresent()) {
+            artValue = artStat.get().getStat().getValue();
+        }
+        Optional<HandaliStat> intelligentStat = handaliStatRepository.findByHandaliAndType(handali, TypeName.INTELLIGENT_SKILL);
+        if (intelligentStat.isPresent()) {
+            intelligentValue = intelligentStat.get().getStat().getValue();
+        }
+
+        //스탯 값에 가장 가까운 최대 스탯값 반환
+        int maxStatActivity = statService.findMaxLevel(activityValue);
+        int maxStatArt = statService.findMaxLevel(artValue);
+        int maxStatIntelligent = statService.findMaxLevel(intelligentValue);
+
+
         return new HandaliDTO.HandaliStatusResponse(
                 handali.getNickname(),
                 days_Since_Created,
@@ -104,7 +133,13 @@ public class HandaliService {
                 backgroundImg,
                 wallImg,
                 sofaImg,
-                floorImg
+                floorImg,
+                activityValue,
+                artValue,
+                intelligentValue,
+                maxStatActivity,
+                maxStatArt,
+                maxStatIntelligent
         );
 
     }

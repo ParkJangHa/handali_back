@@ -61,4 +61,9 @@ public class UserService {
         return userRepository.findByUserId(userId).orElseThrow(UserNotFoundException::new);
     }
 
+    public void giveQuestReward(User user, int coin) {
+        user.setTotal_coin(user.getTotal_coin() + coin);
+        userRepository.save(user);
+    }
+
 }
