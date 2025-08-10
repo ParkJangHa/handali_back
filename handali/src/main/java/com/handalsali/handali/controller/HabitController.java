@@ -114,6 +114,18 @@ public class HabitController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    /**
+     * [지난달 습관 갱신]
+     */
+    @PatchMapping("/refresh-last-month")
+    public ResponseEntity<String> refreshLastMonth(@RequestHeader("Authorization") String accessToken){
+        String token = baseController.extraToken(accessToken);
+
+        habitService.refreshLastMonthHabits(token);
+
+        return ResponseEntity.status(HttpStatus.OK).body("이번달 습관이 지난달 습관으로 갱신되었습니다.");
+    }
+
 
     /**[카테고리, 사용자에 따른 습관 조회]*/
     @GetMapping("/category-user")

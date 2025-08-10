@@ -217,10 +217,10 @@ public class StatServiceTest {
      */
     @Test
     public void testCheckHandaliStat(){
-        assertEquals(1,statService.checkHandaliStat(100));
-        assertEquals(2,statService.checkHandaliStat(250));
-        assertEquals(3,statService.checkHandaliStat(450));
-        assertEquals(4,statService.checkHandaliStat(700));
-        assertEquals(5,statService.checkHandaliStat(1100));
+        assertEquals(1,statService.checkHandaliStat(10));
+        assertEquals(2,statService.checkHandaliStat(25));
+        assertEquals(3,statService.checkHandaliStat(45));
+        assertEquals(4,statService.checkHandaliStat(70));
+        assertEquals(5,statService.checkHandaliStat(110));
     }
 }
