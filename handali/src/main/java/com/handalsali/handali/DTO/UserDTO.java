@@ -48,4 +48,9 @@ public class UserDTO {
         @NotBlank(message = "비밀번호를 입력해주세요.")
         private String password;
     }
+
+    @Data
+    public static class QuestAwardRequest{
+        private int coin;
+    }
 }

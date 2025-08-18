@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Optional;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +91,32 @@ public class HabitService {
             }
     }
 
+    /**
+     * [지난달 습관 갱신]
+     */
+    public void refreshLastMonthHabits(String token){
+        //사용자 찾기
+        User user = userService.tokenToUser(token);
 
+        //이번달, 지난달 구하기
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(1);
+        int thisMonthValue= thisMonth.getMonthValue();
+        int lastMonthValue = lastMonth.getMonthValue();
+
+        //지난달 습관 리스트 구하기
+        List<UserHabit> userHabits = userHabitRepository.findByUserAndMonth(user, lastMonthValue);
+
+        if(userHabits.isEmpty()){
+            throw new HabitNotExistsException("지난달 습관이 존재하지 않습니다.");
+        }
+
+        //지난달 습관의 달을 현재 달로 바꾸기
+        for (UserHabit userHabit : userHabits) {
+            userHabit.setMonth(thisMonthValue);
+            userHabitRepository.save(userHabit);
+        }
+    }
 
 
     /**카테고리, 세부습관으로 습관 찾기*/

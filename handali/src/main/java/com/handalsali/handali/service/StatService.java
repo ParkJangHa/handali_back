@@ -170,7 +170,7 @@ public class StatService {
 
     /**스탯에 따른 레벨 반환*/
     public int checkHandaliStat(float statValue){
-        int[] threshold={100,250,450,700,1000}; //순서대로 1,2,3,4,5단계 조건
+        int[] threshold={10,25,45,70,100}; //순서대로 1,2,3,4,5단계 조건
         int level=0;
         for(int limit:threshold){
             if(statValue>=limit){
@@ -178,6 +178,18 @@ public class StatService {
             }
         }
         return level;
+    }
+
+    /**스탯에 따라 가장 가까운 레벨의 최댓값 반환*/
+    public int findMaxLevel(float statValue) {
+        int[] threshold = {10, 25, 45, 70, 100};
+        for (int i = 0; i < threshold.length; i++) {
+            if (statValue <= threshold[i]) {
+                return threshold[i];
+            }
+        }
+        // statValue가 가장 높은 threshold를 초과할 경우
+        return threshold[threshold.length - 1];
     }
 
 }

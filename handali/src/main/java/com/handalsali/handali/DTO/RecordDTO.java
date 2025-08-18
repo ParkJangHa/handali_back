@@ -39,11 +39,16 @@ public class RecordDTO {
     @Data
     @AllArgsConstructor
     public static class RecordSummaryResponse{
-        private List<SatisfactionAvgByCategoryResponse> satisfaction_avg_by_category; //카테고리별 만족도 평균
-        private List<TotalTimeByCategoryResponse> total_time_by_category; //카테고리별 시간 총합
-        private int total_records; //이번달 총 기록 횟수
-        private List<TotalRecordsByCategoryResponse> total_records_by_category; //카테고리별 총 기록 횟수
+        private List<SatisfactionAvgByCategoryResponse> satisfaction_avg_by_category_month; //카테고리별 만족도 평균
+        private List<TotalTimeByCategoryResponse> total_time_by_category_month; //카테고리별 시간 총합
+        private int total_records_month; //이번달 총 기록 횟수
+        private List<TotalRecordsByCategoryResponse> total_records_by_category_month; //카테고리별 총 기록 횟수
         private List<MonthlyRecordCountResponse> monthly_record_count; //달별 기록 횟수
+
+        List<SatisfactionAvgByCategoryResponse> satisfaction_avg_by_category_week;
+        List<TotalTimeByCategoryResponse> total_time_by_category_week;
+        int total_records_week;
+        List<TotalRecordsByCategoryResponse> total_records_by_category_week;
     }
 
 //    @Data

@@ -1,5 +1,6 @@
 package com.handalsali.handali.DTO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.handalsali.handali.domain.Handali;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -39,6 +40,14 @@ public class HandaliDTO {
         private String wall_img;
         private String sofa_img;
         private String floor_img;
+
+        private float activity_value;
+        private float art_value;
+        private float intelligence_value;
+
+        private int max_stat_activity;
+        private int max_stat_art;
+        private int max_stat_intelligence;
     }
 
 

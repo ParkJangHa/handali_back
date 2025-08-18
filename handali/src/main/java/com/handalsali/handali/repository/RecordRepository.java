@@ -80,4 +80,46 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             @Param("user") User user,
             @Param("start") LocalDate start,
             @Param("end") LocalDate end);
+
+    @Query("select new com.handalsali.handali.DTO.Record.SatisfactionAvgByCategoryResponse(" +
+            "r.habit.categoryName, avg(r.satisfaction)) " +
+            "from Record r " +
+            "where r.user=:user " +
+            "and r.date between :start and :end " +
+            "group by r.habit.categoryName")
+    List<SatisfactionAvgByCategoryResponse> findAvgSatisfactionByCategoryBetweenDates(
+            @Param("user") User user,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end);
+
+    @Query("select new com.handalsali.handali.DTO.Record.TotalTimeByCategoryResponse(" +
+            "r.habit.categoryName, sum(r.time)) " +
+            "from Record r " +
+            "where r.user=:user " +
+            "and r.date between :start and :end " +
+            "group by r.habit.categoryName")
+    List<TotalTimeByCategoryResponse> findTotalTimeByCategoryBetweenDates(
+            @Param("user") User user,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end);
+
+    @Query("select count(r) " +
+            "from Record r " +
+            "where r.user=:user " +
+            "and r.date between :start and :end")
+    int countByDateBetween(
+            @Param("user") User user,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end);
+
+    @Query("select new com.handalsali.handali.DTO.Record.TotalRecordsByCategoryResponse(" +
+            "r.habit.categoryName, count(r)) " +
+            "from Record r " +
+            "where r.user=:user " +
+            "and r.date between :start and :end " +
+            "group by r.habit.categoryName")
+    List<TotalRecordsByCategoryResponse> findTotalRecordsByCategoryBetweenDates(
+            @Param("user") User user,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end);
 }
