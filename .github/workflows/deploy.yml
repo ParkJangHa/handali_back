@@ -91,6 +91,7 @@ jobs:
             export SPRING_PROFILE
 
             # Docker Compose를 사용하여 컨테이너를 재시작합니다.
+            export PATH="/usr/local/bin:$PATH"
             docker-compose -f $COMPOSE_FILE down
             docker-compose -f $COMPOSE_FILE up --build -d
             
