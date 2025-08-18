@@ -66,26 +66,27 @@ jobs:
             if [ "$BRANCH" = "main" ]; then
               PROFILE=prod
               COMPOSE_FILE=docker-compose.prod.yml
+              JAR_NAME=handali-main.jar
             else
               PROFILE=dev
               COMPOSE_FILE=docker-compose.dev.yml
+              SHORT_BRANCH=$(echo $BRANCH | sed 's|release/||')
+              JAR_NAME=handali-release-$SHORT_BRANCH.jar
             fi
 
+            echo "Deploying branch $BRANCH as $JAR_NAME with $COMPOSE_FILE"
+            
+            # 서버 디렉토리 초기화
+            rm -f ~/server/$JAR_NAME
 
+            # JAR 이동
+            mv ~/server/temp/*.jar ~/server/$JAR_NAME || echo "No JAR found!"
+            
             # 서버 디렉토리로 이동
             cd ~/server
-
-            # 기존 빌드 파일 백업
-            if [ -f handali.jar ]; then
-              mv handali.jar backup/handali-$(date +%Y%m%d%H%M%S).jar
-            fi
-
-            # 새로운 빌드 파일 ~/server/handali.jar 로 이동
-            mv ~/server/temp/*.jar handali.jar
             
             # 컨테이너 재시작
             export PATH="/usr/local/bin:$PATH"
-            
             docker-compose -f $COMPOSE_FILE down || true
             docker-compose -f $COMPOSE_FILE up --build -d
 
