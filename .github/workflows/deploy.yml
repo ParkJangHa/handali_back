@@ -30,63 +30,130 @@ jobs:
         with : 
           name : spring-boot-app
           path : /home/runner/work/handali_back/handali_back/handali/build/libs/handali-0.0.1-SNAPSHOT.jar
-  
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      - name : Download build Artifact
-        uses : actions/download-artifact@v4
-        with :
-          name : spring-boot-app
-          path : build/libs/
+      - name: Download build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: spring-boot-app
+          path: build/libs/
 
-      - name : Set up ssh key
-        run : |
-           mkdir -p ~/.ssh
-           echo "${{ secrets.MACBOOK_SSH_KEY }}" > ~/.ssh/id_rsa
-           chmod 600 ~/.ssh/id_rsa
-           ssh-keyscan -H ${{ secrets.MACBOOK_HOST }} >> ~/.ssh/known_hosts
+      - name: Set up ssh key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.MACBOOK_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.MACBOOK_HOST }} >> ~/.ssh/known_hosts
 
+      # 브랜치에 따라 JAR 파일 이름을 결정하고 서버로 복사합니다.
+      # 이제 운영용(app-prod.jar)과 개발용(app-dev.jar)이 분리됩니다.
       - name: Copy JAR file to Mac Server
         run: |
-          scp -i ~/.ssh/id_rsa build/libs/*.jar ${{ secrets.MACBOOK_USER }}@${{ secrets.MACBOOK_HOST }}:~/server/temp/
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            TARGET_JAR="app-prod.jar"
+          else
+            TARGET_JAR="app-dev.jar"
+          fi
+          echo ">> Determined target JAR name: $TARGET_JAR"
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa" build/libs/handali-0.0.1-SNAPSHOT.jar ${{ secrets.MACBOOK_USER }}@${{ secrets.MACBOOK_HOST }}:~/server/${TARGET_JAR}
 
-      
-      - name: Deploy Spring Boot to Mac Server
-        uses: appleboy/ssh-action@v0.1.4
+      # 서버에서 Docker Compose를 실행합니다.
+      # 이제 docker-compose 파일이 빌드 인수를 통해 올바른 JAR 파일을 사용하게 됩니다.
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.MACBOOK_HOST }}
           username: ${{ secrets.MACBOOK_USER }}
           key: ${{ secrets.MACBOOK_SSH_KEY }}
           script: |
-          
-            BRANCH="${{ github.ref_name }}"
-            if [ "$BRANCH" = "main" ]; then
-              PROFILE=prod
+            # 현재 브랜치 이름을 기반으로 프로필과 compose 파일을 결정합니다.
+            BRANCH_NAME="${{ github.ref_name }}"
+            if [[ "$BRANCH_NAME" == "main" ]]; then
+              export SPRING_PROFILE=prod
               COMPOSE_FILE=docker-compose.prod.yml
-              JAR_NAME=handali-main.jar
             else
-              PROFILE=dev
+              export SPRING_PROFILE=dev
               COMPOSE_FILE=docker-compose.dev.yml
-              SHORT_BRANCH=$(echo $BRANCH | sed 's|release/||')
-              JAR_NAME=handali-release-$SHORT_BRANCH.jar
             fi
-
-            echo "Deploying branch $BRANCH as $JAR_NAME with $COMPOSE_FILE"
             
-            # 서버 디렉토리 초기화
-            rm -f ~/server/$JAR_NAME
-
-            # JAR 이동
-            mv ~/server/temp/*.jar ~/server/$JAR_NAME || echo "No JAR found!"
+            echo ">> Deploying branch: $BRANCH_NAME"
+            echo ">> Using profile: $SPRING_PROFILE"
+            echo ">> Using compose file: $COMPOSE_FILE"
             
             # 서버 디렉토리로 이동
             cd ~/server
-            
-            # 컨테이너 재시작
-            export PATH="/usr/local/bin:$PATH"
-            docker-compose -f $COMPOSE_FILE down || true
+
+            # Docker Compose가 환경 변수를 사용할 수 있도록 export 합니다.
+            export SPRING_PROFILE
+
+            # Docker Compose를 사용하여 컨테이너를 재시작합니다.
+            docker-compose -f $COMPOSE_FILE down
             docker-compose -f $COMPOSE_FILE up --build -d
+            
+            # 사용하지 않는 Docker 이미지(dangling images)를 정리하여 서버 용량을 확보합니다.
+            docker image prune -f
+  
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build
+#
+#    steps:
+#      - name : Download build Artifact
+#        uses : actions/download-artifact@v4
+#        with :
+#          name : spring-boot-app
+#          path : build/libs/
+#
+#      - name : Set up ssh key
+#        run : |
+#           mkdir -p ~/.ssh
+#           echo "${{ secrets.MACBOOK_SSH_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+#           ssh-keyscan -H ${{ secrets.MACBOOK_HOST }} >> ~/.ssh/known_hosts
+#
+#      - name: Copy JAR file to Mac Server
+#        run: |
+#          scp -i ~/.ssh/id_rsa build/libs/*.jar ${{ secrets.MACBOOK_USER }}@${{ secrets.MACBOOK_HOST }}:~/server/temp/
+#
+#
+#      - name: Deploy Spring Boot to Mac Server
+#        uses: appleboy/ssh-action@v0.1.4
+#        with:
+#          host: ${{ secrets.MACBOOK_HOST }}
+#          username: ${{ secrets.MACBOOK_USER }}
+#          key: ${{ secrets.MACBOOK_SSH_KEY }}
+#          script: |
+#
+#            BRANCH="${{ github.ref_name }}"
+#            if [ "$BRANCH" = "main" ]; then
+#              PROFILE=prod
+#              COMPOSE_FILE=docker-compose.prod.yml
+#            else
+#              PROFILE=dev
+#              COMPOSE_FILE=docker-compose.dev.yml
+#            fi
+#
+#            echo "Deploying branch $BRANCH with $COMPOSE_FILE"
+#
+#            # 서버 디렉토리로 이동
+#            cd ~/server
+#
+#            # 기존 빌드 파일 백업
+#            if [ -f handali.jar ]; then
+#              mv handali.jar backup/handali-$(date +%Y%m%d%H%M%S).jar
+#            fi
+#
+#            # 새로운 빌드 파일 ~/server/handali.jar 로 이동
+#            mv ~/server/temp/*.jar handali.jar
+#
+#            # 컨테이너 재시작
+#            export PATH="/usr/local/bin:$PATH"
+#
+#            docker-compose -f $COMPOSE_FILE down || true
+#            docker-compose -f $COMPOSE_FILE up --build -d
+
 
