@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -45,6 +46,15 @@ public class Handali {
     @JoinColumn(name="apart_total_id",
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (apart_total_id) REFERENCES apart(apart_total_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Apart apart;
+
+    @Setter
+    private String background;
+    @Setter
+    private String sofa;
+    @Setter
+    private String wall;
+    @Setter
+    private String floor;
 
     @Setter
     private String image="image_0_0_0.png";
