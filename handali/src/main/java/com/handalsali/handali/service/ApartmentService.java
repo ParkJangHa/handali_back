@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -85,6 +86,12 @@ public class ApartmentService {
         Optional<Apart> findApart = apartRepository.findByApartIdAndFloor(year, month);
         if (findApart.isPresent()) {
             throw new HandaliNotFoundException("이미 해당 위치(" + year + "년 " + month + "월)에 아파트가 존재합니다.");
+        }
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.with(TemporalAdjusters.lastDayOfMonth());
+        Handali findHandali = handaliRepository.findLastMonthHandali(user, startDate, endDate);
+        if(findHandali!=null){
+            throw new HandaliNotFoundException("해당 년도에 한달이가 이미 존재 합니다.");
         }
 
         // 1. 필요한 객체들 생성
