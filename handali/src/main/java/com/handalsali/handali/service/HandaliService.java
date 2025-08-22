@@ -5,7 +5,6 @@ import com.handalsali.handali.DTO.StatDetailDTO;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
-import com.handalsali.handali.domain.UserItem;
 import com.handalsali.handali.enums.ItemType;
 import com.handalsali.handali.enums.TypeName;
 import com.handalsali.handali.repository.*;
@@ -13,15 +12,12 @@ import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -33,6 +29,7 @@ public class HandaliService {
     private final StatService statService;
     private final HandaliStatRepository handaliStatRepository;
     private final UserItemRepository userItemRepository;
+    private final HandbookService handbookService;
 
     /**[한달이 생성]*/
     public Handali handaliCreate(String token,String nickname){
@@ -82,6 +79,10 @@ public class HandaliService {
         //4. handali 테이블에 변경된 이미지 저장
         handali.setImage(resultImage);
         handaliRepository.save(handali);
+
+        //5. 도감에 추가
+        handbookService.addHandbook(user,resultImage);
+
         return resultImage;
     }
 

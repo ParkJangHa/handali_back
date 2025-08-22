@@ -28,6 +28,7 @@ public class UserService {
     private final StoreRepository storeRepository;
     private final UserStoreRepository userStoreRepository;
     private final UserItemRepository userItemRepository;
+    private final HandbookService handbookService;
 
 
     /**[회원가입]*/
@@ -51,6 +52,9 @@ public class UserService {
 
         userStoreRepository.saveAll(userStores);
         userItemRepository.saveAll(userItems);
+
+        //기본 이미지 도감에 추가
+        handbookService.addHandbook(user,"image_0_0_0.png");
 
         return  user;
     }

@@ -1,7 +1,10 @@
 package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.RecordDTO;
+import com.handalsali.handali.domain.User;
+import com.handalsali.handali.repository.RecordRepository;
 import com.handalsali.handali.service.RecordService;
+import com.handalsali.handali.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -11,13 +14,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 public class RecordController {
+    private final UserService userService;
+    private final RecordRepository recordRepository;
     private RecordService recordService;
     private BaseController baseController;
-    public RecordController(RecordService recordService, BaseController baseController){
+    public RecordController(RecordService recordService, BaseController baseController, UserService userService, RecordRepository recordRepository){
         this.recordService=recordService;
         this.baseController = baseController;
+        this.userService = userService;
+        this.recordRepository = recordRepository;
     }
 
     /**
@@ -65,5 +74,16 @@ public class RecordController {
         String token=baseController.extraToken(accessToken);
         RecordDTO.RecordSummaryResponse response=recordService.recordSummary(token);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * [개발용] 당일의 기록 초기화
+     */
+    @DeleteMapping("/habits/record-delete")
+    public ResponseEntity<String> deleteRecordForToday(@RequestHeader("Authorization") String accessToken){
+        String token=baseController.extraToken(accessToken);
+        User user = userService.tokenToUser(token);
+        recordRepository.deleteTodayRecord(LocalDate.now());
+        return ResponseEntity.status(HttpStatus.OK).body("오늘 기록한 습관이 모두 제거되었습니다.");
     }
 }

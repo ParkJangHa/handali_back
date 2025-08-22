@@ -43,6 +43,8 @@ public class HandaliServiceTest {
 
     @Mock
     private UserItemRepository userItemRepository;
+    @Mock
+    private HandbookService handbookService;
 
     private String token;
     private User user;
@@ -79,6 +81,7 @@ public class HandaliServiceTest {
         assertEquals("image_1_5_0.png",image);
         assertEquals("image_1_5_0.png",handali.getImage());
         verify(handaliRepository).save(handali);
+        verify(handbookService).addHandbook(user, "image_1_5_0.png"); //도감 정보가 저장되었는지 확임
     }
 
     private List<HandaliStat> getHandaliStats(int activityValue,int intelligentValue,int artValue) {
