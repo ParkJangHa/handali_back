@@ -84,7 +84,6 @@ public class ApartmentController {
         String token = baseController.extraToken(accessToken);
         User user = userService.tokenToUser(token);
 
-        // 복잡한 로직은 서비스 계층에 위임
         apartmentService.createHandaliAndApartment(user, year, month);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("한달이가 아파트에 추가되었습니다.");

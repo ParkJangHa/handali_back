@@ -23,12 +23,14 @@ public class ApartmentService {
     private final UserService userService;
     private final ApartRepository apartRepository;
     private final JobRepository jobRepository;
+    private final HandbookService handbookService;
 
-    public ApartmentService(HandaliRepository handaliRepository, UserService userService, ApartRepository apartRepository, JobRepository jobRepository) {
+    public ApartmentService(HandaliRepository handaliRepository, UserService userService, ApartRepository apartRepository, JobRepository jobRepository, HandbookService handbookService) {
         this.handaliRepository = handaliRepository;
         this.userService = userService;
         this.apartRepository = apartRepository;
         this.jobRepository = jobRepository;
+        this.handbookService = handbookService;
     }
 
     /** 한달이의 아파트 배정 **/
@@ -118,5 +120,14 @@ public class ApartmentService {
         // foundJob은 이미 DB에 있는 데이터이므로 다시 save할 필요가 없습니다.
         handaliRepository.save(handali);
         apartRepository.save(apart);
+
+        //6.도감에 추가
+        for(int i = 0; i<=randomNumber1; i++){
+            for(int j = 0; j<=randomNumber2; j++){
+                for(int k = 0; k<=randomNumber3; k++){
+                    handbookService.addHandbook(user,String.format("image_%d_%d_%d.png", i, j, k));
+                }
+            }
+        }
     }
 }
