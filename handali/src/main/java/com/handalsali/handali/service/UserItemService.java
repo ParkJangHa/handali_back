@@ -1,11 +1,10 @@
 package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.UserItemDTO;
-import com.handalsali.handali.domain.Store;
-import com.handalsali.handali.domain.User;
-import com.handalsali.handali.domain.UserItem;
-import com.handalsali.handali.domain.UserStore;
+import com.handalsali.handali.domain.*;
+import com.handalsali.handali.enums.ItemType;
 import com.handalsali.handali.exception.StoreItemNotExistsException;
+import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.StoreRepository;
 import com.handalsali.handali.repository.UserItemRepository;
 import com.handalsali.handali.repository.UserStoreRepository;
@@ -22,6 +21,7 @@ public class UserItemService {
     private final UserService userService;
     private final StoreRepository storeRepository;
     private final UserStoreRepository userStoreRepository;
+    private final HandaliRepository handaliRepository;
 
     /**
      * [구매한 물품 적용]
@@ -55,5 +55,13 @@ public class UserItemService {
             userItem.get().setItem();
             userItemRepository.save(userItem.get());
         }
+
+        //4. 이번달 한달이에 해당 가구 저장
+        Handali handali = handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId());
+        if(request.getItem_type()== ItemType.BACKGROUND) handali.setBackground(request.getName());
+        else if(request.getItem_type()==ItemType.FLOOR) handali.setFloor(request.getName());
+        else if(request.getItem_type()==ItemType.SOFA) handali.setSofa(request.getName());
+        else if(request.getItem_type()==ItemType.WALL) handali.setWall(request.getName());
+        handaliRepository.save(handali);
     }
 }
