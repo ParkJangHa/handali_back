@@ -78,8 +78,8 @@ public class ApartmentController {
     @PostMapping("/add-handali")
     public ResponseEntity<String> addHandalisInApartments(
             @RequestHeader("Authorization") String accessToken,
-            @RequestParam int year, // 명확한 이름으로 변경
-            @RequestParam int month // 명확한 이름으로 변경
+            @RequestParam int year,
+            @RequestParam int month
     ){
         String token = baseController.extraToken(accessToken);
         User user = userService.tokenToUser(token);

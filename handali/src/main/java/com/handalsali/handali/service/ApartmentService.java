@@ -83,10 +83,11 @@ public class ApartmentService {
 
     @Transactional
     public void createHandaliAndApartment(User user, int year, int month) {
-        Optional<Apart> findApart = apartRepository.findByApartIdAndFloor(year, month);
+        Optional<Apart> findApart = apartRepository.findByApartIdAndFloorAndUser(year, month,user);
         if (findApart.isPresent()) {
             throw new HandaliNotFoundException("이미 해당 위치(" + year + "년 " + month + "월)에 아파트가 존재합니다.");
         }
+
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.with(TemporalAdjusters.lastDayOfMonth());
         Handali findHandali = handaliRepository.findLastMonthHandali(user, startDate, endDate);
