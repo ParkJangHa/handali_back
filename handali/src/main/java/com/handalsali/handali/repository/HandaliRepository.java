@@ -54,4 +54,10 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     @Query("select h from Handali h " +
             "where h.job is not null")
     List<Handali> findAllByJobIsNotNull();
+
+    /**사용자별 직업을 가진 한달이 조회*/
+    @Query("select h from Handali h " +
+            "where h.job is not null " +
+            "and h.user=:user")
+    List<Handali> findByUserAndJobIsNotNull(@Param("user") User user);
 }

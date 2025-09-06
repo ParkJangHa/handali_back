@@ -1,5 +1,6 @@
 package com.handalsali.handali.scheduler;
 
+import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.Apart;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.Job;
@@ -12,12 +13,14 @@ import com.handalsali.handali.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -106,8 +109,8 @@ public class HandaliScheduler {
     /**직업에 따른 주급 사용자에게 지급
      * 한달 기록 횟수*10 + 주급(12달이 지나면 지급량 없음)
      * */
-    @Scheduled(cron="0 0 0 * * MON")
-//    @Scheduled(cron = "*/5 * * * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron="0 0 0 * * MON")
+    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
     public void payWeekSalary(){
 
         List<Handali> handalis = handaliRepository.findAllByJobIsNotNull();
@@ -121,20 +124,10 @@ public class HandaliScheduler {
             long diffMonth= ChronoUnit.MONTHS.between(startYearMonth, currentYearMonth);
             double salaryRatio = Math.max(0, 12-diffMonth) / 12.0; //1.0~0.0
 
-            LocalDate startDate = startYearMonth.atDay(1); //한달이 달의 시작 년월일
-            LocalDate endDate=startYearMonth.atEndOfMonth(); //한달이 달의 마지막 년월일
-
             //2. 한달이의 사용자 찾기
             User user = handali.getUser();
 
-            //3. 기록횟수 구하기
-            int recordCnt = recordRepository.countByUserAndDate(user, startDate, endDate);
-
-            //4. 한달이의 주급 구하기
-            int weekSalary = handali.getJob().getWeekSalary();
-
-            //5. 사용자에게 지급할 주급 계산하기
-            int totalSalary = recordCnt * 10 + (int)(weekSalary*salaryRatio);
+            int totalSalary = calculateSalaryFor(handali);
 
             //6. 저장하기
             user.setTotal_coin(user.getTotal_coin()+totalSalary);
@@ -151,7 +144,20 @@ public class HandaliScheduler {
                             "🕒 지급 일시       : " + LocalDateTime.now() + "\n" +
                             "============================================\n"
             );
-
         }
+    }
+
+    public int calculateSalaryFor(Handali handali) {
+        YearMonth startYearMonth = YearMonth.from(handali.getStartDate());
+        long diffMonth = ChronoUnit.MONTHS.between(startYearMonth, YearMonth.now());
+        double salaryRatio = Math.max(0, 12 - diffMonth) / 12.0;
+
+        LocalDate startDate = startYearMonth.atDay(1);
+        LocalDate endDate = startYearMonth.atEndOfMonth();
+
+        int recordCnt = recordRepository.countByUserAndDate(handali.getUser(), startDate, endDate);
+        int weekSalary = handali.getJob().getWeekSalary();
+
+        return recordCnt * 10 + (int) (weekSalary * salaryRatio);
     }
 }

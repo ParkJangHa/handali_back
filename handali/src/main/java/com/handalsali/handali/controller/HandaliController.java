@@ -2,6 +2,7 @@ package com.handalsali.handali.controller;
 
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.Handali;
+import com.handalsali.handali.scheduler.HandaliScheduler;
 import com.handalsali.handali.service.HandaliService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +21,7 @@ public class HandaliController {
     private BaseController baseController;
     private HandaliService handaliService;
 
-    public HandaliController(BaseController baseController,HandaliService handaliService){
+    public HandaliController(BaseController baseController,HandaliService handaliService) {
         this.baseController=baseController;
         this.handaliService=handaliService;
     }
@@ -187,10 +188,11 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
-//    // (test) 🚀 강제 실행: 매달 1일 자동 실행을 지금 즉시 실행!
-//    @PostMapping("/process-monthly")
-//    public ResponseEntity<String> processMonthlyJobAndApartmentEntry() {
-//        handaliService.processMonthlyJobAndApartmentEntry();
-//        return ResponseEntity.ok("한달이 취업 + 아파트 입주가 강제로 실행되었습니다!");
-//    }
+    @GetMapping("/week-salary")
+    public ResponseEntity<HandaliDTO.GetWeekSalaryApiResponseDTO> getWeekSalary(
+            @RequestHeader("Authorization") String accessToken){
+        String token = baseController.extraToken(accessToken);
+        HandaliDTO.GetWeekSalaryApiResponseDTO weekSalaryInfo = handaliService.getWeekSalaryInfo(token);
+        return ResponseEntity.ok(weekSalaryInfo);
+    }
 }

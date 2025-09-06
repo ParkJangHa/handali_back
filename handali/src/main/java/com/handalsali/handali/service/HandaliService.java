@@ -10,6 +10,7 @@ import com.handalsali.handali.enums.TypeName;
 import com.handalsali.handali.repository.*;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
+import com.handalsali.handali.scheduler.HandaliScheduler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +32,7 @@ public class HandaliService {
     private final HandaliStatRepository handaliStatRepository;
     private final UserItemRepository userItemRepository;
     private final HandbookService handbookService;
+    private final HandaliScheduler handaliScheduler;
 
     /**[한달이 생성]*/
     public Handali handaliCreate(String token,String nickname){
@@ -188,5 +191,23 @@ public class HandaliService {
                             handali.getImage()
                     );
                 }).orElseThrow(() -> new HandaliNotFoundException("최근 생성된 한달이가 없습니다."));
+    }
+
+    /**
+     * [주급 계산]
+     */
+    @Transactional(readOnly = true) // 조회 기능이므로 readOnly=true 설정
+    public HandaliDTO.GetWeekSalaryApiResponseDTO getWeekSalaryInfo(String token) {
+        User user = userService.tokenToUser(token);
+
+        List<Handali> handalis = handaliRepository.findByUserAndJobIsNotNull(user);
+
+        List<HandaliDTO.GetWeekSalaryResponseDTO> responses = new ArrayList<>();
+        for (Handali handali : handalis) {
+            int expectedSalary = handaliScheduler.calculateSalaryFor(handali); // 1단계에서 분리한 계산 로직 재사용
+            responses.add(new HandaliDTO.GetWeekSalaryResponseDTO(handali.getNickname(), expectedSalary,handali.getStartDate()));
+        }
+
+        return new HandaliDTO.GetWeekSalaryApiResponseDTO(responses);
     }
 }

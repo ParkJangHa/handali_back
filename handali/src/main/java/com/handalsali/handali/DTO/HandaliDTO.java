@@ -75,4 +75,18 @@ public class HandaliDTO {
         @Schema(description = "마지막 한달이 이미지", example = "image_0_0_0.png")
         private String image;
     }
+
+    @Data
+    @AllArgsConstructor
+    public static class GetWeekSalaryResponseDTO {
+        private String nickname;
+        private int salary;
+        private LocalDate start_date;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class GetWeekSalaryApiResponseDTO {
+        private List<GetWeekSalaryResponseDTO> handalis_salary;
+    }
 }
