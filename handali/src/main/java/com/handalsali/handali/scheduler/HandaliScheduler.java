@@ -33,29 +33,14 @@ public class HandaliScheduler {
     private final RecordRepository recordRepository;
     private final UserRepository userRepository;
 
-    //     매달 1일 오전 00:00:01(한국시간) 자동 실행
-    @Scheduled(cron = "1 0 0 1 * *", zone = "Asia/Seoul")
-    public void runMonthlyJobAndApartmentEntry() {
-        System.out.println("🚀 [자동 실행] 매달 1일 한달이 취업 및 아파트 입주 실행");
-        processMonthlyJobAndApartmentEntry();
-    }
-
-//    @Scheduled(cron = "*/5 * * * * *", zone = "Asia/Seoul")
-//    public void runMonthlyJobAndApartmentEntry() {
-//        System.out.println("🚀 [자동 실행]5초 마다 자동 입주 실행");
-//        processMonthlyJobAndApartmentEntry();
-//    }
-
     /** [매월 1일 자동 실행] 현재 키우고 있는 한달이들 취업 + 입주 처리*/
+//    @Scheduled(cron = "1 0 0 1 * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
     @Transactional
     public void processMonthlyJobAndApartmentEntry() {
 //        ----------------생성 달 기준 전달 한달이만 적용-----------------
         LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
         LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
-
-        //(test) 해당 년도 사이에 존재하는 모든 한달이가 한꺼번에 추가됨
-//        LocalDate startOfMonth = LocalDate.of(2025, 1, 1);
-//        LocalDate startOfNextMonth = LocalDate.of(2025, 12, 31);
 
         System.out.println("🗓️ startOfMonth: " + startOfMonth);
         System.out.println("🗓️ endOfMonth: " + startOfNextMonth);
@@ -109,8 +94,8 @@ public class HandaliScheduler {
     /**직업에 따른 주급 사용자에게 지급
      * 한달 기록 횟수*10 + 주급(12달이 지나면 지급량 없음)
      * */
-//    @Scheduled(cron="0 0 0 * * MON")
-    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron="0 0 0 * * MON")
+//    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
     public void payWeekSalary(){
 
         List<Handali> handalis = handaliRepository.findAllByJobIsNotNull();
