@@ -109,8 +109,8 @@ public class HandaliScheduler {
     /**직업에 따른 주급 사용자에게 지급
      * 한달 기록 횟수*10 + 주급(12달이 지나면 지급량 없음)
      * */
-//    @Scheduled(cron="0 0 0 * * MON")
-    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron="0 0 0 * * MON")
+//    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
     public void payWeekSalary(){
 
         List<Handali> handalis = handaliRepository.findAllByJobIsNotNull();
