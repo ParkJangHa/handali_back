@@ -80,6 +80,7 @@ public class HandaliDTO {
     @AllArgsConstructor
     public static class GetWeekSalaryResponseDTO {
         private String nickname;
+        private String job;
         private int salary;
         private LocalDate start_date;
         private int activity_level;

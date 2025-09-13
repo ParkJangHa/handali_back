@@ -215,6 +215,7 @@ public class HandaliService {
             //응답 생성
             responses.add(new HandaliDTO.GetWeekSalaryResponseDTO(
                     handali.getNickname(),
+                    handali.getJob().getName(),
                     expectedSalary,
                     handali.getStartDate(),
                     statService.checkHandaliStatForLevel(activityStat),
