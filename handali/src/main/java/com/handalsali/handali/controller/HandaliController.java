@@ -92,50 +92,6 @@ public class HandaliController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * [스탯 조회]
-     */
-    @Operation(summary = "한달이 스탯 조회", description = "특정 한달이의 스탯 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "습관 기록 성공",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = """
-                    {
-                    "stat":[
-                    {
-                    "type_name":"",
-                    "value":""
-                    }
-                    ]
-                    }
-                    """))),
-            @ApiResponse(responseCode = "409", description = "습관 중복 에러",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = """
-                    {
-                      "error": "습관 '{detail}은(는) {date}에 이미 기록 되었습니다."
-                    }
-                    """))),
-            @ApiResponse(responseCode = "404", description = "습관을 못찾을 경우",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = """
-                    {
-                      "error": "습관을 찾을 수 없습니다."
-                    }
-                    """)))
-    })
-    @GetMapping("/{handali_id}/stats")
-    public ResponseEntity<HandaliDTO.StatResponse> getStatsByHandaliId(
-            @PathVariable("handali_id") Long handaliId,
-            @RequestHeader("Authorization") String accessToken) {
-
-        // 토큰 처리
-        String token = baseController.extraToken(accessToken);
-        // 서비스 계층에서 스탯 데이터 가져오기
-        HandaliDTO.StatResponse response = handaliService.getStatsByHandaliId(handaliId, token);
-
-        return ResponseEntity.ok(response);
-    }
 
     /**
      * [한달이 상태 변화]

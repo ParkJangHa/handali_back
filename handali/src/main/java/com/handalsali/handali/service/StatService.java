@@ -101,7 +101,7 @@ public class StatService {
                 .orElseThrow(() -> new HandaliStatNotFoundException("스탯을 찾을 수 없습니다."));
 
         //5. 스탯 업데이트 전의 한달이 레벨 확인
-        int previousLevel=checkHandaliStat(handaliStat.getStat().getValue());
+        int previousLevel= checkHandaliStatForLevel(handaliStat.getStat().getValue());
 
         //6. 스탯 값 업데이트
         float incrementValue = calculateStatValue(recordCount,lastRecordTime,handaliStat, request.getTime(), request.getSatisfaction());
@@ -110,7 +110,7 @@ public class StatService {
         handaliStatRepository.save(handaliStat);
 
         //7. 한달이 상태 변화 검사
-        int nowLevel=checkHandaliStat(handaliStat.getStat().getValue());
+        int nowLevel= checkHandaliStatForLevel(handaliStat.getStat().getValue());
 
         return previousLevel!=nowLevel;
     }
@@ -169,7 +169,7 @@ public class StatService {
 
 
     /**스탯에 따른 레벨 반환*/
-    public int checkHandaliStat(float statValue){
+    public int checkHandaliStatForLevel(float statValue){
         int[] threshold={10,25,45,70,100}; //순서대로 1,2,3,4,5단계 조건
         int level=0;
         for(int limit:threshold){

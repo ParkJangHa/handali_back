@@ -82,11 +82,16 @@ public class HandaliDTO {
         private String nickname;
         private int salary;
         private LocalDate start_date;
+        private int activity_level;
+        private int intelligent_level;
+        private int art_level;
     }
 
     @Data
     @AllArgsConstructor
     public static class GetWeekSalaryApiResponseDTO {
         private List<GetWeekSalaryResponseDTO> handalis_salary;
+        private int total_salary;
+        private int total_handali;
     }
 }

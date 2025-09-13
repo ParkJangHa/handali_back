@@ -137,7 +137,7 @@ public class StatServiceTest {
     /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
     //상태가 변화하는 경우
     @Test
-    public void testStatUpdateAndCheckHandaliStat_changeStatus() {
+    public void testStatUpdateAndCheckHandaliStat_ForLevel_changeStatus() {
         //given
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId()))
                 .thenReturn(currentHandali); //한달이
@@ -153,7 +153,7 @@ public class StatServiceTest {
 
     //상태가 변하지 않는 경우
     @Test
-    public void testStatUpdateAndCheckHandaliStat_NotChangeStatus() {
+    public void testStatUpdateAndCheckHandaliStat_ForLevel_NotChangeStatus() {
         //given
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId()))
                 .thenReturn(currentHandali); //한달이
@@ -169,7 +169,7 @@ public class StatServiceTest {
 
     //한달이 존재하지 않는 예외
     @Test
-    public void testStatUpdateAndCheckHandaliStat_HandaliNotFoundException() {
+    public void testStatUpdateAndCheckHandaliStat_HandaliNotFoundExceptionForLevel() {
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId()))
                 .thenReturn(null);
         assertThrows(HandaliNotFoundException.class, ()
@@ -180,7 +180,7 @@ public class StatServiceTest {
 
     //한달이 스탯이 존재하지 않는 예외
     @Test
-    public void testStatUpdateAndCheckHandaliStat_HandaliStatNotFoundException() {
+    public void testStatUpdateAndCheckHandaliStat_HandaliStatForLevelNotFoundException() {
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId()))
                 .thenReturn(currentHandali); //한달이
         when(handaliStatRepository.findByHandaliAndType(any(),any()))
@@ -216,11 +216,11 @@ public class StatServiceTest {
      * 스탯에 따른 레벨 반환
      */
     @Test
-    public void testCheckHandaliStat(){
-        assertEquals(1,statService.checkHandaliStat(10));
-        assertEquals(2,statService.checkHandaliStat(25));
-        assertEquals(3,statService.checkHandaliStat(45));
-        assertEquals(4,statService.checkHandaliStat(70));
-        assertEquals(5,statService.checkHandaliStat(110));
+    public void testCheckHandaliStatForLevel(){
+        assertEquals(1,statService.checkHandaliStatForLevel(10));
+        assertEquals(2,statService.checkHandaliStatForLevel(25));
+        assertEquals(3,statService.checkHandaliStatForLevel(45));
+        assertEquals(4,statService.checkHandaliStatForLevel(70));
+        assertEquals(5,statService.checkHandaliStatForLevel(110));
     }
 }

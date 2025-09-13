@@ -1,7 +1,6 @@
 package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.HandaliDTO;
-import com.handalsali.handali.DTO.StatDetailDTO;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.User;
@@ -11,7 +10,6 @@ import com.handalsali.handali.repository.*;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
 import com.handalsali.handali.scheduler.HandaliScheduler;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +70,7 @@ public class HandaliService {
         StringBuilder imageName= new StringBuilder("image");
         List<HandaliStat> handaliStats=handaliStatRepository.findByHandali(handali);
         for(HandaliStat handaliStat:handaliStats){
-            int level=statService.checkHandaliStat(handaliStat.getStat().getValue());
+            int level=statService.checkHandaliStatForLevel(handaliStat.getStat().getValue());
             imageName.append("_").append(level);
         }
         imageName.append(".png");
@@ -154,19 +152,6 @@ public class HandaliService {
                 .orElse("none");
     }
 
-    /** [스탯 조회]*/
-    public HandaliDTO.StatResponse getStatsByHandaliId(Long handaliId, String token) {
-        // Handali 엔티티 존재 여부 확인 (예외 처리 포함)
-        handaliRepository.findById(handaliId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 handali_id에 대한 데이터가 없습니다."));
-
-        // 스탯 조회
-        List<StatDetailDTO> stats = handaliRepository.findStatsByHandaliId(handaliId);
-
-        return new HandaliDTO.StatResponse(stats);
-    }
-
-
     /**[마지막 생성 한달이 조회]*/
     public HandaliDTO.RecentHandaliResponse getRecentHandali(String token) {
         // 사용자 인증
@@ -200,14 +185,47 @@ public class HandaliService {
     public HandaliDTO.GetWeekSalaryApiResponseDTO getWeekSalaryInfo(String token) {
         User user = userService.tokenToUser(token);
 
+        //1. 직업 가진 한달이 찾기
         List<Handali> handalis = handaliRepository.findByUserAndJobIsNotNull(user);
 
+        //2. 각 한달이의 정보 조회
         List<HandaliDTO.GetWeekSalaryResponseDTO> responses = new ArrayList<>();
+        List<TypeName> typeNames=List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL,TypeName.ART_SKILL);
+        int total_salary = 0; //모든 한달이의 주급의 합
+
         for (Handali handali : handalis) {
-            int expectedSalary = handaliScheduler.calculateSalaryFor(handali); // 1단계에서 분리한 계산 로직 재사용
-            responses.add(new HandaliDTO.GetWeekSalaryResponseDTO(handali.getNickname(), expectedSalary,handali.getStartDate()));
+            //주급 계산
+            int expectedSalary = handaliScheduler.calculateSalaryFor(handali);
+
+            //스탯에 따른 레벨 계산
+            List<HandaliStat> handaliStats = handaliStatRepository.findByHandaliAndStatType(handali, typeNames);
+            float activityStat=0.0f;
+            float intelligentStat=0.0f;
+            float artStat=0.0f;
+
+            for (HandaliStat handaliStat : handaliStats) {
+                float value=handaliStat.getStat().getValue();
+                switch(handaliStat.getStat().getTypeName()){
+                    case ACTIVITY_SKILL -> activityStat=value;
+                    case INTELLIGENT_SKILL -> intelligentStat=value;
+                    case ART_SKILL -> artStat=value;
+                }
+            }
+
+            //응답 생성
+            responses.add(new HandaliDTO.GetWeekSalaryResponseDTO(
+                    handali.getNickname(),
+                    expectedSalary,
+                    handali.getStartDate(),
+                    statService.checkHandaliStatForLevel(activityStat),
+                    statService.checkHandaliStatForLevel(intelligentStat),
+                    statService.checkHandaliStatForLevel(artStat)));
+
+            //한달이들 주급 총합 계산
+            total_salary += expectedSalary;
         }
 
-        return new HandaliDTO.GetWeekSalaryApiResponseDTO(responses);
+        //3. 최종 반환형으로 반환
+        return new HandaliDTO.GetWeekSalaryApiResponseDTO(responses,total_salary,handalis.size());
     }
 }

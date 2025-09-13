@@ -70,9 +70,9 @@ public class HandaliServiceTest {
         List<HandaliStat> stats = getHandaliStats(activityValue,intelligentValue,artValue);
 
         when(handaliStatRepository.findByHandali(handali)).thenReturn(stats);
-        when(statService.checkHandaliStat(activityValue)).thenReturn(1);
-        when(statService.checkHandaliStat(intelligentValue)).thenReturn(5);
-        when(statService.checkHandaliStat(artValue)).thenReturn(0);
+        when(statService.checkHandaliStatForLevel(activityValue)).thenReturn(1);
+        when(statService.checkHandaliStatForLevel(intelligentValue)).thenReturn(5);
+        when(statService.checkHandaliStatForLevel(artValue)).thenReturn(0);
 
         //when
         String image = handaliService.changeHandali(token);

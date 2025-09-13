@@ -33,12 +33,6 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
             "ORDER BY h.startDate DESC")
     Handali findLatestHandaliByCurrentMonth(@Param("userId") Long userId);
 
-    //스탯 정보 조회 / 02.06 수정
-    @Query("SELECT new com.handalsali.handali.DTO.StatDetailDTO(s.typeName, s.value) " +
-            "FROM Stat s join HandaliStat hs on hs.stat=s " +
-            "WHERE hs.handali.handaliId = :handaliId")
-    List<StatDetailDTO> findStatsByHandaliId(@Param("handaliId") Long handaliId);
-
     //아파트에 입주한 모든 한달이 조회
     @Query("SELECT h FROM Handali h WHERE h.apart IS NOT NULL and h.user=:user")
     List<Handali> findAllByUser(User user);
