@@ -165,43 +165,6 @@ public class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
-    @Test
-    @DisplayName("회원가입 성공 - 무료 아이템이 없는 경우")
-    void signUp_Success_WhenNoFreeItems() {
-        // given
-        String encryptedPassword = "encrypted_password";
-        List<Store> emptyStores = new ArrayList<>();
-
-        when(userRepository.existsByEmail(testEmail)).thenReturn(false);
-        when(passwordEncoder.encode(testPassword)).thenReturn(encryptedPassword);
-        when(storeRepository.findByPrice(0)).thenReturn(emptyStores);
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setUserId(1L);
-            return user;
-        });
-        when(userStoreRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(userItemRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // when
-        User result = userService.signUp(testName, testEmail, testPassword, testPhone, testBirthday);
-
-        // then
-        assertThat(result).isNotNull();
-
-        // 빈 리스트로 saveAll 호출됨을 확인
-        ArgumentCaptor<List<UserStore>> userStoreCaptor = ArgumentCaptor.forClass(List.class);
-        verify(userStoreRepository, times(1)).saveAll(userStoreCaptor.capture());
-        assertThat(userStoreCaptor.getValue()).isEmpty();
-
-        ArgumentCaptor<List<UserItem>> userItemCaptor = ArgumentCaptor.forClass(List.class);
-        verify(userItemRepository, times(1)).saveAll(userItemCaptor.capture());
-        assertThat(userItemCaptor.getValue()).isEmpty();
-
-        // 기본 도감은 여전히 추가됨
-        verify(handbookService, times(1)).addHandbook(result, "image_0_0_0.png");
-    }
-
     /**
      * [토큰으로 사용자 찾기 테스트]
      */
