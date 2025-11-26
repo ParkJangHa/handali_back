@@ -1,0 +1,13 @@
+
+-- Repeatable Migration: 누락된 도감 데이터 자동 복구
+-- Last updated: 2025-11-26(2)
+
+INSERT INTO handbook (code)
+SELECT CONCAT('image_', a.num, '_', b.num, '_', c.num, '.png')
+FROM (SELECT 0 AS num UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5) a
+         CROSS JOIN (SELECT 0 AS num UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5) b
+         CROSS JOIN (SELECT 0 AS num UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5) c
+WHERE NOT EXISTS (
+    SELECT 1 FROM handbook
+    WHERE code = CONCAT('image_', a.num, '_', b.num, '_', c.num, '.png')
+);
