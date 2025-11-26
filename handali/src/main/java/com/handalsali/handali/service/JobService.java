@@ -3,6 +3,7 @@ package com.handalsali.handali.service;
 import com.handalsali.handali.domain.Handali;
 import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.Job;
+import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.JobRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,11 @@ import java.util.Random;
 @Transactional
 public class JobService {
     private final JobRepository jobRepository;
-    private final HandaliStatService handaliStatService;
+    private final HandaliStatRepository handaliStatRepository;
 
-    public JobService(JobRepository jobRepository, HandaliStatService handaliStatService) {
+    public JobService(JobRepository jobRepository,HandaliStatRepository handaliStatRepository) {
         this.jobRepository = jobRepository;
-        this.handaliStatService = handaliStatService;
+        this.handaliStatRepository = handaliStatRepository;
     }
 
     /**
@@ -26,7 +27,7 @@ public class JobService {
      **/
     public Job assignBestJobToHandali(Handali handali) {
         // 1. 가장 높은 스탯 찾기
-        List<HandaliStat> maxStats = handaliStatService.findMaxStatByHandaliId(handali.getHandaliId());
+        List<HandaliStat> maxStats = handaliStatRepository.findMaxStatByHandaliId(handali.getHandaliId());
 
         if (maxStats.isEmpty()) {
             return jobRepository.save(jobRepository.findByName("백수"));
