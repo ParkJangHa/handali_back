@@ -2,6 +2,7 @@ package com.handalsali.handali.service;
 
 import com.handalsali.handali.DTO.HandaliDTO;
 import com.handalsali.handali.domain.*;
+import com.handalsali.handali.enums.ItemType;
 import com.handalsali.handali.enums.TypeName;
 import com.handalsali.handali.exception.HanCreationLimitException;
 import com.handalsali.handali.exception.HandaliNotFoundException;
@@ -219,27 +220,193 @@ public class HandaliServiceTest {
 
         Handali handali = new Handali();
         handali.setNickname("테스트한달이");
-        handali.setStartDate(LocalDate.now().minusDays(4)); // 생성된지 4일 됨
+        handali.setStartDate(LocalDate.now().minusDays(4));
         handali.setUser(user);
         handali.setImage("test-image.png");
 
+        Stat activityStat = new Stat(TypeName.ACTIVITY_SKILL);
+        activityStat.setValue(50.0f);
+        Stat intelligentStat = new Stat(TypeName.INTELLIGENT_SKILL);
+        intelligentStat.setValue(70.0f);
+        Stat artStat = new Stat(TypeName.ART_SKILL);
+        artStat.setValue(30.0f);
+
+        HandaliStat handaliActivityStat = new HandaliStat(handali, activityStat);
+        HandaliStat handaliIntelligentStat = new HandaliStat(handali, intelligentStat);
+        HandaliStat handaliArtStat = new HandaliStat(handali, artStat);
+
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
-        when(userItemRepository.findByUserAndItemType(eq(user),any())).thenReturn(Optional.empty()); //유저 아이템이 존재하지 않을 경우
 
+        // 각 ItemType별로 명확하게 지정
+        when(userItemRepository.findByUserAndItemType(user, ItemType.BACKGROUND)).thenReturn(Optional.empty());
+        when(userItemRepository.findByUserAndItemType(user, ItemType.WALL)).thenReturn(Optional.empty());
+        when(userItemRepository.findByUserAndItemType(user, ItemType.SOFA)).thenReturn(Optional.empty());
+        when(userItemRepository.findByUserAndItemType(user, ItemType.FLOOR)).thenReturn(Optional.empty());
+
+        // 스탯 Mock 추가
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ACTIVITY_SKILL))
+                .thenReturn(Optional.of(handaliActivityStat));
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.INTELLIGENT_SKILL))
+                .thenReturn(Optional.of(handaliIntelligentStat));
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ART_SKILL))
+                .thenReturn(Optional.of(handaliArtStat));
+
+        // 레벨 계산 Mock
+        when(statService.findMaxLevel(50.0f)).thenReturn(200);
+        when(statService.findMaxLevel(70.0f)).thenReturn(300);
+        when(statService.findMaxLevel(30.0f)).thenReturn(100);
 
         // When
         HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
 
         // Then
         assertEquals("테스트한달이", response.getNickname());
-        assertEquals(5, response.getDays_since_created()); // 오늘 포함이므로 4 + 1
+        assertEquals(5, response.getDays_since_created());
         assertEquals(300, response.getTotal_coin());
         assertEquals("test-image.png", response.getHandali_img());
-        assertEquals("none",response.getBackground_img()); //유저 아이템의 반환 값이 전부 none
+        assertEquals("none", response.getBackground_img());
+        assertEquals("none", response.getWall_img());
+        assertEquals("none", response.getSofa_img());
+        assertEquals("none", response.getFloor_img());
+
+        // 스탯 검증 추가
+        assertEquals(50.0f, response.getActivity_value());
+        assertEquals(70.0f, response.getIntelligence_value());
+        assertEquals(30.0f, response.getArt_value());
+        assertEquals(200, response.getMax_stat_activity());
+        assertEquals(300, response.getMax_stat_intelligence());
+        assertEquals(100, response.getMax_stat_art());
 
         verify(userService).tokenToUser(token);
         verify(handaliRepository).findLatestHandaliByCurrentMonth(user.getUserId());
+        verify(handaliStatRepository).findByHandaliAndType(handali, TypeName.ACTIVITY_SKILL);
+        verify(handaliStatRepository).findByHandaliAndType(handali, TypeName.INTELLIGENT_SKILL);
+        verify(handaliStatRepository).findByHandaliAndType(handali, TypeName.ART_SKILL);
+    }
+
+    // 한달이가 없는 경우
+    @Test
+    public void testGetHandaliStatusByMonth_NoHandali() {
+        // Given
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(null);
+
+        // When & Then
+        assertThrows(HandaliNotFoundException.class, () -> {
+            handaliService.getHandaliStatusByMonth(token);
+        });
+    }
+
+    // 유저 아이템이 있는 경우
+    @Test
+    public void testGetHandaliStatusByMonth_WithUserItems() {
+        // Given
+        User user = new User();
+        user.setTotal_coin(500);
+
+        Handali handali = new Handali();
+        handali.setNickname("부자한달이");
+        handali.setStartDate(LocalDate.now().minusDays(10));
+        handali.setUser(user);
+        handali.setImage("image_2_3_1.png");
+
+        // 사용자가 구매한 아이템들
+        Store backgroundStore = new Store();
+        backgroundStore.setName("예쁜배경");
+        backgroundStore.setItemType(ItemType.BACKGROUND);
+
+        Store sofaStore = new Store();
+        sofaStore.setName("고급소파");
+        sofaStore.setItemType(ItemType.SOFA);
+
+        UserItem userBackground = new UserItem(user, backgroundStore);
+        UserItem userSofa = new UserItem(user, sofaStore);
+
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
+
+        // 아이템 Mock
+        when(userItemRepository.findByUserAndItemType(user, ItemType.BACKGROUND))
+                .thenReturn(Optional.of(userBackground));
+        when(userItemRepository.findByUserAndItemType(user, ItemType.WALL))
+                .thenReturn(Optional.empty());
+        when(userItemRepository.findByUserAndItemType(user, ItemType.SOFA))
+                .thenReturn(Optional.of(userSofa));
+        when(userItemRepository.findByUserAndItemType(user, ItemType.FLOOR))
+                .thenReturn(Optional.empty());
+
+        // 스탯 Mock
+        Stat activityStat = new Stat(TypeName.ACTIVITY_SKILL);
+        activityStat.setValue(80.0f);
+        Stat intelligentStat = new Stat(TypeName.INTELLIGENT_SKILL);
+        intelligentStat.setValue(90.0f);
+        Stat artStat = new Stat(TypeName.ART_SKILL);
+        artStat.setValue(40.0f);
+
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ACTIVITY_SKILL))
+                .thenReturn(Optional.of(new HandaliStat(handali, activityStat)));
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.INTELLIGENT_SKILL))
+                .thenReturn(Optional.of(new HandaliStat(handali, intelligentStat)));
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ART_SKILL))
+                .thenReturn(Optional.of(new HandaliStat(handali, artStat)));
+
+        when(statService.findMaxLevel(80.0f)).thenReturn(400);
+        when(statService.findMaxLevel(90.0f)).thenReturn(500);
+        when(statService.findMaxLevel(40.0f)).thenReturn(150);
+
+        // When
+        HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
+
+        // Then
+        assertEquals("부자한달이", response.getNickname());
+        assertEquals(11, response.getDays_since_created()); // 10 + 1
+        assertEquals("예쁜배경", response.getBackground_img());
+        assertEquals("none", response.getWall_img());
+        assertEquals("고급소파", response.getSofa_img());
+        assertEquals("none", response.getFloor_img());
+    }
+
+    // 스탯이 0인 경우
+    @Test
+    public void testGetHandaliStatusByMonth_WithZeroStats() {
+        // Given
+        User user = new User();
+        user.setTotal_coin(0);
+
+        Handali handali = new Handali();
+        handali.setNickname("신생한달이");
+        handali.setStartDate(LocalDate.now()); // 오늘 생성
+        handali.setUser(user);
+        handali.setImage("image_0_0_0.png");
+
+        when(userService.tokenToUser(token)).thenReturn(user);
+        when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
+
+        when(userItemRepository.findByUserAndItemType(eq(user), any())).thenReturn(Optional.empty());
+
+        // 모든 스탯이 없음 (Optional.empty())
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ACTIVITY_SKILL))
+                .thenReturn(Optional.empty());
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.INTELLIGENT_SKILL))
+                .thenReturn(Optional.empty());
+        when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ART_SKILL))
+                .thenReturn(Optional.empty());
+
+        when(statService.findMaxLevel(0.0f)).thenReturn(0);
+
+        // When
+        HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
+
+        // Then
+        assertEquals("신생한달이", response.getNickname());
+        assertEquals(1, response.getDays_since_created());
+        assertEquals(0.0f, response.getActivity_value());
+        assertEquals(0.0f, response.getIntelligence_value());
+        assertEquals(0.0f, response.getArt_value());
+        assertEquals(0, response.getMax_stat_activity());
+        assertEquals(0, response.getMax_stat_intelligence());
+        assertEquals(0, response.getMax_stat_art());
     }
 
     /**

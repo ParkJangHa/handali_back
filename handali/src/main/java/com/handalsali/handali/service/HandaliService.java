@@ -16,9 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -63,19 +61,22 @@ public class HandaliService {
         User user=userService.tokenToUser(token);
 
         //2. 한달이 찾기
-//        Handali handali = findHandaliByCurrentDateAndUser(user);
         Handali handali=handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId());
 
         //3. 이미지 생성 - image_활동_지능_예술.png
-        StringBuilder imageName= new StringBuilder("image");
-        List<HandaliStat> handaliStats=handaliStatRepository.findByHandali(handali);
-        for(HandaliStat handaliStat:handaliStats){
-            int level=statService.checkHandaliStatForLevel(handaliStat.getStat().getValue());
-            imageName.append("_").append(level);
+        List<HandaliStat> handaliStats = handaliStatRepository.findByHandali(handali);
+        // 순서 보장
+        Map<TypeName, Integer> levelMap = new HashMap<>();
+        for(HandaliStat handaliStat : handaliStats){
+            int level = statService.checkHandaliStatForLevel(handaliStat.getStat().getValue());
+            levelMap.put(handaliStat.getStat().getTypeName(), level);
         }
-        imageName.append(".png");
-
-        String resultImage=imageName.toString();
+        // 순서 고정
+        String resultImage = String.format("image_%d_%d_%d.png",
+                levelMap.getOrDefault(TypeName.ACTIVITY_SKILL, 0),
+                levelMap.getOrDefault(TypeName.INTELLIGENT_SKILL, 0),
+                levelMap.getOrDefault(TypeName.ART_SKILL, 0)
+        );
 
         //4. handali 테이블에 변경된 이미지 저장
         handali.setImage(resultImage);
