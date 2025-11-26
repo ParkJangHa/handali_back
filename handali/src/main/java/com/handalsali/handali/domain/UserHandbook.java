@@ -27,7 +27,7 @@ public class UserHandbook {
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (handbook_id) REFERENCES handbook(handbook_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Handbook handbook;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private final LocalDateTime createdAt = LocalDateTime.now();
 
     public UserHandbook(User user, Handbook handbook) {
         this.user = user;
