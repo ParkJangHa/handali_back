@@ -22,13 +22,11 @@ public class StatService {
     private final StatRepository statRepository;
     private final HandaliStatRepository handaliStatRepository;
     private final HandaliRepository handaliRepository;
-    private final RecordRepository recordRepository;
 
-    public StatService(StatRepository statRepository, HandaliStatRepository handaliStatRepository, HandaliRepository handaliRepository, RecordRepository recordRepository) {
+    public StatService(StatRepository statRepository, HandaliStatRepository handaliStatRepository, HandaliRepository handaliRepository) {
         this.statRepository = statRepository;
         this.handaliStatRepository = handaliStatRepository;
         this.handaliRepository = handaliRepository;
-        this.recordRepository = recordRepository;
     }
 
     /**한달이 생성후, 스탯 초기화*/
