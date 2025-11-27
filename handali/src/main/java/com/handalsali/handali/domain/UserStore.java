@@ -1,11 +1,13 @@
 package com.handalsali.handali.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @NoArgsConstructor
+@Getter
 public class UserStore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
