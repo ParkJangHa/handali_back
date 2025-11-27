@@ -22,6 +22,6 @@ public class TokenBlacklistService {
      * 해당 토큰이 블랙리스트에 있는지 확인
      */
     public boolean isTokenBlacklisted(String token){
-        return redisTemplate.hasKey(token);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(token));
     }
 }
