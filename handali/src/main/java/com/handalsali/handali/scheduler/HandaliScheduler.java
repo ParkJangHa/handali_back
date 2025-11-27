@@ -34,36 +34,43 @@ public class HandaliScheduler {
     private final UserRepository userRepository;
 
     /** [매월 1일 자동 실행] 현재 키우고 있는 한달이들 취업 + 입주 처리*/
-//    @Scheduled(cron = "1 0 0 1 * *", zone = "Asia/Seoul")
-    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "1 0 0 1 * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
     @Transactional
     public void processMonthlyJobAndApartmentEntry() {
-//        ----------------생성 달 기준 전달 한달이만 적용-----------------
-        LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-        LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
+        try{
+            LocalDate startOfMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+            LocalDate endOfMonth = startOfMonth.plusMonths(1);  // 다음 달 1일
 
-        System.out.println("🗓️ startOfMonth: " + startOfMonth);
-        System.out.println("🗓️ endOfMonth: " + startOfNextMonth);
+            System.out.println("🗓️ 처리 기간: " + startOfMonth + " ~ " + endOfMonth.minusDays(1));
 
-        List<Handali> handalis = handaliRepository.findUnemployedHandalisForMonth(startOfMonth, startOfNextMonth);
-        System.out.println("🔍 처리 대상 한달이 수: " + handalis.size());
+            List<Handali> handalis = handaliRepository.findUnemployedHandalisForMonth(
+                    startOfMonth,   // >= 10-01 00:00:00
+                    endOfMonth      // <  11-01 00:00:00
+            );
 
-        if (handalis.isEmpty()) {
-            System.out.println("⚠️ 이번 달에 취업 및 입주할 한달이가 없습니다.");
-            return;
-        }
+            System.out.println("🔍 발견된 한달이 수: " + handalis.size());
 
-        for (Handali handali : handalis) {
-            System.out.println("🛠 처리 중: " + handali.getNickname() + " | 취업 여부: " +
-                    (handali.getJob() != null ? "O" : "X") + " | 아파트 여부: " +
-                    (handali.getApart() != null ? "O" : "X"));
-            // [한달이 취업 및 아파트 입주 실행]
-            processEmploymentAndMoveIn(handali);
+            if (handalis.isEmpty()) {
+                System.out.println("⚠️ 이번 달에 취업 및 입주할 한달이가 없습니다.");
+                return;
+            }
 
-            System.out.println("✅ 처리 완료: " + handali.getNickname() +
-                    " | 직업: " + (handali.getJob() != null ? handali.getJob().getName() : "미취업") +
-                    " | 아파트 ID: " + (handali.getApart() != null ? handali.getApart().getApartId() : "미입주"));
+            for (Handali handali : handalis) {
+                System.out.println("🛠 처리 중: " + handali.getNickname() + " | 취업 여부: " +
+                        (handali.getJob() != null ? "O" : "X") + " | 아파트 여부: " +
+                        (handali.getApart() != null ? "O" : "X"));
+                // [한달이 취업 및 아파트 입주 실행]
+                processEmploymentAndMoveIn(handali);
 
+                System.out.println("✅ 처리 완료: " + handali.getNickname() +
+                        " | 직업: " + (handali.getJob() != null ? handali.getJob().getName() : "미취업") +
+                        " | 아파트 ID: " + (handali.getApart() != null ? handali.getApart().getApartId() : "미입주"));
+
+            }
+        }catch(Exception e){
+            System.err.println("❌ 스케줄러 실행 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
