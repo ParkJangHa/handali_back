@@ -17,12 +17,12 @@ public class HandaliStat {
     @Column(name="handali_stat_id")
     private Long HandaliStatId;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "handali_id", nullable = false,
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (handali_id) REFERENCES handali(handali_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Handali handali;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "stat_id", nullable = false,
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (stat_id) REFERENCES stat(stat_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Stat stat;

@@ -17,12 +17,12 @@ public class UserHandbook {
     @Column(name="user_handbook_id")
     private Long userHandbookId;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="user_id", nullable=false,
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "handbook_id", nullable = false,
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (handbook_id) REFERENCES handbook(handbook_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Handbook handbook;

@@ -16,13 +16,13 @@ public class UserItem {
     @JoinColumn(name="user_id",
             foreignKey = @ForeignKey (foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE",
                     name="fk_item_user"))
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     private User user;
 
     @JoinColumn(name="store_id",
             foreignKey = @ForeignKey (foreignKeyDefinition = "FOREIGN KEY (store_id) REFERENCES store(store_id) ON DELETE CASCADE ON UPDATE CASCADE",
                     name="fk_item_store"))
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     private Store store;
 
     private boolean isAvailable;

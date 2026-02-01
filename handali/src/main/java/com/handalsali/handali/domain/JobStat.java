@@ -22,11 +22,7 @@ public class JobStat {
     @Enumerated(EnumType.STRING)
     private TypeName typeName;
 
-//    @ManyToOne
-//    @JoinColumn(name="stat_id",nullable = false)
-//    private Stat stat;
-
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="job_id",nullable = false)
     private Job job;
 }

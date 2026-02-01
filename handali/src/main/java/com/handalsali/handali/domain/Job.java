@@ -20,9 +20,6 @@ public class Job {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Handali> handalis;
-
     @Setter
     @Column(nullable = false,name="week_salary")
     private int weekSalary;

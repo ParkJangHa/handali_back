@@ -13,13 +13,13 @@ public class UserStore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long UserStoreId;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="user_id",
             foreignKey = @ForeignKey (foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE",
                     name="fk_store_user"))
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="store_id",
             foreignKey = @ForeignKey (foreignKeyDefinition = "FOREIGN KEY (store_id) REFERENCES store(store_id) ON DELETE CASCADE ON UPDATE CASCADE",
                     name="fk_store_store"))

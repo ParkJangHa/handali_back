@@ -21,7 +21,7 @@ public class Apart {
     private int apartId;
     private int floor;
 
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="handali_id", foreignKey = @ForeignKey(
             foreignKeyDefinition = "FOREIGN KEY (handali_id) REFERENCES handali(handali_id) ON DELETE CASCADE ON UPDATE CASCADE",
             name = "fk_user"))
@@ -30,7 +30,7 @@ public class Apart {
     @Column(name = "nickname")
     private String nickname;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(
             foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE",
             name = "fk_user"))

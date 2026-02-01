@@ -31,19 +31,19 @@ public class Handali {
     private LocalDate startDate;
 
     @Setter
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="user_id",
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private User user;
 
     @Setter
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="job_id",
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (job_id) REFERENCES job(job_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Job job;
 
     @Setter
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="apart_total_id",
             foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (apart_total_id) REFERENCES apart(apart_total_id) ON DELETE CASCADE ON UPDATE CASCADE"))
     private Apart apart;
