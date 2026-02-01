@@ -13,12 +13,14 @@ import com.handalsali.handali.repository.UserRepository;
 import com.handalsali.handali.repository.UserStoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StoreService {
 
     private final UserService userService;
@@ -62,6 +64,7 @@ public class StoreService {
     /**
      * [상점 물품 구매]
      */
+    @Transactional
     public String storeBuyItem(String token,StoreDTO.StoreBuyRequest request){
         //1. 사용자 찾기
         User user=userService.tokenToUser(token);

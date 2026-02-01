@@ -5,14 +5,14 @@ import com.handalsali.handali.domain.HandaliStat;
 import com.handalsali.handali.domain.Job;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.JobRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class JobService {
     private final JobRepository jobRepository;
     private final HandaliStatRepository handaliStatRepository;
@@ -25,6 +25,7 @@ public class JobService {
     /**
      * 한달이의 최적 직업 할당
      **/
+    @Transactional
     public Job assignBestJobToHandali(Handali handali) {
         // 1. 가장 높은 스탯 찾기
         List<HandaliStat> maxStats = handaliStatRepository.findMaxStatByHandaliId(handali.getHandaliId());

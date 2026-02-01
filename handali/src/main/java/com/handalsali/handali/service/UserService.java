@@ -14,6 +14,7 @@ import com.handalsali.handali.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -32,6 +34,7 @@ public class UserService {
 
 
     /**[회원가입]*/
+    @Transactional
     public User signUp(String name, String email, String password, String phone, LocalDate birthday){
         if(userRepository.existsByEmail(email)){
             throw new EmailAlreadyExistsException();
@@ -65,6 +68,7 @@ public class UserService {
         return userRepository.findByUserId(userId).orElseThrow(UserNotFoundException::new);
     }
 
+    @Transactional
     public void giveQuestReward(User user, int coin) {
         user.setTotal_coin(user.getTotal_coin() + coin);
         userRepository.save(user);

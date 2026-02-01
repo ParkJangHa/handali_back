@@ -19,6 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class ApartmentService {
     private final HandaliRepository handaliRepository;
     private final UserService userService;
@@ -33,9 +34,9 @@ public class ApartmentService {
         this.jobRepository = jobRepository;
         this.handbookService = handbookService;
     }
-
     /** 한달이의 아파트 배정 **/
     // 생성 월에 따라 층 결정, 연도가 바뀌면 새로운 아파트에 입주
+    @Transactional
     public Apart assignApartmentToHandali(Handali handali) {
         int year = handali.getStartDate().getYear();  // 생성 연도
         int month = handali.getStartDate().getMonthValue();

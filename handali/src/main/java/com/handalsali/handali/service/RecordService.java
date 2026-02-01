@@ -20,7 +20,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class RecordService {
     private final UserService userService;
     private final HabitService habitService;
@@ -35,6 +35,7 @@ public class RecordService {
     }
 
     /**[습관 기록] 및 스탯 업데이트*/
+    @Transactional
     public RecordDTO.RecordTodayHabitResponse recordTodayHabit(String token, RecordDTO.RecordTodayHabitRequest request){
         //1. 사용자 확인
         User user=userService.tokenToUser(token);

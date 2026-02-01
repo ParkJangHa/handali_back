@@ -19,7 +19,7 @@ import java.time.Period;
 import java.util.*;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class HandaliService {
     private final UserService userService;
@@ -31,6 +31,7 @@ public class HandaliService {
     private final HandaliScheduler handaliScheduler;
 
     /**[한달이 생성]*/
+    @Transactional
     public Handali handaliCreate(String token,String nickname){
         //1. 사용자 인증
         User user=userService.tokenToUser(token);
@@ -56,6 +57,7 @@ public class HandaliService {
 
 
     /**[한달이 상태 변화]-이미지 반환*/
+    @Transactional
     public String changeHandali(String token){
         //1. 사용자 확인
         User user=userService.tokenToUser(token);
@@ -182,7 +184,6 @@ public class HandaliService {
     /**
      * [주급 계산]
      */
-    @Transactional(readOnly = true) // 조회 기능이므로 readOnly=true 설정
     public HandaliDTO.GetWeekSalaryApiResponseDTO getWeekSalaryInfo(String token) {
         User user = userService.tokenToUser(token);
 

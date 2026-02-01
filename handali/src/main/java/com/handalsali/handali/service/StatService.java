@@ -9,15 +9,15 @@ import com.handalsali.handali.repository.HandaliRepository;
 import com.handalsali.handali.repository.HandaliStatRepository;
 import com.handalsali.handali.repository.RecordRepository;
 import com.handalsali.handali.repository.StatRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class StatService {
     private final StatRepository statRepository;
     private final HandaliStatRepository handaliStatRepository;
@@ -30,6 +30,7 @@ public class StatService {
     }
 
     /**한달이 생성후, 스탯 초기화*/
+    @Transactional
     public void statInit(User user,Handali handali){
 
         //1. 스탯 초기화, 0
@@ -81,6 +82,7 @@ public class StatService {
     }
 
     /**[스탯 업데이트] 및 한달이 상태 변화 여부 체크*/
+    @Transactional
     public boolean statUpdateAndCheckHandaliStat(User user, int recordCount, float lastRecordTime, RecordDTO.RecordTodayHabitRequest request){
 
         // 1. 한달이 찾기

@@ -7,10 +7,12 @@ import com.handalsali.handali.domain.UserHandbook;
 import com.handalsali.handali.repository.HandbookRepository;
 import com.handalsali.handali.repository.UserHandbookRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class HandbookService {
     private final HandbookRepository handbookRepository;
     private final UserHandbookRepository userHandbookRepository;
@@ -23,6 +25,7 @@ public class HandbookService {
     /**
      * 도감 추가
      */
+    @Transactional
     public void addHandbook(User user, String code){
         //1. 코드가 도감 테이블에 존재하는지 확인
         Handbook handbook = handbookRepository.findByCode(code);
