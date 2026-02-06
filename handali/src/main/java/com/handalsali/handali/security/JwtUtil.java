@@ -15,20 +15,39 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    /** Access Token 생성*/
-    public String generateToken(String email, long userId) {
-        long expirationTime = 1000L * 60 * 60 * 24 * 7; // 1주일
+    // ==================== Access Token ====================
+
+    /** Access Token 생성 (15분) */
+    public String generateAccessToken(String email, long userId) {
+        long expirationTime = 1000L * 60 * 15; // 15분
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
-                .setIssuedAt(new java.util.Date()) // 발행 시간
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime)) // 만료 시간
-                .signWith(SignatureAlgorithm.HS256, secretKey) // 서명 알고리즘과 키
+                .claim("type", "access")  // 타입 구분
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
+    // ==================== Refresh Token ====================
 
-    /**토큰 검증 및 claim 반환*/
+    /** Refresh Token 생성 (7일) */
+    public String generateRefreshToken(String email,long userId) {
+        long expirationTime = 1000L * 60 * 60 * 24 * 7; // 7일
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("userId", userId)
+                .claim("type", "refresh")  // 타입 구분
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    // ==================== 공통 메서드 ====================
+
+    /** 토큰 검증 및 claim 반환 */
     public Claims validateToken(String token) {
         try {
             System.out.println("validateToken() 호출됨");
@@ -50,18 +69,9 @@ public class JwtUtil {
         }
     }
 
-    /**토큰으로 userId 찾기*/
+    /** 토큰으로 userId 찾기 */
     public long extractUserId(String token) {
         Claims claims = validateToken(token);
         return claims.get("userId", Long.class);
-    }
-
-    public long getExpiration(String token){
-        Date expirationDate= Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-        return expirationDate.getTime() - System.currentTimeMillis();
     }
 }

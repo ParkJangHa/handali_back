@@ -1,30 +1,29 @@
 package com.handalsali.handali.controller;
 
+import com.handalsali.handali.DTO.TokenDTO;
 import com.handalsali.handali.DTO.UserDTO;
 import com.handalsali.handali.domain.User;
 import com.handalsali.handali.repository.UserRepository;
 import com.handalsali.handali.security.JwtUtil;
-import com.handalsali.handali.service.TokenBlacklistService;
 import com.handalsali.handali.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,9 +31,10 @@ public class UserController {
     private final UserService userService;
     private final BaseController baseController;
     private final JwtUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    private final TokenBlacklistService tokenBlacklistService;
+    private final AuthenticationManager authenticationManager;
+    private final StringRedisTemplate redisTemplate;  // ← 추가
+
 
     /**
      * 회원가입
@@ -97,14 +97,30 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> logIn(@RequestBody UserDTO.LogInRequest request){
         try {
+            // 1. 인증
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
 
             User user = userRepository.findByEmail(request.getEmail());
-            String token = jwtUtil.generateToken(user.getEmail(), user.getUserId());
 
-            return ResponseEntity.ok("Bearer "+ token);
+            // 2. Access Token 생성 (15분)
+            String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getUserId());
+
+            // 3. Refresh Token 생성 (7일)
+            String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getUserId());
+
+            // 4. Refresh Token을 Redis에 저장
+            redisTemplate.opsForValue().set(
+                    "RT:" + user.getUserId(),  // Key: RT:userId
+                    refreshToken,               // Value: refresh token
+                    7,                          // TTL: 7일
+                    TimeUnit.DAYS
+            );
+
+            // 5. 두 토큰 반환
+            TokenDTO.TokenResponse response = new TokenDTO.TokenResponse(accessToken, refreshToken);
+            return ResponseEntity.ok(response);
 
         } catch (org.springframework.security.core.AuthenticationException e) {
             Map<String, String> errorResponse = new HashMap<>();
@@ -136,8 +152,12 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<String> logOut(@RequestHeader("Authorization") String accessToken) {
         String token = baseController.extraToken(accessToken);
-        long expirationTime=jwtUtil.getExpiration(token);
-        tokenBlacklistService.blacklistToken(token,expirationTime);
+
+        // Access Token에서 userId 추출
+        long userId = jwtUtil.extractUserId(token);
+
+        // Redis에서 Refresh Token 삭제
+        redisTemplate.delete("RT:" + userId);
 
         return ResponseEntity.ok("로그아웃 되었습니다.");
     }
