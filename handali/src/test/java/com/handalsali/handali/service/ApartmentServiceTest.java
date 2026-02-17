@@ -94,8 +94,8 @@ class ApartmentServiceTest {
         List<Handali> handaliList = Arrays.asList(testHandali);
 
         when(userService.tokenToUser(token)).thenReturn(testUser);
-        when(handaliRepository.findAllByUser(testUser)).thenReturn(handaliList);
-
+        when(handaliRepository.findAllByUserWithApartAndJob(testUser))
+                .thenReturn(handaliList);
         // when
         List<Map<String, Object>> result = apartmentService.getAllHandalisInApartments(token);
 
@@ -112,7 +112,8 @@ class ApartmentServiceTest {
         assertThat(handaliData.get("image")).isEqualTo("image_1_2_3.png");
 
         verify(userService, times(1)).tokenToUser(token);
-        verify(handaliRepository, times(1)).findAllByUser(testUser);
+        verify(handaliRepository, times(1))
+                .findAllByUserWithApartAndJob(testUser);
     }
 
     @Test
@@ -121,7 +122,8 @@ class ApartmentServiceTest {
         // given
         String token = "test-token";
         when(userService.tokenToUser(token)).thenReturn(testUser);
-        when(handaliRepository.findAllByUser(testUser)).thenReturn(Collections.emptyList());
+        when(handaliRepository.findAllByUserWithApartAndJob(testUser))
+                .thenReturn(Collections.emptyList());
 
         // when & then
         assertThatThrownBy(() -> apartmentService.getAllHandalisInApartments(token))
@@ -228,7 +230,8 @@ class ApartmentServiceTest {
         List<Handali> handaliList = Arrays.asList(handali2025, testHandali);
 
         when(userService.tokenToUser(token)).thenReturn(testUser);
-        when(handaliRepository.findAllByUser(testUser)).thenReturn(handaliList);
+        when(handaliRepository.findAllByUserWithApartAndJob(testUser))
+                .thenReturn(handaliList);
 
         // when
         List<Map<String, Object>> result = apartmentService.getAllHandalisInApartments(token);

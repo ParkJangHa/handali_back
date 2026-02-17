@@ -15,5 +15,8 @@ public interface UserHandbookRepository extends JpaRepository<UserHandbook, Long
     /**
      * [도감 조회]
      */
-    List<UserHandbook> findAllByUser(User user);
+    @Query("SELECT uh FROM UserHandbook uh " +
+            "JOIN FETCH uh.handbook " +
+            "WHERE uh.user = :user")
+    List<UserHandbook> findAllByUserWithHandbook(@Param("user") User user);
 }

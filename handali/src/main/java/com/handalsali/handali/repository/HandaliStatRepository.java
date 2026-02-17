@@ -41,4 +41,13 @@ public interface HandaliStatRepository extends JpaRepository<HandaliStat, Long> 
             "where hs.handali=:handali " +
             "and s.typeName in :typeNames ")
     List<HandaliStat> findByHandaliAndStatType(@Param("handali") Handali handali, @Param("typeNames") List<TypeName> typeNames);
+
+    @Query("SELECT hs FROM HandaliStat hs " +
+            "JOIN FETCH hs.stat " +
+            "WHERE hs.handali IN :handalis " +
+            "AND hs.stat.typeName IN :typeNames")
+    List<HandaliStat> findByHandaliInAndStatType(
+            @Param("handalis") List<Handali> handalis,
+            @Param("typeNames") List<TypeName> typeNames
+    );
 }

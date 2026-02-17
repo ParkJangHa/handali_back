@@ -57,7 +57,7 @@ public class ApartmentService {
     /**[아파트 내 모든 한달이 조회]*/
     public List<Map<String, Object>> getAllHandalisInApartments(String token) {
         User user = userService.tokenToUser(token);
-        List<Handali> handalis = handaliRepository.findAllByUser(user);
+        List<Handali> handalis = handaliRepository.findAllByUserWithApartAndJob(user);
 
         if (handalis.isEmpty()) {throw new HandaliNotFoundException("한달이가 존재하지 않습니다.");
         }
@@ -65,11 +65,11 @@ public class ApartmentService {
         return handalis.stream()
                 .map(handali -> {
                     Map<String, Object> response = new HashMap<>();
-                    response.put("apart_id", handali.getApart().getApartId());
+                    response.put("apart_id", handali.getApart().getApartId()); //n+1 fetch join으로 해결
                     response.put("floor", handali.getApart().getFloor());
                     response.put("nickname", handali.getNickname());
                     response.put("start_date", handali.getStartDate());
-                    response.put("job_name", handali.getJob().getName());
+                    response.put("job_name", handali.getJob().getName()); //n+1 fetch join으로 해결
                     response.put("week_salary", handali.getJob().getWeekSalary());
                     response.put("image", handali.getImage());
                     response.put("background_img", handali.getBackground());

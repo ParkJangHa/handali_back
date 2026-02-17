@@ -45,10 +45,10 @@ public class HandbookService {
      * [도감 조회]
      */
     public HandbookDTO.HandbookApiResponse getUserHandbook(User user) {
-        List<HandbookDTO.HandbookResponse> responses = userHandbookRepository.findAllByUser(user)
+        List<HandbookDTO.HandbookResponse> responses = userHandbookRepository.findAllByUserWithHandbook(user)
                 .stream()
                 .map(uh -> new HandbookDTO.HandbookResponse(
-                        uh.getHandbook().getCode(),
+                        uh.getHandbook().getCode(), //n+1 fetch join으로 해결
                         uh.getCreatedAt()
                 ))
                 .toList();

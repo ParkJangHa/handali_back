@@ -112,7 +112,7 @@ class HandbookServiceTest {
 
         UserHandbook userHandbook = new UserHandbook(user, handbook);
 
-        when(userHandbookRepository.findAllByUser(user)).thenReturn(List.of(userHandbook));
+        when(userHandbookRepository.findAllByUserWithHandbook(user)).thenReturn(List.of(userHandbook));
 
         // when
         HandbookDTO.HandbookApiResponse response = handbookService.getUserHandbook(user);
@@ -121,7 +121,7 @@ class HandbookServiceTest {
         assertEquals(1, response.getHandbooks().size());
         assertEquals("image_1_5_0.png", response.getHandbooks().get(0).getCode());
 
-        verify(userHandbookRepository, times(1)).findAllByUser(user);
+        verify(userHandbookRepository, times(1)).findAllByUserWithHandbook(user);
     }
 
     /**
@@ -132,14 +132,14 @@ class HandbookServiceTest {
     @Test
     void testGetUserHandbook_EmptyList() {
         // given
-        when(userHandbookRepository.findAllByUser(user)).thenReturn(List.of());
+        when(userHandbookRepository.findAllByUserWithHandbook(user)).thenReturn(List.of());
 
         // when
         HandbookDTO.HandbookApiResponse response = handbookService.getUserHandbook(user);
 
         // then
         assertEquals(0, response.getHandbooks().size());
-        verify(userHandbookRepository, times(1)).findAllByUser(user);
+        verify(userHandbookRepository, times(1)).findAllByUserWithHandbook(user);
     }
 
     /**
@@ -158,7 +158,7 @@ class HandbookServiceTest {
         UserHandbook uh2 = new UserHandbook(user, handbook2);
         UserHandbook uh3 = new UserHandbook(user, handbook3);
 
-        when(userHandbookRepository.findAllByUser(user)).thenReturn(List.of(uh1, uh2, uh3));
+        when(userHandbookRepository.findAllByUserWithHandbook(user)).thenReturn(List.of(uh1, uh2, uh3));
 
         // when
         HandbookDTO.HandbookApiResponse response = handbookService.getUserHandbook(user);

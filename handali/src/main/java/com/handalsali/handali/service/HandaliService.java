@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -187,48 +188,73 @@ public class HandaliService {
     public HandaliDTO.GetWeekSalaryApiResponseDTO getWeekSalaryInfo(String token) {
         User user = userService.tokenToUser(token);
 
-        //1. 직업 가진 한달이 찾기
-        List<Handali> handalis = handaliRepository.findByUserAndJobIsNotNull(user);
+        // 1. 직업 가진 한달이 찾기 (Job Fetch Join으로 N+1 해결!)
+        List<Handali> handalis = handaliRepository
+                .findByUserAndJobIsNotNullWithJob(user);
 
-        //2. 각 한달이의 정보 조회
+        // 2. 한달이가 없으면 바로 반환
+        if (handalis.isEmpty()) {
+            return new HandaliDTO.GetWeekSalaryApiResponseDTO(
+                    new ArrayList<>(), 0, 0);
+        }
+
+        List<TypeName> typeNames = List.of(
+                TypeName.ACTIVITY_SKILL,
+                TypeName.INTELLIGENT_SKILL,
+                TypeName.ART_SKILL
+        );
+
+        //3. 반복문 밖에서 직업을 가진 모든 한달이의 스탯 한 번에 조회
+        List<HandaliStat> allStats = handaliStatRepository
+                .findByHandaliInAndStatType(handalis, typeNames);
+
+        //Map으로 변환 (handali_id → List<HandaliStat>)
+        Map<Long, List<HandaliStat>> statMap = allStats.stream()
+                .collect(Collectors.groupingBy(
+                        hs -> hs.getHandali().getHandaliId()
+                ));
+
+        //4. 각 한달이 정보 조회
         List<HandaliDTO.GetWeekSalaryResponseDTO> responses = new ArrayList<>();
-        List<TypeName> typeNames=List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL,TypeName.ART_SKILL);
-        int total_salary = 0; //모든 한달이의 주급의 합
+        int total_salary = 0;
 
         for (Handali handali : handalis) {
-            //주급 계산
+            // 주급 계산
             int expectedSalary = handaliScheduler.calculateSalaryFor(handali);
 
-            //스탯에 따른 레벨 계산
-            List<HandaliStat> handaliStats = handaliStatRepository.findByHandaliAndStatType(handali, typeNames);
-            float activityStat=0.0f;
-            float intelligentStat=0.0f;
-            float artStat=0.0f;
+            //DB 쿼리 없이 메모리에서 가져오기!
+            List<HandaliStat> handaliStats = statMap
+                    .getOrDefault(handali.getHandaliId(), List.of());
+
+            // 스탯 값 추출
+            float activityStat = 0.0f;
+            float intelligentStat = 0.0f;
+            float artStat = 0.0f;
 
             for (HandaliStat handaliStat : handaliStats) {
-                float value=handaliStat.getStat().getValue();
-                switch(handaliStat.getStat().getTypeName()){
-                    case ACTIVITY_SKILL -> activityStat=value;
-                    case INTELLIGENT_SKILL -> intelligentStat=value;
-                    case ART_SKILL -> artStat=value;
+                float value = handaliStat.getStat().getValue();
+                switch (handaliStat.getStat().getTypeName()) {
+                    case ACTIVITY_SKILL -> activityStat = value;
+                    case INTELLIGENT_SKILL -> intelligentStat = value;
+                    case ART_SKILL -> artStat = value;
                 }
             }
 
-            //응답 생성
+            // 응답 생성
             responses.add(new HandaliDTO.GetWeekSalaryResponseDTO(
                     handali.getNickname(),
-                    handali.getJob().getName(),
+                    handali.getJob().getName(),  //쿼리 0번! (Fetch Join)
                     expectedSalary,
                     handali.getStartDate(),
                     statService.checkHandaliStatForLevel(activityStat),
                     statService.checkHandaliStatForLevel(intelligentStat),
-                    statService.checkHandaliStatForLevel(artStat)));
+                    statService.checkHandaliStatForLevel(artStat)
+            ));
 
-            //한달이들 주급 총합 계산
             total_salary += expectedSalary;
         }
 
-        //3. 최종 반환형으로 반환
-        return new HandaliDTO.GetWeekSalaryApiResponseDTO(responses,total_salary,handalis.size());
+        return new HandaliDTO.GetWeekSalaryApiResponseDTO(
+                responses, total_salary, handalis.size());
     }
 }

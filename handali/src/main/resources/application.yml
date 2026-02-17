@@ -12,6 +12,8 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: validate
+#      format_sql: true
+#      use_sql_comments: true
 
   server:
     servlet:
@@ -26,6 +28,7 @@ spring:
 
 logging:
   level:
+#    org.hibernate.SQL: DEBUG  # SQL 로그
     org.springframework: DEBUG
     com.handalsali.handali: DEBUG
 

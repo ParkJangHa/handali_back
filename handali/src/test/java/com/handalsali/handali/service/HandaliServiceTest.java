@@ -45,8 +45,10 @@ public class HandaliServiceTest {
 
     @Mock
     private UserItemRepository userItemRepository;
+
     @Mock
     private HandbookService handbookService;
+
     @Mock
     private HandaliScheduler handaliScheduler;
 
@@ -58,94 +60,78 @@ public class HandaliServiceTest {
     void setUp() {
         token = "test-token";
         user = new User("aaa@gmail.com", "name", "1234", "010-1234-5678", LocalDate.now());
-        handali=new Handali("aaa",LocalDate.now(),user);
+        handali = new Handali("aaa", LocalDate.now(), user);
     }
 
-    /**[한달이 상태 변화]*/
+    /** [한달이 상태 변화] */
     @Test
-    public void testChangeHandali(){
-        //given
+    public void testChangeHandali() {
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
 
-        int activityValue=100; //정상레벨 1
-        int intelligentValue=1500; //최대치 초과 레벨
-        int artValue=0; //정상레벨 0
-        List<HandaliStat> stats = getHandaliStats(activityValue,intelligentValue,artValue);
+        int activityValue = 100;
+        int intelligentValue = 1500;
+        int artValue = 0;
+        List<HandaliStat> stats = getHandaliStats(activityValue, intelligentValue, artValue);
 
         when(handaliStatRepository.findByHandali(handali)).thenReturn(stats);
         when(statService.checkHandaliStatForLevel(activityValue)).thenReturn(1);
         when(statService.checkHandaliStatForLevel(intelligentValue)).thenReturn(5);
         when(statService.checkHandaliStatForLevel(artValue)).thenReturn(0);
 
-        //when
         String image = handaliService.changeHandali(token);
 
-        //then
-        assertEquals("image_1_5_0.png",image);
-        assertEquals("image_1_5_0.png",handali.getImage());
+        assertEquals("image_1_5_0.png", image);
+        assertEquals("image_1_5_0.png", handali.getImage());
         verify(handaliRepository).save(handali);
-        verify(handbookService).addHandbook(user, "image_1_5_0.png"); //도감 정보가 저장되었는지 확임
+        verify(handbookService).addHandbook(user, "image_1_5_0.png");
     }
 
-    private List<HandaliStat> getHandaliStats(int activityValue,int intelligentValue,int artValue) {
-        Stat activityStat=new Stat(TypeName.ACTIVITY_SKILL);
+    private List<HandaliStat> getHandaliStats(int activityValue, int intelligentValue, int artValue) {
+        Stat activityStat = new Stat(TypeName.ACTIVITY_SKILL);
         activityStat.setValue(activityValue);
-        Stat intelligentStat=new Stat(TypeName.INTELLIGENT_SKILL);
+        Stat intelligentStat = new Stat(TypeName.INTELLIGENT_SKILL);
         intelligentStat.setValue(intelligentValue);
-        Stat artStat=new Stat(TypeName.ART_SKILL);
+        Stat artStat = new Stat(TypeName.ART_SKILL);
         artStat.setValue(artValue);
 
         return List.of(
-                new HandaliStat(handali,activityStat),
-                new HandaliStat(handali,intelligentStat),
-                new HandaliStat(handali,artStat)
+                new HandaliStat(handali, activityStat),
+                new HandaliStat(handali, intelligentStat),
+                new HandaliStat(handali, artStat)
         );
     }
 
-    /**
-     * [한달이 생성]
-     */
+    /** [한달이 생성] */
     @Test
-    public void testHandaliCreate(){
-        //given
+    public void testHandaliCreate() {
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.countPetsByUserIdAndCurrentMonth(user)).thenReturn(0L);
 
-
-        //when
         handaliService.handaliCreate(token, "aaa");
 
-        //then
         ArgumentCaptor<Handali> handaliCaptor = ArgumentCaptor.forClass(Handali.class);
         verify(handaliRepository).save(handaliCaptor.capture());
         Handali handali = handaliCaptor.getValue();
 
-        assertEquals("aaa",handali.getNickname());
-        assertEquals(user,handali.getUser());
-        assertEquals(LocalDate.now(),handali.getStartDate());
+        assertEquals("aaa", handali.getNickname());
+        assertEquals(user, handali.getUser());
+        assertEquals(LocalDate.now(), handali.getStartDate());
     }
 
     @Test
-    public void testHandaliCreate_error(){
-        //given
+    public void testHandaliCreate_error() {
         when(userService.tokenToUser(token)).thenReturn(user);
-
-        //when
         when(handaliRepository.countPetsByUserIdAndCurrentMonth(user)).thenReturn(1L);
 
-        //then
-        assertThrows(HanCreationLimitException.class,()->{
+        assertThrows(HanCreationLimitException.class, () -> {
             handaliService.handaliCreate(token, "aaa");
         });
     }
 
-    /**
-     * [마지막 생성 한달이 조회]
-     */
+    /** [마지막 생성 한달이 조회] */
     @Test
     public void testGetRecentHandali_Success() {
-        // Given
         String token = "valid-token";
         User user = new User();
         user.setUserId(1L);
@@ -165,10 +151,8 @@ public class HandaliServiceTest {
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByUser(user.getUserId())).thenReturn(Optional.of(handali));
 
-        // When
         HandaliDTO.RecentHandaliResponse response = handaliService.getRecentHandali(token);
 
-        // Then
         assertEquals("테스트한달이", response.getNickname());
         assertEquals(10L, response.getHandali_id());
         assertEquals(LocalDate.of(2025, 4, 1), response.getStart_date());
@@ -182,11 +166,9 @@ public class HandaliServiceTest {
 
     @Test
     public void testGetRecentHandali_NoUser() {
-        // Given
         String token = "invalid-token";
         when(userService.tokenToUser(token)).thenReturn(null);
 
-        // When & Then
         assertThrows(HandaliNotFoundException.class, () -> handaliService.getRecentHandali(token));
         verify(userService).tokenToUser(token);
         verifyNoInteractions(handaliRepository);
@@ -194,7 +176,6 @@ public class HandaliServiceTest {
 
     @Test
     public void testGetRecentHandali_NoHandali() {
-        // Given
         String token = "valid-token";
         User user = new User();
         user.setUserId(1L);
@@ -202,18 +183,14 @@ public class HandaliServiceTest {
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByUser(user.getUserId())).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(HandaliNotFoundException.class, () -> handaliService.getRecentHandali(token));
         verify(userService).tokenToUser(token);
         verify(handaliRepository).findLatestHandaliByUser(user.getUserId());
     }
 
-    /**
-     * [한달이 상태 조회]
-     */
+    /** [한달이 상태 조회] */
     @Test
     public void testGetHandaliStatusByMonth_Success() {
-        // Given
         String token = "valid-token";
         User user = new User();
         user.setTotal_coin(300);
@@ -237,30 +214,22 @@ public class HandaliServiceTest {
 
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
-
-        // 각 ItemType별로 명확하게 지정
         when(userItemRepository.findByUserAndItemType(user, ItemType.BACKGROUND)).thenReturn(Optional.empty());
         when(userItemRepository.findByUserAndItemType(user, ItemType.WALL)).thenReturn(Optional.empty());
         when(userItemRepository.findByUserAndItemType(user, ItemType.SOFA)).thenReturn(Optional.empty());
         when(userItemRepository.findByUserAndItemType(user, ItemType.FLOOR)).thenReturn(Optional.empty());
-
-        // 스탯 Mock 추가
         when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ACTIVITY_SKILL))
                 .thenReturn(Optional.of(handaliActivityStat));
         when(handaliStatRepository.findByHandaliAndType(handali, TypeName.INTELLIGENT_SKILL))
                 .thenReturn(Optional.of(handaliIntelligentStat));
         when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ART_SKILL))
                 .thenReturn(Optional.of(handaliArtStat));
-
-        // 레벨 계산 Mock
         when(statService.findMaxLevel(50.0f)).thenReturn(200);
         when(statService.findMaxLevel(70.0f)).thenReturn(300);
         when(statService.findMaxLevel(30.0f)).thenReturn(100);
 
-        // When
         HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
 
-        // Then
         assertEquals("테스트한달이", response.getNickname());
         assertEquals(5, response.getDays_since_created());
         assertEquals(300, response.getTotal_coin());
@@ -269,8 +238,6 @@ public class HandaliServiceTest {
         assertEquals("none", response.getWall_img());
         assertEquals("none", response.getSofa_img());
         assertEquals("none", response.getFloor_img());
-
-        // 스탯 검증 추가
         assertEquals(50.0f, response.getActivity_value());
         assertEquals(70.0f, response.getIntelligence_value());
         assertEquals(30.0f, response.getArt_value());
@@ -285,23 +252,18 @@ public class HandaliServiceTest {
         verify(handaliStatRepository).findByHandaliAndType(handali, TypeName.ART_SKILL);
     }
 
-    // 한달이가 없는 경우
     @Test
     public void testGetHandaliStatusByMonth_NoHandali() {
-        // Given
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(null);
 
-        // When & Then
         assertThrows(HandaliNotFoundException.class, () -> {
             handaliService.getHandaliStatusByMonth(token);
         });
     }
 
-    // 유저 아이템이 있는 경우
     @Test
     public void testGetHandaliStatusByMonth_WithUserItems() {
-        // Given
         User user = new User();
         user.setTotal_coin(500);
 
@@ -311,7 +273,6 @@ public class HandaliServiceTest {
         handali.setUser(user);
         handali.setImage("image_2_3_1.png");
 
-        // 사용자가 구매한 아이템들
         Store backgroundStore = new Store();
         backgroundStore.setName("예쁜배경");
         backgroundStore.setItemType(ItemType.BACKGROUND);
@@ -325,8 +286,6 @@ public class HandaliServiceTest {
 
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
-
-        // 아이템 Mock
         when(userItemRepository.findByUserAndItemType(user, ItemType.BACKGROUND))
                 .thenReturn(Optional.of(userBackground));
         when(userItemRepository.findByUserAndItemType(user, ItemType.WALL))
@@ -336,7 +295,6 @@ public class HandaliServiceTest {
         when(userItemRepository.findByUserAndItemType(user, ItemType.FLOOR))
                 .thenReturn(Optional.empty());
 
-        // 스탯 Mock
         Stat activityStat = new Stat(TypeName.ACTIVITY_SKILL);
         activityStat.setValue(80.0f);
         Stat intelligentStat = new Stat(TypeName.INTELLIGENT_SKILL);
@@ -350,55 +308,44 @@ public class HandaliServiceTest {
                 .thenReturn(Optional.of(new HandaliStat(handali, intelligentStat)));
         when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ART_SKILL))
                 .thenReturn(Optional.of(new HandaliStat(handali, artStat)));
-
         when(statService.findMaxLevel(80.0f)).thenReturn(400);
         when(statService.findMaxLevel(90.0f)).thenReturn(500);
         when(statService.findMaxLevel(40.0f)).thenReturn(150);
 
-        // When
         HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
 
-        // Then
         assertEquals("부자한달이", response.getNickname());
-        assertEquals(11, response.getDays_since_created()); // 10 + 1
+        assertEquals(11, response.getDays_since_created());
         assertEquals("예쁜배경", response.getBackground_img());
         assertEquals("none", response.getWall_img());
         assertEquals("고급소파", response.getSofa_img());
         assertEquals("none", response.getFloor_img());
     }
 
-    // 스탯이 0인 경우
     @Test
     public void testGetHandaliStatusByMonth_WithZeroStats() {
-        // Given
         User user = new User();
         user.setTotal_coin(0);
 
         Handali handali = new Handali();
         handali.setNickname("신생한달이");
-        handali.setStartDate(LocalDate.now()); // 오늘 생성
+        handali.setStartDate(LocalDate.now());
         handali.setUser(user);
         handali.setImage("image_0_0_0.png");
 
         when(userService.tokenToUser(token)).thenReturn(user);
         when(handaliRepository.findLatestHandaliByCurrentMonth(user.getUserId())).thenReturn(handali);
-
         when(userItemRepository.findByUserAndItemType(eq(user), any())).thenReturn(Optional.empty());
-
-        // 모든 스탯이 없음 (Optional.empty())
         when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ACTIVITY_SKILL))
                 .thenReturn(Optional.empty());
         when(handaliStatRepository.findByHandaliAndType(handali, TypeName.INTELLIGENT_SKILL))
                 .thenReturn(Optional.empty());
         when(handaliStatRepository.findByHandaliAndType(handali, TypeName.ART_SKILL))
                 .thenReturn(Optional.empty());
-
         when(statService.findMaxLevel(0.0f)).thenReturn(0);
 
-        // When
         HandaliDTO.HandaliStatusResponse response = handaliService.getHandaliStatusByMonth(token);
 
-        // Then
         assertEquals("신생한달이", response.getNickname());
         assertEquals(1, response.getDays_since_created());
         assertEquals(0.0f, response.getActivity_value());
@@ -409,14 +356,10 @@ public class HandaliServiceTest {
         assertEquals(0, response.getMax_stat_art());
     }
 
-    /**
-     * [주급 계산]
-     */
+    /** [주급 계산] */
 
-    //정상적으로 주급 정보를 조회하는 경우 (한달이 1명)
     @Test
-    public void testGetWeekSalaryInfo_singleHandaliWithJob(){
-        //given
+    public void testGetWeekSalaryInfo_singleHandaliWithJob() {
         when(userService.tokenToUser(token)).thenReturn(user);
 
         Job job = new Job();
@@ -427,39 +370,27 @@ public class HandaliServiceTest {
         handali.setStartDate(LocalDate.of(2024, 11, 1));
 
         List<Handali> handalis = List.of(handali);
-
-        //스탯 생성
-        Stat activityStat = new Stat(TypeName.ACTIVITY_SKILL);
-        activityStat.setValue(50.0f);
-
-        Stat intelligentStat = new Stat(TypeName.INTELLIGENT_SKILL);
-        intelligentStat.setValue(70.0f);
-
-        Stat artStat = new Stat(TypeName.ART_SKILL);
-        artStat.setValue(30.0f);
-
-        HandaliStat handaliActivityStat = new HandaliStat(handali, activityStat);
-        HandaliStat handaliIntelligentStat = new HandaliStat(handali, intelligentStat);
-        HandaliStat handaliArtStat = new HandaliStat(handali, artStat);
-
-        List<HandaliStat> handaliStats = List.of(handaliActivityStat, handaliIntelligentStat, handaliArtStat);
+        List<HandaliStat> handaliStats = createHandaliStatsForSalary(handali, 50.0f, 70.0f, 30.0f);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        //when
-        when(handaliRepository.findByUserAndJobIsNotNull(user)).thenReturn(handalis);
+        // ✅ 수정: findByUserAndJobIsNotNullWithJob
+        when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali)).thenReturn(5000);
-        when(handaliStatRepository.findByHandaliAndStatType(handali, typeNames)).thenReturn(handaliStats);
+        // ✅ 수정: findByHandaliInAndStatType (handalis 리스트로!)
+        when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
+                .thenReturn(handaliStats);
         when(statService.checkHandaliStatForLevel(50.0f)).thenReturn(2);
         when(statService.checkHandaliStatForLevel(70.0f)).thenReturn(3);
         when(statService.checkHandaliStatForLevel(30.0f)).thenReturn(1);
 
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
-        //then
         verify(userService, times(1)).tokenToUser(token);
-        verify(handaliRepository, times(1)).findByUserAndJobIsNotNull(user);
+        // ✅ 수정
+        verify(handaliRepository, times(1)).findByUserAndJobIsNotNullWithJob(user);
         verify(handaliScheduler, times(1)).calculateSalaryFor(handali);
-        verify(handaliStatRepository, times(1)).findByHandaliAndStatType(handali, typeNames);
+        // ✅ 수정
+        verify(handaliStatRepository, times(1)).findByHandaliInAndStatType(handalis, typeNames);
 
         assertEquals(1, response.getHandalis_salary().size());
         assertEquals(5000, response.getTotal_salary());
@@ -475,15 +406,12 @@ public class HandaliServiceTest {
         assertEquals(1, handaliResponse.getArt_level());
     }
 
-    //여러 한달이가 직업을 가진 경우
     @Test
-    public void testGetWeekSalaryInfo_multipleHandalisWithJobs(){
-        //given
+    public void testGetWeekSalaryInfo_multipleHandalisWithJobs() {
         when(userService.tokenToUser(token)).thenReturn(user);
 
         Job job1 = new Job();
         job1.setName("개발자");
-
         Job job2 = new Job();
         job2.setName("디자이너");
 
@@ -496,23 +424,20 @@ public class HandaliServiceTest {
         handali2.setStartDate(LocalDate.of(2024, 11, 5));
 
         List<Handali> handalis = List.of(handali1, handali2);
-
-        //handali1 스탯
-        List<HandaliStat> handaliStats1 = createHandaliStatsForSalary(handali1, 50.0f, 70.0f, 30.0f);
-
-        //handali2 스탯
-        List<HandaliStat> handaliStats2 = createHandaliStatsForSalary(handali2, 80.0f, 60.0f, 90.0f);
-
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        //when
-        when(handaliRepository.findByUserAndJobIsNotNull(user)).thenReturn(handalis);
+        // ✅ 두 한달이의 스탯을 합쳐서 반환
+        List<HandaliStat> allStats = new java.util.ArrayList<>();
+        allStats.addAll(createHandaliStatsForSalary(handali1, 50.0f, 70.0f, 30.0f));
+        allStats.addAll(createHandaliStatsForSalary(handali2, 80.0f, 60.0f, 90.0f));
+
+        // ✅ 수정
+        when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali1)).thenReturn(5000);
         when(handaliScheduler.calculateSalaryFor(handali2)).thenReturn(7000);
-        when(handaliStatRepository.findByHandaliAndStatType(handali1, typeNames)).thenReturn(handaliStats1);
-        when(handaliStatRepository.findByHandaliAndStatType(handali2, typeNames)).thenReturn(handaliStats2);
-
-        // 각 스탯 값에 대한 레벨 설정
+        // ✅ 수정: 한 번에 모두 반환
+        when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
+                .thenReturn(allStats);
         when(statService.checkHandaliStatForLevel(50.0f)).thenReturn(2);
         when(statService.checkHandaliStatForLevel(70.0f)).thenReturn(3);
         when(statService.checkHandaliStatForLevel(30.0f)).thenReturn(1);
@@ -522,41 +447,37 @@ public class HandaliServiceTest {
 
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
-        //then
         assertEquals(2, response.getHandalis_salary().size());
-        assertEquals(12000, response.getTotal_salary()); // 5000 + 7000
+        assertEquals(12000, response.getTotal_salary());
         assertEquals(2, response.getTotal_handali());
 
         verify(handaliScheduler, times(1)).calculateSalaryFor(handali1);
         verify(handaliScheduler, times(1)).calculateSalaryFor(handali2);
-        verify(handaliStatRepository, times(2)).findByHandaliAndStatType(any(Handali.class), eq(typeNames));
+        // ✅ 수정: 1번만 호출됨!
+        verify(handaliStatRepository, times(1)).findByHandaliInAndStatType(handalis, typeNames);
     }
 
-    //직업을 가진 한달이가 없는 경우
     @Test
-    public void testGetWeekSalaryInfo_noHandalisWithJobs(){
-        //given
+    public void testGetWeekSalaryInfo_noHandalisWithJobs() {
         when(userService.tokenToUser(token)).thenReturn(user);
-
-        //when
-        when(handaliRepository.findByUserAndJobIsNotNull(user)).thenReturn(List.of());
+        // ✅ 수정
+        when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(List.of());
 
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
-        //then
-        verify(handaliRepository, times(1)).findByUserAndJobIsNotNull(user);
+        // ✅ 수정
+        verify(handaliRepository, times(1)).findByUserAndJobIsNotNullWithJob(user);
         verify(handaliScheduler, never()).calculateSalaryFor(any());
-        verify(handaliStatRepository, never()).findByHandaliAndStatType(any(), any());
+        // ✅ 수정: findByHandaliInAndStatType도 호출 안 됨
+        verify(handaliStatRepository, never()).findByHandaliInAndStatType(any(), any());
 
         assertEquals(0, response.getHandalis_salary().size());
         assertEquals(0, response.getTotal_salary());
         assertEquals(0, response.getTotal_handali());
     }
 
-    //스탯이 0인 한달이
     @Test
-    public void testGetWeekSalaryInfo_handaliWithZeroStats(){
-        //given
+    public void testGetWeekSalaryInfo_handaliWithZeroStats() {
         when(userService.tokenToUser(token)).thenReturn(user);
 
         Job job = new Job();
@@ -567,20 +488,18 @@ public class HandaliServiceTest {
         handali.setStartDate(LocalDate.of(2024, 11, 1));
 
         List<Handali> handalis = List.of(handali);
-
-        //모든 스탯이 0
         List<HandaliStat> handaliStats = createHandaliStatsForSalary(handali, 0.0f, 0.0f, 0.0f);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        //when
-        when(handaliRepository.findByUserAndJobIsNotNull(user)).thenReturn(handalis);
+        // ✅ 수정
+        when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali)).thenReturn(3000);
-        when(handaliStatRepository.findByHandaliAndStatType(handali, typeNames)).thenReturn(handaliStats);
+        when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
+                .thenReturn(handaliStats);
         when(statService.checkHandaliStatForLevel(0.0f)).thenReturn(0);
 
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
-        //then
         assertEquals(1, response.getHandalis_salary().size());
         assertEquals(3000, response.getTotal_salary());
 
@@ -591,10 +510,8 @@ public class HandaliServiceTest {
         assertEquals(0, handaliResponse.getArt_level());
     }
 
-    //스탯이 매우 높은 한달이
     @Test
-    public void testGetWeekSalaryInfo_handaliWithHighStats(){
-        //given
+    public void testGetWeekSalaryInfo_handaliWithHighStats() {
         when(userService.tokenToUser(token)).thenReturn(user);
 
         Job job = new Job();
@@ -605,20 +522,18 @@ public class HandaliServiceTest {
         handali.setStartDate(LocalDate.of(2024, 1, 1));
 
         List<Handali> handalis = List.of(handali);
-
-        //모든 스탯이 높음
         List<HandaliStat> handaliStats = createHandaliStatsForSalary(handali, 100.0f, 100.0f, 100.0f);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        //when
-        when(handaliRepository.findByUserAndJobIsNotNull(user)).thenReturn(handalis);
+        // ✅ 수정
+        when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali)).thenReturn(15000);
-        when(handaliStatRepository.findByHandaliAndStatType(handali, typeNames)).thenReturn(handaliStats);
+        when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
+                .thenReturn(handaliStats);
         when(statService.checkHandaliStatForLevel(100.0f)).thenReturn(5);
 
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
-        //then
         assertEquals(1, response.getHandalis_salary().size());
         assertEquals(15000, response.getTotal_salary());
 
@@ -629,10 +544,8 @@ public class HandaliServiceTest {
         assertEquals(5, handaliResponse.getArt_level());
     }
 
-    //스탯이 일부만 있는 경우 (누락된 스탯)
     @Test
-    public void testGetWeekSalaryInfo_handaliWithPartialStats(){
-        //given
+    public void testGetWeekSalaryInfo_handaliWithPartialStats() {
         when(userService.tokenToUser(token)).thenReturn(user);
 
         Job job = new Job();
@@ -644,24 +557,23 @@ public class HandaliServiceTest {
 
         List<Handali> handalis = List.of(handali);
 
-        //ART_SKILL만 있고 나머지는 없음
         Stat artStat = new Stat(TypeName.ART_SKILL);
         artStat.setValue(85.0f);
-
         HandaliStat handaliArtStat = new HandaliStat(handali, artStat);
+        // ✅ ART_SKILL만 있음
         List<HandaliStat> handaliStats = List.of(handaliArtStat);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        //when
-        when(handaliRepository.findByUserAndJobIsNotNull(user)).thenReturn(handalis);
+        // ✅ 수정
+        when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali)).thenReturn(8000);
-        when(handaliStatRepository.findByHandaliAndStatType(handali, typeNames)).thenReturn(handaliStats);
+        when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
+                .thenReturn(handaliStats);
         when(statService.checkHandaliStatForLevel(0.0f)).thenReturn(0);
         when(statService.checkHandaliStatForLevel(85.0f)).thenReturn(4);
 
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
-        //then
         HandaliDTO.GetWeekSalaryResponseDTO handaliResponse = response.getHandalis_salary().get(0);
         assertEquals("예술가", handaliResponse.getNickname());
         assertEquals(0, handaliResponse.getActivity_level());
@@ -669,27 +581,22 @@ public class HandaliServiceTest {
         assertEquals(4, handaliResponse.getArt_level());
     }
 
-    //3명의 한달이가 각각 다른 직업과 스탯을 가진 경우
     @Test
-    public void testGetWeekSalaryInfo_threeHandalisWithDifferentJobsAndStats(){
-        //given
+    public void testGetWeekSalaryInfo_threeHandalisWithDifferentJobsAndStats() {
         when(userService.tokenToUser(token)).thenReturn(user);
 
-        //한달이 1 - 개발자 (INTELLIGENT 높음)
         Job job1 = new Job();
         job1.setName("개발자");
         Handali handali1 = new Handali("코드마스터", LocalDate.of(2024, 3, 1), user);
         handali1.setJob(job1);
         handali1.setStartDate(LocalDate.of(2024, 3, 1));
 
-        //한달이 2 - 운동선수 (ACTIVITY 높음)
         Job job2 = new Job();
         job2.setName("운동선수");
         Handali handali2 = new Handali("스피드러너", LocalDate.of(2024, 6, 1), user);
         handali2.setJob(job2);
         handali2.setStartDate(LocalDate.of(2024, 6, 1));
 
-        //한달이 3 - 화가 (ART 높음)
         Job job3 = new Job();
         job3.setName("화가");
         Handali handali3 = new Handali("피카소", LocalDate.of(2024, 9, 1), user);
@@ -697,24 +604,22 @@ public class HandaliServiceTest {
         handali3.setStartDate(LocalDate.of(2024, 9, 1));
 
         List<Handali> handalis = List.of(handali1, handali2, handali3);
-
-        //스탯 설정
-        List<HandaliStat> stats1 = createHandaliStatsForSalary(handali1, 30.0f, 90.0f, 20.0f);
-        List<HandaliStat> stats2 = createHandaliStatsForSalary(handali2, 95.0f, 40.0f, 25.0f);
-        List<HandaliStat> stats3 = createHandaliStatsForSalary(handali3, 35.0f, 50.0f, 88.0f);
-
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        //when
-        when(handaliRepository.findByUserAndJobIsNotNull(user)).thenReturn(handalis);
+        // ✅ 3개 한달이 스탯 합쳐서 반환
+        List<HandaliStat> allStats = new java.util.ArrayList<>();
+        allStats.addAll(createHandaliStatsForSalary(handali1, 30.0f, 90.0f, 20.0f));
+        allStats.addAll(createHandaliStatsForSalary(handali2, 95.0f, 40.0f, 25.0f));
+        allStats.addAll(createHandaliStatsForSalary(handali3, 35.0f, 50.0f, 88.0f));
+
+        // ✅ 수정
+        when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali1)).thenReturn(6000);
         when(handaliScheduler.calculateSalaryFor(handali2)).thenReturn(7500);
         when(handaliScheduler.calculateSalaryFor(handali3)).thenReturn(5500);
-        when(handaliStatRepository.findByHandaliAndStatType(handali1, typeNames)).thenReturn(stats1);
-        when(handaliStatRepository.findByHandaliAndStatType(handali2, typeNames)).thenReturn(stats2);
-        when(handaliStatRepository.findByHandaliAndStatType(handali3, typeNames)).thenReturn(stats3);
-
-        //레벨 설정
+        // ✅ 한 번에 반환
+        when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
+                .thenReturn(allStats);
         when(statService.checkHandaliStatForLevel(30.0f)).thenReturn(1);
         when(statService.checkHandaliStatForLevel(90.0f)).thenReturn(4);
         when(statService.checkHandaliStatForLevel(20.0f)).thenReturn(1);
@@ -727,12 +632,10 @@ public class HandaliServiceTest {
 
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
-        //then
         assertEquals(3, response.getHandalis_salary().size());
-        assertEquals(19000, response.getTotal_salary()); // 6000 + 7500 + 5500
+        assertEquals(19000, response.getTotal_salary());
         assertEquals(3, response.getTotal_handali());
 
-        //한달이 1 검증
         HandaliDTO.GetWeekSalaryResponseDTO response1 = response.getHandalis_salary().get(0);
         assertEquals("코드마스터", response1.getNickname());
         assertEquals("개발자", response1.getJob());
@@ -741,7 +644,6 @@ public class HandaliServiceTest {
         assertEquals(4, response1.getIntelligent_level());
         assertEquals(1, response1.getArt_level());
 
-        //한달이 2 검증
         HandaliDTO.GetWeekSalaryResponseDTO response2 = response.getHandalis_salary().get(1);
         assertEquals("스피드러너", response2.getNickname());
         assertEquals("운동선수", response2.getJob());
@@ -750,7 +652,6 @@ public class HandaliServiceTest {
         assertEquals(2, response2.getIntelligent_level());
         assertEquals(1, response2.getArt_level());
 
-        //한달이 3 검증
         HandaliDTO.GetWeekSalaryResponseDTO response3 = response.getHandalis_salary().get(2);
         assertEquals("피카소", response3.getNickname());
         assertEquals("화가", response3.getJob());
@@ -760,24 +661,25 @@ public class HandaliServiceTest {
         assertEquals(4, response3.getArt_level());
 
         verify(handaliScheduler, times(3)).calculateSalaryFor(any(Handali.class));
-        verify(handaliStatRepository, times(3)).findByHandaliAndStatType(any(Handali.class), eq(typeNames));
+        // ✅ 수정: 1번만 호출됨!
+        verify(handaliStatRepository, times(1))
+                .findByHandaliInAndStatType(handalis, typeNames);
     }
 
-    //헬퍼 메서드 - HandaliStat 리스트 생성 (주급 계산용)
-    private List<HandaliStat> createHandaliStatsForSalary(Handali handali, float activityValue, float intelligentValue, float artValue) {
+    private List<HandaliStat> createHandaliStatsForSalary(
+            Handali handali, float activityValue, float intelligentValue, float artValue) {
+
         Stat activityStat = new Stat(TypeName.ACTIVITY_SKILL);
         activityStat.setValue(activityValue);
-
         Stat intelligentStat = new Stat(TypeName.INTELLIGENT_SKILL);
         intelligentStat.setValue(intelligentValue);
-
         Stat artStat = new Stat(TypeName.ART_SKILL);
         artStat.setValue(artValue);
 
-        HandaliStat handaliActivityStat = new HandaliStat(handali, activityStat);
-        HandaliStat handaliIntelligentStat = new HandaliStat(handali, intelligentStat);
-        HandaliStat handaliArtStat = new HandaliStat(handali, artStat);
-
-        return List.of(handaliActivityStat, handaliIntelligentStat, handaliArtStat);
+        return List.of(
+                new HandaliStat(handali, activityStat),
+                new HandaliStat(handali, intelligentStat),
+                new HandaliStat(handali, artStat)
+        );
     }
 }

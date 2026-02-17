@@ -37,8 +37,12 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     Handali findLatestHandaliByCurrentMonth(@Param("userId") Long userId);
 
     //아파트에 입주한 모든 한달이 조회
-    @Query("SELECT h FROM Handali h WHERE h.apart IS NOT NULL and h.user=:user")
-    List<Handali> findAllByUser(User user);
+    @Query("SELECT h FROM Handali h " +
+            "JOIN FETCH h.apart " +
+            "JOIN FETCH h.job " +
+            "WHERE h.user = :user " +
+            "AND h.apart IS NOT NULL")
+    List<Handali> findAllByUserWithApartAndJob(@Param("user") User user);
 
     /**지난달 한달이 찾기*/
     @Query("select h from Handali h " +
@@ -53,8 +57,9 @@ public interface HandaliRepository extends JpaRepository<Handali,Long> {
     List<Handali> findAllByJobIsNotNull();
 
     /**사용자별 직업을 가진 한달이 조회*/
-    @Query("select h from Handali h " +
-            "where h.job is not null " +
-            "and h.user=:user")
-    List<Handali> findByUserAndJobIsNotNull(@Param("user") User user);
+    @Query("SELECT h FROM Handali h " +
+            "JOIN FETCH h.job " +
+            "WHERE h.user = :user " +
+            "AND h.job IS NOT NULL")
+    List<Handali> findByUserAndJobIsNotNullWithJob(@Param("user") User user);
 }
