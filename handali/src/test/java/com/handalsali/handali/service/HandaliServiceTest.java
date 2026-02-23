@@ -366,6 +366,7 @@ public class HandaliServiceTest {
         job.setName("개발자");
 
         Handali handali = new Handali("5월이", LocalDate.of(2024, 5, 1), user);
+        handali.setHandaliId(1L);  // ✅ 추가!
         handali.setJob(job);
         handali.setStartDate(LocalDate.of(2024, 11, 1));
 
@@ -373,10 +374,8 @@ public class HandaliServiceTest {
         List<HandaliStat> handaliStats = createHandaliStatsForSalary(handali, 50.0f, 70.0f, 30.0f);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        // ✅ 수정: findByUserAndJobIsNotNullWithJob
         when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali)).thenReturn(5000);
-        // ✅ 수정: findByHandaliInAndStatType (handalis 리스트로!)
         when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
                 .thenReturn(handaliStats);
         when(statService.checkHandaliStatForLevel(50.0f)).thenReturn(2);
@@ -386,10 +385,8 @@ public class HandaliServiceTest {
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
         verify(userService, times(1)).tokenToUser(token);
-        // ✅ 수정
         verify(handaliRepository, times(1)).findByUserAndJobIsNotNullWithJob(user);
         verify(handaliScheduler, times(1)).calculateSalaryFor(handali);
-        // ✅ 수정
         verify(handaliStatRepository, times(1)).findByHandaliInAndStatType(handalis, typeNames);
 
         assertEquals(1, response.getHandalis_salary().size());
@@ -416,26 +413,25 @@ public class HandaliServiceTest {
         job2.setName("디자이너");
 
         Handali handali1 = new Handali("5월이", LocalDate.of(2024, 5, 1), user);
+        handali1.setHandaliId(1L);  // ✅ 추가!
         handali1.setJob(job1);
         handali1.setStartDate(LocalDate.of(2024, 11, 1));
 
         Handali handali2 = new Handali("6월이", LocalDate.of(2024, 6, 1), user);
+        handali2.setHandaliId(2L);  // ✅ 추가!
         handali2.setJob(job2);
         handali2.setStartDate(LocalDate.of(2024, 11, 5));
 
         List<Handali> handalis = List.of(handali1, handali2);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        // ✅ 두 한달이의 스탯을 합쳐서 반환
         List<HandaliStat> allStats = new java.util.ArrayList<>();
         allStats.addAll(createHandaliStatsForSalary(handali1, 50.0f, 70.0f, 30.0f));
         allStats.addAll(createHandaliStatsForSalary(handali2, 80.0f, 60.0f, 90.0f));
 
-        // ✅ 수정
         when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali1)).thenReturn(5000);
         when(handaliScheduler.calculateSalaryFor(handali2)).thenReturn(7000);
-        // ✅ 수정: 한 번에 모두 반환
         when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
                 .thenReturn(allStats);
         when(statService.checkHandaliStatForLevel(50.0f)).thenReturn(2);
@@ -453,22 +449,18 @@ public class HandaliServiceTest {
 
         verify(handaliScheduler, times(1)).calculateSalaryFor(handali1);
         verify(handaliScheduler, times(1)).calculateSalaryFor(handali2);
-        // ✅ 수정: 1번만 호출됨!
         verify(handaliStatRepository, times(1)).findByHandaliInAndStatType(handalis, typeNames);
     }
 
     @Test
     public void testGetWeekSalaryInfo_noHandalisWithJobs() {
         when(userService.tokenToUser(token)).thenReturn(user);
-        // ✅ 수정
         when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(List.of());
 
         HandaliDTO.GetWeekSalaryApiResponseDTO response = handaliService.getWeekSalaryInfo(token);
 
-        // ✅ 수정
         verify(handaliRepository, times(1)).findByUserAndJobIsNotNullWithJob(user);
         verify(handaliScheduler, never()).calculateSalaryFor(any());
-        // ✅ 수정: findByHandaliInAndStatType도 호출 안 됨
         verify(handaliStatRepository, never()).findByHandaliInAndStatType(any(), any());
 
         assertEquals(0, response.getHandalis_salary().size());
@@ -484,6 +476,7 @@ public class HandaliServiceTest {
         job.setName("인턴");
 
         Handali handali = new Handali("신입이", LocalDate.of(2024, 11, 1), user);
+        handali.setHandaliId(1L);  // ✅ 추가!
         handali.setJob(job);
         handali.setStartDate(LocalDate.of(2024, 11, 1));
 
@@ -491,7 +484,6 @@ public class HandaliServiceTest {
         List<HandaliStat> handaliStats = createHandaliStatsForSalary(handali, 0.0f, 0.0f, 0.0f);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        // ✅ 수정
         when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali)).thenReturn(3000);
         when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
@@ -518,6 +510,7 @@ public class HandaliServiceTest {
         job.setName("시니어 개발자");
 
         Handali handali = new Handali("베테랑", LocalDate.of(2024, 1, 1), user);
+        handali.setHandaliId(1L);  // ✅ 추가!
         handali.setJob(job);
         handali.setStartDate(LocalDate.of(2024, 1, 1));
 
@@ -525,7 +518,6 @@ public class HandaliServiceTest {
         List<HandaliStat> handaliStats = createHandaliStatsForSalary(handali, 100.0f, 100.0f, 100.0f);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        // ✅ 수정
         when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali)).thenReturn(15000);
         when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
@@ -552,6 +544,7 @@ public class HandaliServiceTest {
         job.setName("아티스트");
 
         Handali handali = new Handali("예술가", LocalDate.of(2024, 7, 1), user);
+        handali.setHandaliId(1L);  // ✅ 추가!
         handali.setJob(job);
         handali.setStartDate(LocalDate.of(2024, 7, 1));
 
@@ -560,11 +553,9 @@ public class HandaliServiceTest {
         Stat artStat = new Stat(TypeName.ART_SKILL);
         artStat.setValue(85.0f);
         HandaliStat handaliArtStat = new HandaliStat(handali, artStat);
-        // ✅ ART_SKILL만 있음
         List<HandaliStat> handaliStats = List.of(handaliArtStat);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        // ✅ 수정
         when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali)).thenReturn(8000);
         when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
@@ -588,36 +579,36 @@ public class HandaliServiceTest {
         Job job1 = new Job();
         job1.setName("개발자");
         Handali handali1 = new Handali("코드마스터", LocalDate.of(2024, 3, 1), user);
+        handali1.setHandaliId(1L);  // ✅ 추가!
         handali1.setJob(job1);
         handali1.setStartDate(LocalDate.of(2024, 3, 1));
 
         Job job2 = new Job();
         job2.setName("운동선수");
         Handali handali2 = new Handali("스피드러너", LocalDate.of(2024, 6, 1), user);
+        handali2.setHandaliId(2L);  // ✅ 추가!
         handali2.setJob(job2);
         handali2.setStartDate(LocalDate.of(2024, 6, 1));
 
         Job job3 = new Job();
         job3.setName("화가");
         Handali handali3 = new Handali("피카소", LocalDate.of(2024, 9, 1), user);
+        handali3.setHandaliId(3L);  // ✅ 추가!
         handali3.setJob(job3);
         handali3.setStartDate(LocalDate.of(2024, 9, 1));
 
         List<Handali> handalis = List.of(handali1, handali2, handali3);
         List<TypeName> typeNames = List.of(TypeName.ACTIVITY_SKILL, TypeName.INTELLIGENT_SKILL, TypeName.ART_SKILL);
 
-        // ✅ 3개 한달이 스탯 합쳐서 반환
         List<HandaliStat> allStats = new java.util.ArrayList<>();
         allStats.addAll(createHandaliStatsForSalary(handali1, 30.0f, 90.0f, 20.0f));
         allStats.addAll(createHandaliStatsForSalary(handali2, 95.0f, 40.0f, 25.0f));
         allStats.addAll(createHandaliStatsForSalary(handali3, 35.0f, 50.0f, 88.0f));
 
-        // ✅ 수정
         when(handaliRepository.findByUserAndJobIsNotNullWithJob(user)).thenReturn(handalis);
         when(handaliScheduler.calculateSalaryFor(handali1)).thenReturn(6000);
         when(handaliScheduler.calculateSalaryFor(handali2)).thenReturn(7500);
         when(handaliScheduler.calculateSalaryFor(handali3)).thenReturn(5500);
-        // ✅ 한 번에 반환
         when(handaliStatRepository.findByHandaliInAndStatType(handalis, typeNames))
                 .thenReturn(allStats);
         when(statService.checkHandaliStatForLevel(30.0f)).thenReturn(1);
@@ -661,7 +652,6 @@ public class HandaliServiceTest {
         assertEquals(4, response3.getArt_level());
 
         verify(handaliScheduler, times(3)).calculateSalaryFor(any(Handali.class));
-        // ✅ 수정: 1번만 호출됨!
         verify(handaliStatRepository, times(1))
                 .findByHandaliInAndStatType(handalis, typeNames);
     }
